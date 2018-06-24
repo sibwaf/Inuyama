@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Inuyama</string>
+
+    <string name="screen_watches">Раздачи</string>
+    <string name="screen_networks">Wi-Fi сети</string>
+
+    <string name="menu_refresh">Обновить</string>
+</resources>
