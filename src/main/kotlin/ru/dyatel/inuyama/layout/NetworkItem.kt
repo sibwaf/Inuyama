@@ -43,8 +43,8 @@ class NetworkItem(
 
         override fun unbindView(item: NetworkItem) {
             nameView.text = null
-            switchView.isChecked = false
             switchView.setOnCheckedChangeListener(null)
+            switchView.isChecked = false
         }
 
         override fun bindView(item: NetworkItem, payloads: MutableList<Any>?) {

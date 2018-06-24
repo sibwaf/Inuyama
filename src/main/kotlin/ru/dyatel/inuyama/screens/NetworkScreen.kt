@@ -64,6 +64,7 @@ class NetworkScreen : Screen<NetworkView>(), KodeinAware {
         networkBoxObserver = networkBox.store
                 .subscribe(Network::class.java)
                 .on(AndroidScheduler.mainThread())
+                .onlyChanges()
                 .observer { refresh() }
     }
 

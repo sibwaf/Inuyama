@@ -28,10 +28,10 @@ class NetworkManager(override val kodein: Kodein) : BroadcastReceiver(), KodeinA
 
                 networkBox.all
                         .forEach { network ->
-                            val existing = networks.singleOrNull { it.bssid == network.bssid }
-                            if (existing != null) {
-                                existing.id = network.id
-                                existing.trusted = network.trusted
+                            val found = networks.singleOrNull { it.bssid == network.bssid }
+                            if (found != null) {
+                                found.id = network.id
+                                found.trusted = network.trusted
                             } else {
                                 networks += network
                             }
