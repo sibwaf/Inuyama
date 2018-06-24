@@ -11,7 +11,6 @@ import org.jetbrains.anko.alignParentLeft
 import org.jetbrains.anko.alignParentRight
 import org.jetbrains.anko.centerVertically
 import org.jetbrains.anko.find
-import org.jetbrains.anko.frameLayout
 import org.jetbrains.anko.leftOf
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.padding
@@ -64,31 +63,30 @@ class NetworkItem(
     override fun getLayoutRes() = throw UnsupportedOperationException()
 
     override fun createView(ctx: Context, parent: ViewGroup?): View {
-        return ctx.frameLayout {
+        return ctx.relativeLayout {
             lparams(width = matchParent, height = wrapContent) {
                 padding = DIM_LARGE
             }
 
-            relativeLayout {
-                textView {
-                    id = nameViewId
-                }.lparams {
-                    centerVertically()
-                    alignParentLeft()
-                    leftOf(switchViewId)
+            textView {
+                id = nameViewId
 
-                    leftMargin = DIM_LARGE
-                    rightMargin = DIM_LARGE
-                }
+                textSize = SP_MEDIUM
+            }.lparams {
+                centerVertically()
+                alignParentLeft()
+                leftOf(switchViewId)
 
-                switch {
-                    id = switchViewId
-                }.lparams {
-                    centerVertically()
-                    alignParentRight()
-                }
+                leftMargin = DIM_LARGE
+                rightMargin = DIM_LARGE
             }
 
+            switch {
+                id = switchViewId
+            }.lparams {
+                centerVertically()
+                alignParentRight()
+            }
         }
     }
 }

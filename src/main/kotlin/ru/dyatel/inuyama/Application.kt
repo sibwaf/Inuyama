@@ -16,6 +16,8 @@ import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
 import ru.dyatel.inuyama.model.MyObjectBox
 import ru.dyatel.inuyama.model.Network
+import ru.dyatel.inuyama.transmission.TorrentClient
+import ru.dyatel.inuyama.transmission.TransmissionClient
 import ru.dyatel.inuyama.transmission.TransmissionConfiguration
 
 class Application : Application(), KodeinAware {
@@ -31,13 +33,15 @@ class Application : Application(), KodeinAware {
                     .build()
         }
 
-        bind<Box<Network>>() with singleton { instance<BoxStore>().boxFor(Network::class.java) }
+        bind<Box<Network>>() with singleton { instance<BoxStore>().boxFor<Network>() }
 
         bind<Gson>() with singleton { GsonBuilder().setPrettyPrinting().create() }
         bind<JsonParser>() with singleton { JsonParser() }
 
         bind<PreferenceHelper>() with singleton { PreferenceHelper(instance()) }
         bind<TransmissionConfiguration>() with provider { instance<PreferenceHelper>().transmission }
+
+        bind<TorrentClient>() with singleton { TransmissionClient(kodein) }
     }
 
 }

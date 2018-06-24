@@ -150,6 +150,6 @@ class TransmissionScreen : Screen<TransmissionView>(), KodeinAware {
         preferenceHelper.transmission = configuration
     }
 
-    override fun getTitle(context: Context) = context.getString(R.string.screen_transmission)
+    override fun getTitle(context: Context) = context.getString(R.string.screen_transmission)!!
 
 }

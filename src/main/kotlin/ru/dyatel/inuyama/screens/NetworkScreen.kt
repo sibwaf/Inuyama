@@ -6,7 +6,6 @@ import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.Menu
-import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import com.wealthfront.magellan.Screen
@@ -19,6 +18,7 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.buildFastAdapter
 import ru.dyatel.inuyama.layout.NetworkItem
 import ru.dyatel.inuyama.model.Network
 
@@ -51,7 +51,7 @@ class NetworkScreen : Screen<NetworkView>(), KodeinAware {
     private var networkBoxObserver: DataSubscription? = null
 
     private val adapter = ItemAdapter<NetworkItem>()
-    private val fastAdapter: FastAdapter<NetworkItem> = FastAdapter.with(adapter)
+    private val fastAdapter = adapter.buildFastAdapter()
 
     override fun createView(context: Context) = NetworkView(context).apply { bindAdapter(fastAdapter) }
 
@@ -94,6 +94,6 @@ class NetworkScreen : Screen<NetworkView>(), KodeinAware {
         }
     }
 
-    override fun getTitle(context: Context) = context.getString(R.string.screen_networks)
+    override fun getTitle(context: Context) = context.getString(R.string.screen_networks)!!
 
 }
