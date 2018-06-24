@@ -3,6 +3,15 @@
 
     <string name="screen_watches">Раздачи</string>
     <string name="screen_networks">Wi-Fi сети</string>
+    <string name="screen_transmission">Transmission</string>
 
     <string name="menu_refresh">Обновить</string>
+
+    <string name="action_save">Сохранить</string>
+
+    <string name="hint_transmission_host">Сервер</string>
+    <string name="hint_transmission_port">Порт</string>
+    <string name="hint_transmission_path">Путь</string>
+    <string name="hint_transmission_username">Имя пользователя</string>
+    <string name="hint_transmission_password">Пароль</string>
 </resources>

@@ -12,6 +12,7 @@ import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.IIcon
 import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.model.AbstractDrawerItem
+import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.wealthfront.magellan.Navigator
 import com.wealthfront.magellan.support.SingleActivity
@@ -20,8 +21,10 @@ import org.jetbrains.anko.find
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.screens.DirectoryScreen
 import ru.dyatel.inuyama.screens.MainScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
+import ru.dyatel.inuyama.screens.TransmissionScreen
 
 class MainActivity : SingleActivity(), KodeinAware {
 
@@ -61,13 +64,21 @@ class MainActivity : SingleActivity(), KodeinAware {
 
     private fun DrawerBuilder.generateDrawerItems() {
         addDrawerItems(PrimaryDrawerItem()
-                .withIcon(CommunityMaterial.Icon.cmd_glasses)
-                .withName(R.string.screen_watches))
+                .withIcon(CommunityMaterial.Icon.cmd_folder)
+                .withName(R.string.screen_directories)
+                .withOnClickListener { getNavigator().replace(DirectoryScreen()) })
+
+        addDrawerItems(DividerDrawerItem())
 
         addDrawerItems(PrimaryDrawerItem()
                 .withIcon(CommunityMaterial.Icon.cmd_wifi)
                 .withName(R.string.screen_networks)
                 .withOnClickListener { getNavigator().replace(NetworkScreen()) })
+
+        addDrawerItems(PrimaryDrawerItem()
+                .withIcon(CommunityMaterial.Icon.cmd_inbox_arrow_down)
+                .withName(R.string.screen_transmission)
+                .withOnClickListener { getNavigator().replace(TransmissionScreen()) })
     }
 
     private fun <T, VH : RecyclerView.ViewHolder> AbstractDrawerItem<T, VH>.withOnClickListener(listener: () -> Unit): T {

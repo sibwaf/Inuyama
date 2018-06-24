@@ -2,6 +2,9 @@ package ru.dyatel.inuyama
 
 import android.app.Application
 import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import org.kodein.di.Kodein
@@ -9,9 +12,11 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.androidModule
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
+import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
 import ru.dyatel.inuyama.model.MyObjectBox
 import ru.dyatel.inuyama.model.Network
+import ru.dyatel.inuyama.transmission.TransmissionConfiguration
 
 class Application : Application(), KodeinAware {
 
@@ -27,6 +32,12 @@ class Application : Application(), KodeinAware {
         }
 
         bind<Box<Network>>() with singleton { instance<BoxStore>().boxFor(Network::class.java) }
+
+        bind<Gson>() with singleton { GsonBuilder().setPrettyPrinting().create() }
+        bind<JsonParser>() with singleton { JsonParser() }
+
+        bind<PreferenceHelper>() with singleton { PreferenceHelper(instance()) }
+        bind<TransmissionConfiguration>() with provider { instance<PreferenceHelper>().transmission }
     }
 
 }
