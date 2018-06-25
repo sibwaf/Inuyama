@@ -5,7 +5,6 @@ import android.support.design.widget.TextInputEditText
 import android.text.InputType
 import android.view.View
 import android.view.ViewManager
-import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import com.wealthfront.magellan.BaseScreenView
 import com.wealthfront.magellan.Screen
@@ -27,6 +26,8 @@ import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.PreferenceHelper
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.disableSuggestions
+import ru.dyatel.inuyama.disableUiExtraction
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.transmission.TransmissionConfiguration
@@ -101,8 +102,8 @@ class TransmissionView(context: Context) : BaseScreenView<TransmissionScreen>(co
             }
 
             textInputEditText {
-                imeOptions = imeOptions or EditorInfo.IME_FLAG_NO_EXTRACT_UI
-                inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+                disableUiExtraction()
+                disableSuggestions()
 
                 init()
 

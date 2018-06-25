@@ -26,9 +26,25 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "2:3367786622311160423",
+      "lastPropertyId": "2:5148139784103784025",
+      "name": "Directory",
+      "properties": [
+        {
+          "id": "1:4980936097436274182",
+          "name": "id"
+        },
+        {
+          "id": "2:5148139784103784025",
+          "name": "path"
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "1:463267151129827307",
+  "lastEntityId": "2:3367786622311160423",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
