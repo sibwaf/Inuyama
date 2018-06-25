@@ -1,6 +1,7 @@
 package ru.dyatel.inuyama
 
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import android.text.InputType
 import android.view.View
@@ -10,8 +11,10 @@ import com.google.gson.Gson
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.IAdapter
 import com.mikepenz.fastadapter.IItem
+import com.wealthfront.magellan.Screen
 import io.objectbox.Box
 import io.objectbox.BoxStore
+import org.jetbrains.anko.inputMethodManager
 
 fun Activity.grantPermissions(vararg permissions: String) {
     val required = permissions
@@ -21,6 +24,16 @@ fun Activity.grantPermissions(vararg permissions: String) {
 
     requestPermissions(required.toTypedArray(), 1)
 }
+
+fun Activity.hideKeyboard() {
+    val view = currentFocus ?: return
+
+    inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+    view.clearFocus()
+}
+
+val Screen<*>.ctx: Context
+    get() = getActivity()
 
 inline fun <reified T> Gson.fromJson(json: String): T = fromJson(json, T::class.java)
 

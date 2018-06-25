@@ -2,6 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item android:id="@+id/add"
+          android:title="@string/menu_add"
+          app:showAsAction="ifRoom"/>
+
     <item android:id="@+id/refresh"
           android:title="@string/menu_refresh"
           app:showAsAction="ifRoom"/>

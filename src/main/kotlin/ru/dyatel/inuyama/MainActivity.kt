@@ -89,10 +89,11 @@ class MainActivity : SingleActivity(), KodeinAware {
     }
 
     private fun createActionBarIcon(icon: IIcon) =
-            IconicsDrawable(ctx).actionBar().icon(icon).colorRes(R.color.md_white_1000)
+            IconicsDrawable(ctx).actionBar().icon(icon).colorRes(R.color.material_drawer_dark_primary_text)
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
+        menu.findItem(R.id.add).icon = createActionBarIcon(CommunityMaterial.Icon.cmd_plus)
         menu.findItem(R.id.refresh).icon = createActionBarIcon(CommunityMaterial.Icon.cmd_refresh)
         return super.onCreateOptionsMenu(menu)
     }

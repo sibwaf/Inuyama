@@ -6,9 +6,13 @@
     <string name="screen_networks">Wi-Fi сети</string>
     <string name="screen_transmission">Transmission</string>
 
+    <string name="menu_add">Добавить</string>
     <string name="menu_refresh">Обновить</string>
 
+    <string name="dialog_add_directory">Добавление пути</string>
+
     <string name="action_save">Сохранить</string>
+    <string name="action_cancel">Отмена</string>
 
     <string name="hint_transmission_host">Сервер</string>
     <string name="hint_transmission_port">Порт</string>
