@@ -43,6 +43,8 @@ class Application : Application(), KodeinAware {
         bind<PreferenceHelper>() with singleton { PreferenceHelper(instance()) }
         bind<TransmissionConfiguration>() with provider { instance<PreferenceHelper>().transmission }
 
+        bind<Notifier>() with singleton { Notifier(kodein) }
+
         bind<TorrentClient>() with singleton { TransmissionClient(kodein) }
     }
 
