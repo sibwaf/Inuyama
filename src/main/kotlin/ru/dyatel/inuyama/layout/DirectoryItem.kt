@@ -88,7 +88,10 @@ class DirectoryItem(
 
             if (item.editMode) {
                 editView.setText(item.directory.path)
-                saveButton.setOnClickListener { item.saveListener(editView.text.toString()) }
+                saveButton.setOnClickListener {
+                    item.editMode = false
+                    item.saveListener(editView.text.toString())
+                }
             } else {
                 pathView.text = item.directory.path
                 removeButton.setOnClickListener { item.removeListener() }
