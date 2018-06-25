@@ -28,6 +28,7 @@ import ru.dyatel.inuyama.PreferenceHelper
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.disableSuggestions
 import ru.dyatel.inuyama.disableUiExtraction
+import ru.dyatel.inuyama.hideKeyboard
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.transmission.TransmissionConfiguration
@@ -84,7 +85,10 @@ class TransmissionView(context: Context) : BaseScreenView<TransmissionScreen>(co
 
             tintedButton {
                 textResource = R.string.action_save
-                setOnClickListener { save() }
+                setOnClickListener {
+                    screen.activity.hideKeyboard()
+                    save()
+                }
             }
         }
 
