@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Inuyama</string>
 
+    <string name="screen_home">@string/app_name</string>
     <string name="screen_watches">Раздачи</string>
     <string name="screen_directories">Пути</string>
     <string name="screen_networks">Wi-Fi сети</string>

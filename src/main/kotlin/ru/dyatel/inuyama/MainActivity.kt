@@ -22,7 +22,7 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.screens.DirectoryScreen
-import ru.dyatel.inuyama.screens.MainScreen
+import ru.dyatel.inuyama.screens.HomeScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
 import ru.dyatel.inuyama.screens.TransmissionScreen
 
@@ -34,7 +34,7 @@ class MainActivity : SingleActivity(), KodeinAware {
 
     override fun createNavigator() =
             Navigator
-                    .withRoot(MainScreen())
+                    .withRoot(HomeScreen())
                     .build()!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,6 +63,11 @@ class MainActivity : SingleActivity(), KodeinAware {
     }
 
     private fun DrawerBuilder.generateDrawerItems() {
+        addDrawerItems(PrimaryDrawerItem()
+                .withIcon(CommunityMaterial.Icon.cmd_home)
+                .withName(R.string.screen_home)
+                .withOnClickListener { getNavigator().replace(HomeScreen()) })
+
         addDrawerItems(PrimaryDrawerItem()
                 .withIcon(CommunityMaterial.Icon.cmd_folder)
                 .withName(R.string.screen_directories)
