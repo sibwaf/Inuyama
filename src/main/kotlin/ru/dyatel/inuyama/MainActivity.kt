@@ -21,6 +21,7 @@ import org.jetbrains.anko.find
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.screens.DirectoryScreen
 import ru.dyatel.inuyama.screens.HomeScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
@@ -50,6 +51,8 @@ class MainActivity : SingleActivity(), KodeinAware {
                 .build()
 
         registerReceiver(networkManager, IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
+
+        OverseerStarter.start(applicationContext, false)
     }
 
     override fun onResume() {

@@ -1,7 +1,9 @@
 <manifest
         xmlns:android="http://schemas.android.com/apk/res/android"
+        android:installLocation="internalOnly"
         package="ru.dyatel.inuyama">
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
@@ -24,6 +26,12 @@
             </intent-filter>
 
         </activity>
+
+        <receiver android:name=".overseer.OverseerStarter">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

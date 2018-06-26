@@ -7,8 +7,10 @@ import org.jetbrains.anko.defaultSharedPreferences
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.transmission.TransmissionConfiguration
 
+private const val CONFIGURATION_OVERSEER_PERIOD = "overseer_period"
 private const val CONFIGURATION_TRANSMISSION = "transmission_configuration"
 
 class PreferenceHelper(context: Context) : KodeinAware {
@@ -17,6 +19,14 @@ class PreferenceHelper(context: Context) : KodeinAware {
     private val gson by instance<Gson>()
 
     private val preferences = context.defaultSharedPreferences
+
+    var overseer: OverseerConfiguration
+        get() = OverseerConfiguration(preferences.getInt(CONFIGURATION_OVERSEER_PERIOD, 30))
+        set(value) {
+            preferences.editAndApply {
+                putInt(CONFIGURATION_OVERSEER_PERIOD, value.period)
+            }
+        }
 
     var transmission: TransmissionConfiguration
         get() = gson.fromJson(preferences.getString(CONFIGURATION_TRANSMISSION, "{}"))

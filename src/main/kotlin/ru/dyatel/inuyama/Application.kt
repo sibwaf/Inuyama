@@ -17,6 +17,7 @@ import org.kodein.di.generic.singleton
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.MyObjectBox
 import ru.dyatel.inuyama.model.Network
+import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.transmission.TorrentClient
 import ru.dyatel.inuyama.transmission.TransmissionClient
 import ru.dyatel.inuyama.transmission.TransmissionConfiguration
@@ -41,6 +42,7 @@ class Application : Application(), KodeinAware {
         bind<JsonParser>() with singleton { JsonParser() }
 
         bind<PreferenceHelper>() with singleton { PreferenceHelper(instance()) }
+        bind<OverseerConfiguration>() with provider { instance<PreferenceHelper>().overseer }
         bind<TransmissionConfiguration>() with provider { instance<PreferenceHelper>().transmission }
 
         bind<Notifier>() with singleton { Notifier(kodein) }
