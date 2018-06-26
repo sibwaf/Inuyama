@@ -17,7 +17,9 @@ import org.kodein.di.generic.singleton
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.MyObjectBox
 import ru.dyatel.inuyama.model.Network
+import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
+import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.dyatel.inuyama.transmission.TorrentClient
 import ru.dyatel.inuyama.transmission.TransmissionClient
 import ru.dyatel.inuyama.transmission.TransmissionConfiguration
@@ -37,6 +39,7 @@ class Application : Application(), KodeinAware {
 
         bind<Box<Network>>() with singleton { instance<BoxStore>().boxFor<Network>() }
         bind<Box<Directory>>() with singleton { instance<BoxStore>().boxFor<Directory>() }
+        bind<Box<RutrackerWatch>>() with singleton { instance<BoxStore>().boxFor<RutrackerWatch>() }
 
         bind<Gson>() with singleton { GsonBuilder().setPrettyPrinting().create() }
         bind<JsonParser>() with singleton { JsonParser() }
@@ -44,6 +47,7 @@ class Application : Application(), KodeinAware {
         bind<PreferenceHelper>() with singleton { PreferenceHelper(instance()) }
         bind<OverseerConfiguration>() with provider { instance<PreferenceHelper>().overseer }
         bind<TransmissionConfiguration>() with provider { instance<PreferenceHelper>().transmission }
+        bind<RutrackerConfiguration>() with provider { instance<PreferenceHelper>().rutracker }
 
         bind<Notifier>() with singleton { Notifier(kodein) }
 
