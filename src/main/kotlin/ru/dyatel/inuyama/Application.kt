@@ -19,6 +19,7 @@ import ru.dyatel.inuyama.model.MyObjectBox
 import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
+import ru.dyatel.inuyama.rutracker.RutrackerApi
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.dyatel.inuyama.transmission.TorrentClient
 import ru.dyatel.inuyama.transmission.TransmissionClient
@@ -52,6 +53,8 @@ class Application : Application(), KodeinAware {
         bind<Notifier>() with singleton { Notifier(kodein) }
 
         bind<TorrentClient>() with singleton { TransmissionClient(kodein) }
+
+        bind<RutrackerApi>() with singleton { RutrackerApi(kodein) }
     }
 
 }

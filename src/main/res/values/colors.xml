@@ -3,4 +3,8 @@
     <color name="color_primary">@color/md_light_green_700</color>
     <color name="color_primary_dark">@color/md_light_green_900</color>
     <color name="color_accent">@color/md_cyan_700</color>
+
+    <color name="color_fail">@color/md_red_700</color>
+    <color name="color_pending">@color/md_yellow_700</color>
+    <color name="color_ok">@color/md_green_700</color>
 </resources>

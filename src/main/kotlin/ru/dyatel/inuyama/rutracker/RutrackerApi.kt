@@ -5,11 +5,12 @@ import org.jsoup.Jsoup
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.RemoteService
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.URI
 
-class RutrackerApi(override val kodein: Kodein) : KodeinAware {
+class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     companion object {
 
@@ -29,7 +30,7 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware {
         return this
     }
 
-    fun checkConnection(): Boolean {
+    override fun checkConnection(): Boolean {
         return try {
             Jsoup.connect(configuration.host).prepare().get()
             true
