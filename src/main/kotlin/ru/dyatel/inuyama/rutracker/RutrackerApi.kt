@@ -18,7 +18,7 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
         fun extractTopic(link: String) =
                 pattern.find(link)
-                        ?.let { it.groupValues[1].toInt() }
+                        ?.let { it.groupValues[1].toLong() }
                         ?: throw NotRutrackerLinkException()
 
     }

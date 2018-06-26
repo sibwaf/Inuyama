@@ -25,6 +25,7 @@ import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.screens.DirectoryScreen
 import ru.dyatel.inuyama.screens.HomeScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
+import ru.dyatel.inuyama.screens.RutrackerScreen
 import ru.dyatel.inuyama.screens.TransmissionScreen
 
 class MainActivity : SingleActivity(), KodeinAware {
@@ -71,10 +72,17 @@ class MainActivity : SingleActivity(), KodeinAware {
                 .withName(R.string.screen_home)
                 .withOnClickListener { getNavigator().replace(HomeScreen()) })
 
+        addDrawerItems(DividerDrawerItem())
+
         addDrawerItems(PrimaryDrawerItem()
                 .withIcon(CommunityMaterial.Icon.cmd_folder)
                 .withName(R.string.screen_directories)
                 .withOnClickListener { getNavigator().replace(DirectoryScreen()) })
+
+        addDrawerItems(PrimaryDrawerItem()
+                .withIcon(CommunityMaterial.Icon.cmd_database)
+                .withName(R.string.module_rutracker)
+                .withOnClickListener { getNavigator().replace(RutrackerScreen()) })
 
         addDrawerItems(DividerDrawerItem())
 

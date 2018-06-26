@@ -1,17 +1,13 @@
 package ru.dyatel.inuyama.screens
 
 import android.content.Context
-import android.support.design.widget.TextInputEditText
 import android.text.InputType
 import android.view.View
-import android.view.ViewManager
 import android.widget.EditText
 import com.wealthfront.magellan.BaseScreenView
 import com.wealthfront.magellan.Screen
 import org.jetbrains.anko.appcompat.v7.tintedButton
 import org.jetbrains.anko.bottomPadding
-import org.jetbrains.anko.design.textInputEditText
-import org.jetbrains.anko.design.textInputLayout
 import org.jetbrains.anko.find
 import org.jetbrains.anko.hintResource
 import org.jetbrains.anko.leftPadding
@@ -20,17 +16,15 @@ import org.jetbrains.anko.rightPadding
 import org.jetbrains.anko.textResource
 import org.jetbrains.anko.topPadding
 import org.jetbrains.anko.verticalLayout
-import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.PreferenceHelper
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.disableSuggestions
-import ru.dyatel.inuyama.disableUiExtraction
 import ru.dyatel.inuyama.hideKeyboard
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
+import ru.dyatel.inuyama.layout.uniformTextInput
 import ru.dyatel.inuyama.transmission.TransmissionConfiguration
 
 class TransmissionView(context: Context) : BaseScreenView<TransmissionScreen>(context) {
@@ -58,25 +52,25 @@ class TransmissionView(context: Context) : BaseScreenView<TransmissionScreen>(co
                 bottomPadding = DIM_EXTRA_LARGE
             }
 
-            createInput {
+            uniformTextInput {
                 id = hostViewId
                 hintResource = R.string.hint_transmission_host
             }
-            createInput {
+            uniformTextInput {
                 id = portViewId
                 hintResource = R.string.hint_transmission_port
 
                 inputType = InputType.TYPE_CLASS_NUMBER
             }
-            createInput {
+            uniformTextInput {
                 id = pathViewId
                 hintResource = R.string.hint_transmission_path
             }
-            createInput {
+            uniformTextInput {
                 id = usernameViewId
                 hintResource = R.string.hint_transmission_username
             }
-            createInput {
+            uniformTextInput {
                 id = passwordViewId
                 hintResource = R.string.hint_transmission_password
 
@@ -97,24 +91,6 @@ class TransmissionView(context: Context) : BaseScreenView<TransmissionScreen>(co
         pathView = find(pathViewId)
         usernameView = find(usernameViewId)
         passwordView = find(passwordViewId)
-    }
-
-    private inline fun ViewManager.createInput(init: TextInputEditText.() -> Unit) {
-        textInputLayout {
-            lparams(width = matchParent, height = wrapContent) {
-                bottomMargin = DIM_LARGE
-            }
-
-            textInputEditText {
-                disableUiExtraction()
-                disableSuggestions()
-
-                init()
-
-                leftPadding = DIM_LARGE
-                rightPadding = DIM_LARGE
-            }
-        }
     }
 
     fun bindConfiguration(configuration: TransmissionConfiguration) {

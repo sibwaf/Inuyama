@@ -17,9 +17,20 @@
     <string name="notification_updates">Найдены обновления</string>
 
     <string name="dialog_add_directory">Добавление пути</string>
+    <string name="dialog_add_watch">Добавление отслеживания</string>
 
     <string name="action_save">Сохранить</string>
+    <string name="action_edit">Изменить</string>
+    <string name="action_remove">Удалить</string>
     <string name="action_cancel">Отмена</string>
+
+    <string name="const_directory_default">[по умолчанию]</string>
+
+    <string name="label_path">Путь: %s</string>
+    <string name="label_last_update">Последнее обновление: %s</string>
+
+    <string name="hint_rutracker_watch_link">Ссылка или идентификатор</string>
+    <string name="hint_rutracker_watch_description">Название</string>
 
     <string name="hint_transmission_host">Сервер</string>
     <string name="hint_transmission_port">Порт</string>
