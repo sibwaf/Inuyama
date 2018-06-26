@@ -8,6 +8,7 @@
     <string name="screen_transmission">Transmission</string>
 
     <string name="module_rutracker">Rutracker</string>
+    <string name="module_nyaa">Nyaa</string>
 
     <string name="menu_add">Добавить</string>
     <string name="menu_refresh">Обновить</string>

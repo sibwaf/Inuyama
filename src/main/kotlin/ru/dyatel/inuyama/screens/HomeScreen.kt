@@ -19,16 +19,18 @@ import ru.dyatel.inuyama.RemoteService
 import ru.dyatel.inuyama.layout.Marker
 import ru.dyatel.inuyama.layout.State
 import ru.dyatel.inuyama.layout.marker
+import ru.dyatel.inuyama.nyaa.NyaaApi
 import ru.dyatel.inuyama.rutracker.RutrackerApi
-import kotlin.properties.Delegates.observable
 
 class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
 
     private companion object {
         val rutrackerMarkerId = View.generateViewId()
+        val nyaaMarkerId = View.generateViewId()
     }
 
-    private val rutrackerMarker: Marker
+    val rutrackerMarker: Marker
+    val nyaaMarker: Marker
 
     init {
         verticalLayout {
@@ -37,12 +39,16 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
                 text = context.getString(R.string.module_rutracker)
                 state = State.PENDING
             }
+            marker {
+                id = nyaaMarkerId
+                text = context.getString(R.string.module_nyaa)
+                state = State.PENDING
+            }
         }
 
         rutrackerMarker = find(rutrackerMarkerId)
+        nyaaMarker = find(nyaaMarkerId)
     }
-
-    var rutrackerState by observable(State.PENDING) { _, _, value -> rutrackerMarker.state = value }
 
 }
 
@@ -80,6 +86,7 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
     override val kodein by closestKodein { activity }
 
     private val rutracker by instance<RutrackerApi>()
+    private val nyaa by instance<NyaaApi>()
 
     private val checkers = mutableListOf<StateChecker>()
 
@@ -88,7 +95,8 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
     override fun onShow(context: Context) {
         super.onShow(context)
 
-        checkers += StateChecker(rutracker) { state -> view?.rutrackerState = state }
+        checkers += StateChecker(rutracker) { state -> view?.rutrackerMarker?.state = state }
+        checkers += StateChecker(nyaa) { state -> view?.nyaaMarker?.state = state }
 
         checkers.forEach { it.check() }
     }
