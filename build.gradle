@@ -112,6 +112,8 @@ dependencies {
     implementation "org.jsoup:jsoup:1.11.3"
     implementation "com.google.code.gson:gson:2.8.5"
 
+    implementation "org.ocpsoft.prettytime:prettytime:4.0.1.Final"
+
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
 }
 

@@ -27,6 +27,7 @@
     <string name="action_cancel">Отмена</string>
 
     <string name="const_directory_default">[по умолчанию]</string>
+    <string name="const_never">никогда</string>
 
     <string name="label_path">Путь: %s</string>
     <string name="label_last_update">Последнее обновление: %s</string>

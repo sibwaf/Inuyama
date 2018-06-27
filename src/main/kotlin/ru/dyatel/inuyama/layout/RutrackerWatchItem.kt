@@ -19,9 +19,12 @@ import org.jetbrains.anko.textResource
 import org.jetbrains.anko.textView
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
+import org.ocpsoft.prettytime.PrettyTime
 import ru.dyatel.inuyama.ITEM_TYPE_RUTRACKER_WATCH
+import ru.dyatel.inuyama.LOCALE_RU
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.model.RutrackerWatch
+import java.util.Date
 
 class RutrackerWatchItem(
         private val watch: RutrackerWatch,
@@ -36,6 +39,8 @@ class RutrackerWatchItem(
 
         val editButtonId = View.generateViewId()
         val removeButtonId = View.generateViewId()
+
+        val prettyTime by lazy { PrettyTime(LOCALE_RU) }
     }
 
     init {
@@ -69,7 +74,9 @@ class RutrackerWatchItem(
                     ?: context.getString(R.string.const_directory_default)
             directoryView.text = context.getString(R.string.label_path, directoryText)
 
-            lastUpdateView.text = context.getString(R.string.label_last_update, "[TODO]")
+            val lastUpdateText = item.watch.lastUpdate?.let { prettyTime.format(Date(it)) }
+                    ?: context.getString(R.string.const_never)
+            lastUpdateView.text = context.getString(R.string.label_last_update, lastUpdateText)
 
             editButton.setOnClickListener { item.editListener() }
             removeButton.setOnClickListener { item.removeListener() }
