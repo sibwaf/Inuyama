@@ -14,7 +14,8 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     companion object {
 
-        private val pattern = Regex("/forum/viewtopic\\.php\\?t=(\\d+)$")
+        private const val topicUrl = "/forum/viewtopic.php?t="
+        private val pattern = Regex(Regex.escape(topicUrl) + "(\\d+)$")
 
         fun extractTopic(link: String) =
                 pattern.find(link)
@@ -39,7 +40,7 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
         }
     }
 
-    fun extractMagnet(topic: Int): String {
+    fun extractMagnet(topic: Long): String {
         try {
             val connection = Jsoup.connect(generateLink(topic)).prepare()
 
@@ -56,7 +57,7 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
         }
     }
 
-    fun generateLink(topic: Int) =
-            URI("${configuration.host}/forum/viewtopic.php?t=$topic").normalize().toString()
+    fun generateLink(topic: Long) =
+            URI("${configuration.host}$topicUrl$topic").normalize().toString()
 
 }

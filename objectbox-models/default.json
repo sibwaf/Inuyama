@@ -45,16 +45,12 @@
     },
     {
       "id": "3:8399173141570509748",
-      "lastPropertyId": "4:1579767115170702580",
+      "lastPropertyId": "7:7166280106849270424",
       "name": "RutrackerWatch",
       "properties": [
         {
           "id": "1:8213389011847132086",
           "name": "id"
-        },
-        {
-          "id": "2:6882900219212824613",
-          "name": "hash"
         },
         {
           "id": "3:8244185578518102530",
@@ -64,20 +60,42 @@
           "id": "4:1579767115170702580",
           "indexId": "1:1416457098807159521",
           "name": "directoryId"
+        },
+        {
+          "id": "5:6333435736085490811",
+          "name": "lastUpdate"
+        },
+        {
+          "id": "6:5619804435969886684",
+          "name": "updateDispatched"
+        },
+        {
+          "id": "7:7166280106849270424",
+          "name": "magnet"
         }
       ],
       "relations": []
     }
   ],
-  "lastEntityId": "3:8399173141570509748",
-  "lastIndexId": "1:1416457098807159521",
+  "lastEntityId": "4:1881962175478644957",
+  "lastIndexId": "2:3316483580603730024",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 4,
   "modelVersionParserMinimum": 4,
-  "retiredEntityUids": [],
-  "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredEntityUids": [
+    1881962175478644957
+  ],
+  "retiredIndexUids": [
+    3316483580603730024
+  ],
+  "retiredPropertyUids": [
+    6882900219212824613,
+    5911292895758170369,
+    5742245005411975162,
+    9107225522708316884,
+    4168781072808011070
+  ],
   "retiredRelationUids": [],
   "version": 1
 }

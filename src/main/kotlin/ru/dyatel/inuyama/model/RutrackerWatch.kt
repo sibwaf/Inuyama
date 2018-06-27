@@ -7,8 +7,10 @@ import io.objectbox.relation.ToOne
 @Entity
 data class RutrackerWatch(
         @Id(assignable = true) var id: Long = 0,
-        var hash: String? = null,
-        var description: String = ""
+        var description: String = "",
+        var magnet: String? = null,
+        var lastUpdate: Long? = null,
+        var updateDispatched: Boolean = false
 ) {
     lateinit var directory: ToOne<Directory?>
 }

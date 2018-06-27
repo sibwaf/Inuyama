@@ -22,6 +22,7 @@ import ru.dyatel.inuyama.nyaa.NyaaApi
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.rutracker.RutrackerApi
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
+import ru.dyatel.inuyama.rutracker.RutrackerWatcher
 import ru.dyatel.inuyama.transmission.TorrentClient
 import ru.dyatel.inuyama.transmission.TransmissionClient
 import ru.dyatel.inuyama.transmission.TransmissionConfiguration
@@ -57,6 +58,8 @@ class Application : Application(), KodeinAware {
 
         bind<RutrackerApi>() with singleton { RutrackerApi(kodein) }
         bind<NyaaApi>() with singleton { NyaaApi(kodein) }
+
+        bind<RutrackerWatcher>() with singleton { RutrackerWatcher(kodein) }
     }
 
 }
