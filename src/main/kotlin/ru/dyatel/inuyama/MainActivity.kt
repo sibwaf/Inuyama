@@ -111,6 +111,7 @@ class MainActivity : SingleActivity(), KodeinAware {
         menuInflater.inflate(R.menu.menu, menu)
         menu.findItem(R.id.add).icon = createActionBarIcon(CommunityMaterial.Icon.cmd_plus)
         menu.findItem(R.id.refresh).icon = createActionBarIcon(CommunityMaterial.Icon.cmd_refresh)
+        menu.findItem(R.id.settings).icon = createActionBarIcon(CommunityMaterial.Icon.cmd_settings)
         return super.onCreateOptionsMenu(menu)
     }
 }

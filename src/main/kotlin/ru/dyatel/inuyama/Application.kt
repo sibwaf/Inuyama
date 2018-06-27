@@ -49,7 +49,7 @@ class Application : Application(), KodeinAware {
         bind<PreferenceHelper>() with singleton { PreferenceHelper(instance()) }
         bind<OverseerConfiguration>() with provider { instance<PreferenceHelper>().overseer }
         bind<TransmissionConfiguration>() with provider { instance<PreferenceHelper>().transmission }
-        bind<RutrackerConfiguration>() with provider { instance<PreferenceHelper>().rutracker }
+        bind<RutrackerConfiguration>() with singleton { instance<PreferenceHelper>().rutracker }
 
         bind<Notifier>() with singleton { Notifier(kodein) }
 

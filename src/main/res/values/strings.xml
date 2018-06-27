@@ -12,12 +12,14 @@
 
     <string name="menu_add">Добавить</string>
     <string name="menu_refresh">Обновить</string>
+    <string name="menu_settings">Настройки</string>
 
     <string name="notification_channel_updates">Обновления</string>
     <string name="notification_updates">Найдены обновления</string>
 
     <string name="dialog_add_directory">Добавление пути</string>
     <string name="dialog_add_watch">Добавление отслеживания</string>
+    <string name="dialog_settings">Настройки</string>
 
     <string name="action_save">Сохранить</string>
     <string name="action_edit">Изменить</string>
@@ -31,6 +33,9 @@
 
     <string name="hint_rutracker_watch_link">Ссылка или идентификатор</string>
     <string name="hint_rutracker_watch_description">Название</string>
+    <string name="hint_rutracker_host">Адрес</string>
+    <string name="hint_rutracker_proxy_host">Прокси</string>
+    <string name="hint_rutracker_proxy_port">Порт прокси</string>
 
     <string name="hint_transmission_host">Сервер</string>
     <string name="hint_transmission_port">Порт</string>
