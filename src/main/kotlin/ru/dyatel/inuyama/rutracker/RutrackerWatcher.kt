@@ -5,12 +5,13 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.MagnetParser
+import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.model.RutrackerWatch_
 import ru.dyatel.inuyama.transmission.TorrentClient
 import ru.dyatel.inuyama.transmission.TransmissionException
 
-class RutrackerWatcher(override val kodein: Kodein) : KodeinAware {
+class RutrackerWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
 
     private val api by instance<RutrackerApi>()
     private val torrentClient by instance<TorrentClient>()
@@ -23,7 +24,7 @@ class RutrackerWatcher(override val kodein: Kodein) : KodeinAware {
                 .build()
     }
 
-    fun checkUpdates(): List<RutrackerWatch> {
+    override fun checkUpdates(): List<String> {
         return watchBox.all
                 .mapNotNull {
                     val magnet = try {
@@ -45,9 +46,10 @@ class RutrackerWatcher(override val kodein: Kodein) : KodeinAware {
 
                     return@mapNotNull null
                 }
+                .map { it.description }
     }
 
-    fun dispatchUpdates() {
+    override fun dispatchUpdates() {
         watchBox.store.runInTx {
             undispatchedQuery.find().forEach {
                 try {

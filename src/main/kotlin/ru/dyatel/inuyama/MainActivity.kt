@@ -20,19 +20,20 @@ import org.jetbrains.anko.ctx
 import org.jetbrains.anko.find
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
+import org.kodein.di.generic.allInstances
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.screens.DirectoryScreen
 import ru.dyatel.inuyama.screens.HomeScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
-import ru.dyatel.inuyama.screens.RutrackerScreen
 import ru.dyatel.inuyama.screens.TransmissionScreen
 
 class MainActivity : SingleActivity(), KodeinAware {
 
     override val kodein by closestKodein()
 
-    private val networkManager: NetworkManager by instance()
+    private val networkManager by instance<NetworkManager>()
+    private val moduleScreens by allInstances<ModuleScreenProvider<*>>()
 
     override fun createNavigator() =
             Navigator
@@ -74,15 +75,13 @@ class MainActivity : SingleActivity(), KodeinAware {
 
         addDrawerItems(DividerDrawerItem())
 
-        addDrawerItems(PrimaryDrawerItem()
-                .withIcon(CommunityMaterial.Icon.cmd_folder)
-                .withName(R.string.screen_directories)
-                .withOnClickListener { getNavigator().replace(DirectoryScreen()) })
-
-        addDrawerItems(PrimaryDrawerItem()
-                .withIcon(CommunityMaterial.Icon.cmd_database)
-                .withName(R.string.module_rutracker)
-                .withOnClickListener { getNavigator().replace(RutrackerScreen()) })
+        for (provider in moduleScreens) {
+            addDrawerItems(PrimaryDrawerItem()
+                    .withIcon(provider.getIcon())
+                    .withName(provider.getTitle(ctx))
+                    .withOnClickListener { getNavigator().replace(provider.getScreen()) }
+            )
+        }
 
         addDrawerItems(DividerDrawerItem())
 
@@ -90,6 +89,11 @@ class MainActivity : SingleActivity(), KodeinAware {
                 .withIcon(CommunityMaterial.Icon.cmd_wifi)
                 .withName(R.string.screen_networks)
                 .withOnClickListener { getNavigator().replace(NetworkScreen()) })
+
+        addDrawerItems(PrimaryDrawerItem()
+                .withIcon(CommunityMaterial.Icon.cmd_folder)
+                .withName(R.string.screen_directories)
+                .withOnClickListener { getNavigator().replace(DirectoryScreen()) })
 
         addDrawerItems(PrimaryDrawerItem()
                 .withIcon(CommunityMaterial.Icon.cmd_inbox_arrow_down)

@@ -1,10 +1,12 @@
 package ru.dyatel.inuyama.rutracker
 
+import android.content.Context
 import org.jsoup.Connection
 import org.jsoup.Jsoup
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -25,6 +27,8 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
     }
 
     private val configuration by instance<RutrackerConfiguration>()
+
+    override fun getName(context: Context) = context.getString(R.string.module_rutracker)!!
 
     private fun Connection.prepare(): Connection {
         configuration.proxy?.let { proxy(it.host, it.port) }

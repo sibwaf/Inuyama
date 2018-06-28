@@ -17,12 +17,7 @@ import org.kodein.di.generic.singleton
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.MyObjectBox
 import ru.dyatel.inuyama.model.Network
-import ru.dyatel.inuyama.model.RutrackerWatch
-import ru.dyatel.inuyama.nyaa.NyaaApi
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
-import ru.dyatel.inuyama.rutracker.RutrackerApi
-import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
-import ru.dyatel.inuyama.rutracker.RutrackerWatcher
 import ru.dyatel.inuyama.transmission.TorrentClient
 import ru.dyatel.inuyama.transmission.TransmissionClient
 import ru.dyatel.inuyama.transmission.TransmissionConfiguration
@@ -30,9 +25,11 @@ import ru.dyatel.inuyama.transmission.TransmissionConfiguration
 class Application : Application(), KodeinAware {
 
     override val kodein = Kodein.lazy {
+        bind<Kodein>() with singleton { kodein }
+
         import(androidModule(this@Application))
 
-        bind<NetworkManager>() with singleton { NetworkManager(kodein) }
+        bind<NetworkManager>() with singleton { NetworkManager(instance()) }
 
         bind<BoxStore>() with singleton {
             MyObjectBox.builder()
@@ -42,7 +39,6 @@ class Application : Application(), KodeinAware {
 
         bind<Box<Network>>() with singleton { instance<BoxStore>().boxFor<Network>() }
         bind<Box<Directory>>() with singleton { instance<BoxStore>().boxFor<Directory>() }
-        bind<Box<RutrackerWatch>>() with singleton { instance<BoxStore>().boxFor<RutrackerWatch>() }
 
         bind<Gson>() with singleton { GsonBuilder().setPrettyPrinting().create() }
         bind<JsonParser>() with singleton { JsonParser() }
@@ -50,16 +46,13 @@ class Application : Application(), KodeinAware {
         bind<PreferenceHelper>() with singleton { PreferenceHelper(instance()) }
         bind<OverseerConfiguration>() with provider { instance<PreferenceHelper>().overseer }
         bind<TransmissionConfiguration>() with provider { instance<PreferenceHelper>().transmission }
-        bind<RutrackerConfiguration>() with singleton { instance<PreferenceHelper>().rutracker }
 
-        bind<Notifier>() with singleton { Notifier(kodein) }
+        bind<Notifier>() with singleton { Notifier(instance()) }
 
-        bind<TorrentClient>() with singleton { TransmissionClient(kodein) }
+        bind<TorrentClient>() with singleton { TransmissionClient(instance()) }
 
-        bind<RutrackerApi>() with singleton { RutrackerApi(kodein) }
-        bind<NyaaApi>() with singleton { NyaaApi(kodein) }
-
-        bind<RutrackerWatcher>() with singleton { RutrackerWatcher(kodein) }
+        import(rutrackerModule)
+        import(nyaaModule)
     }
 
 }

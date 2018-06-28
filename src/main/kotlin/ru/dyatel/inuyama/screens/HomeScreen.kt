@@ -1,53 +1,42 @@
 package ru.dyatel.inuyama.screens
 
 import android.content.Context
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.Menu
-import android.view.View
+import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import com.wealthfront.magellan.Screen
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
-import org.jetbrains.anko.find
-import org.jetbrains.anko.verticalLayout
+import org.jetbrains.anko.matchParent
+import org.jetbrains.anko.recyclerview.v7.recyclerView
+import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
-import org.kodein.di.generic.instance
+import org.kodein.di.generic.allInstances
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
-import ru.dyatel.inuyama.layout.Marker
+import ru.dyatel.inuyama.buildFastAdapter
+import ru.dyatel.inuyama.layout.ModuleStateItem
 import ru.dyatel.inuyama.layout.State
-import ru.dyatel.inuyama.layout.marker
-import ru.dyatel.inuyama.nyaa.NyaaApi
-import ru.dyatel.inuyama.rutracker.RutrackerApi
 
 class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
 
-    private companion object {
-        val rutrackerMarkerId = View.generateViewId()
-        val nyaaMarkerId = View.generateViewId()
-    }
-
-    val rutrackerMarker: Marker
-    val nyaaMarker: Marker
+    private val recyclerView: RecyclerView
 
     init {
-        verticalLayout {
-            marker {
-                id = rutrackerMarkerId
-                text = context.getString(R.string.module_rutracker)
-                state = State.PENDING
-            }
-            marker {
-                id = nyaaMarkerId
-                text = context.getString(R.string.module_nyaa)
-                state = State.PENDING
-            }
-        }
+        recyclerView = recyclerView {
+            lparams(width = matchParent, height = wrapContent)
 
-        rutrackerMarker = find(rutrackerMarkerId)
-        nyaaMarker = find(nyaaMarkerId)
+            layoutManager = LinearLayoutManager(context)
+        }
+    }
+
+    fun bindAdapter(adapter: RecyclerView.Adapter<*>) {
+        recyclerView.adapter = adapter
     }
 
 }
@@ -85,18 +74,25 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
 
     override val kodein by closestKodein { activity }
 
-    private val rutracker by instance<RutrackerApi>()
-    private val nyaa by instance<NyaaApi>()
-
+    private val services by allInstances<RemoteService>()
     private val checkers = mutableListOf<StateChecker>()
 
-    override fun createView(context: Context) = HomeView(context)
+    private val adapter = ItemAdapter<ModuleStateItem>()
+    private val fastAdapter = adapter.buildFastAdapter()
+
+    override fun createView(context: Context) = HomeView(context).apply { bindAdapter(fastAdapter) }
 
     override fun onShow(context: Context) {
         super.onShow(context)
 
-        checkers += StateChecker(rutracker) { state -> view?.rutrackerMarker?.state = state }
-        checkers += StateChecker(nyaa) { state -> view?.nyaaMarker?.state = state }
+        for ((index, service) in services.withIndex()) {
+            val item = ModuleStateItem(service.getName(context), State.PENDING)
+            adapter.add(item)
+            checkers += StateChecker(service) {
+                item.state = it
+                fastAdapter.notifyAdapterItemChanged(index)
+            }
+        }
 
         checkers.forEach { it.check() }
     }
@@ -104,6 +100,7 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
     override fun onHide(context: Context) {
         checkers.forEach { it.cancel() }
         checkers.clear()
+        adapter.clear()
 
         super.onHide(context)
     }
