@@ -12,9 +12,13 @@ import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.IAdapter
 import com.mikepenz.fastadapter.IItem
 import com.wealthfront.magellan.Screen
+import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import io.objectbox.BoxStore
+import io.objectbox.converter.PropertyConverter
 import org.jetbrains.anko.inputMethodManager
+import java.util.Date
+import java.util.TimeZone
 
 fun Activity.grantPermissions(vararg permissions: String) {
     val required = permissions
@@ -51,4 +55,15 @@ fun EditText.disableUiExtraction() {
 
 fun EditText.disableSuggestions() {
     inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+}
+
+val Date.asDateTime
+    get() = DateTime.forInstant(time, TimeZone.getDefault())!!
+
+val currentDatetime
+    get() = DateTime.now(TimeZone.getDefault())
+
+class DateTimeConverter : PropertyConverter<DateTime?, String?> {
+    override fun convertToDatabaseValue(entityProperty: DateTime?) = entityProperty?.toString()
+    override fun convertToEntityProperty(databaseValue: String?) = databaseValue?.let { DateTime(it) }
 }

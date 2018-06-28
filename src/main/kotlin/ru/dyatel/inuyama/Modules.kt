@@ -51,6 +51,8 @@ val rutrackerModule = Kodein.Module {
 }
 
 val nyaaModule = Kodein.Module {
+    bind<Box<NyaaTorrent>>() with singleton { instance<BoxStore>().boxFor<NyaaTorrent>() }
+    bind<Box<NyaaWatch>>() with singleton { instance<BoxStore>().boxFor<NyaaWatch>() }
     bind<NyaaApi>() with singleton { NyaaApi(instance()) }
 
     bind<ModuleScreenProvider<NyaaScreen>>() with singleton {
