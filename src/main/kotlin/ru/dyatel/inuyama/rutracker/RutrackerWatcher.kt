@@ -26,37 +26,38 @@ class RutrackerWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
 
     override fun checkUpdates(): List<String> {
         return watchBox.all
-                .mapNotNull {
+                .filter {
                     val magnet = try {
                         api.extractMagnet(it.id)
                     } catch (e: RutrackerException) {
                         // TODO
-                        return@mapNotNull null
+                        return@filter false
                     }
 
                     val oldHash = it.magnet?.let { MagnetParser.extractHash(it) }
                     if (oldHash == null || oldHash != MagnetParser.extractHash(magnet)) {
                         it.magnet = magnet
-                        it.lastUpdate = System.currentTimeMillis()
-                        it.updateDispatched = false
-                        watchBox.put(it)
-
-                        return@mapNotNull it
+                        return@filter true
                     }
 
-                    return@mapNotNull null
+                    return@filter false
+                }
+                .onEach {
+                    it.lastUpdate = System.currentTimeMillis()
+                    it.updateDispatched = false
+                    watchBox.put(it)
                 }
                 .map { it.description }
     }
 
     override fun dispatchUpdates() {
         watchBox.store.runInTx {
-            undispatchedQuery.find().forEach {
+            for (watch in undispatchedQuery.find()) {
                 try {
-                    torrentClient.download(it.magnet!!, it.directory.target?.path)
+                    torrentClient.download(watch.magnet!!, watch.directory.target?.path)
 
-                    it.updateDispatched = true
-                    watchBox.put(it)
+                    watch.updateDispatched = true
+                    watchBox.put(watch)
                 } catch (e: TransmissionException) {
                     // TODO
                 }
