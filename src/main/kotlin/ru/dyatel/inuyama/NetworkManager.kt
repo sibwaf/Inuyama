@@ -11,6 +11,7 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.model.Network
+import ru.dyatel.inuyama.model.Network_
 
 class NetworkManager(override val kodein: Kodein) : BroadcastReceiver(), KodeinAware {
 
@@ -46,7 +47,11 @@ class NetworkManager(override val kodein: Kodein) : BroadcastReceiver(), KodeinA
     fun isNetworkTrusted(): Boolean {
         val connection = wifiManager.connectionInfo
         if (connection.supplicantState == SupplicantState.COMPLETED) {
-            return networkBox.all.any { it.bssid == connection.bssid && it.trusted }
+            return networkBox.query()
+                    .equal(Network_.bssid, connection.bssid)
+                    .equal(Network_.trusted, true)
+                    .build()
+                    .count() != 0L
         }
         return false
     }
