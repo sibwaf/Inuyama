@@ -67,15 +67,16 @@ kotlin {
 repositories {
     google()
     jcenter()
+    maven { url "https://dl.bintray.com/kodein-framework/Kodein-DI/" }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.23.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.23.4"
 
-    def kodeinVersion = "5.0.0"
+    def kodeinVersion = "5.2.0"
     implementation "org.kodein.di:kodein-di-generic-jvm:$kodeinVersion"
-    implementation "org.kodein.di:kodein-di-framework-android:$kodeinVersion"
+    implementation "org.kodein.di:kodein-di-framework-android-core:$kodeinVersion"
 
     def androidSupportVersion = "27.1.1"
     implementation "com.android.support:appcompat-v7:$androidSupportVersion"
