@@ -10,8 +10,11 @@ import org.kodein.di.Kodein
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
+import ru.dyatel.inuyama.model.NyaaTorrent
+import ru.dyatel.inuyama.model.NyaaWatch
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.nyaa.NyaaApi
+import ru.dyatel.inuyama.nyaa.NyaaWatcher
 import ru.dyatel.inuyama.rutracker.RutrackerApi
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.dyatel.inuyama.rutracker.RutrackerWatcher
@@ -54,6 +57,7 @@ val nyaaModule = Kodein.Module {
     bind<Box<NyaaTorrent>>() with singleton { instance<BoxStore>().boxFor<NyaaTorrent>() }
     bind<Box<NyaaWatch>>() with singleton { instance<BoxStore>().boxFor<NyaaWatch>() }
     bind<NyaaApi>() with singleton { NyaaApi(instance()) }
+    bind<NyaaWatcher>() with singleton { NyaaWatcher(instance()) }
 
     bind<ModuleScreenProvider<NyaaScreen>>() with singleton {
         object : ModuleScreenProvider<NyaaScreen>() {
