@@ -16,6 +16,8 @@ import com.mikepenz.materialdrawer.model.DividerDrawerItem
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.wealthfront.magellan.Navigator
 import com.wealthfront.magellan.support.SingleActivity
+import io.objectbox.BoxStore
+import io.objectbox.android.AndroidObjectBrowser
 import org.jetbrains.anko.ctx
 import org.jetbrains.anko.find
 import org.kodein.di.KodeinAware
@@ -53,6 +55,11 @@ class MainActivity : SingleActivity(), KodeinAware {
                 .build()
 
         registerReceiver(networkManager, IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
+
+        if (BuildConfig.DEBUG) {
+            val boxStore by instance<BoxStore>()
+            AndroidObjectBrowser(boxStore).start(applicationContext)
+        }
 
         OverseerStarter.start(applicationContext, false)
     }
