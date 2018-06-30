@@ -49,7 +49,7 @@ class Application : Application(), KodeinAware {
 
         bind<Notifier>() with singleton { Notifier(instance()) }
 
-        bind<TorrentClient>() with singleton { TransmissionClient(instance()) }
+        bind<TorrentClient>() with singleton { TransmissionClient(kodein) } // TODO: temporary fix
 
         import(rutrackerModule)
         import(nyaaModule)
