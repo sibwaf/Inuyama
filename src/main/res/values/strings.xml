@@ -33,6 +33,8 @@
 
     <string name="label_path">Путь: %s</string>
     <string name="label_last_update">Последнее обновление: %s</string>
+    <string name="label_last_check">Последяя проверка: %s</string>
+    <string name="label_checking">Проверяем…</string>
 
     <string name="hint_rutracker_watch_link">Ссылка или идентификатор</string>
     <string name="hint_rutracker_watch_description">Название</string>
