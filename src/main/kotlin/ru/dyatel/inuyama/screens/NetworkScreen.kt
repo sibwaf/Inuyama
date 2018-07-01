@@ -18,7 +18,7 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.buildFastAdapter
+import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.layout.NetworkItem
 import ru.dyatel.inuyama.model.Network
 

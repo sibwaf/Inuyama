@@ -29,6 +29,7 @@ import ru.dyatel.inuyama.screens.DirectoryScreen
 import ru.dyatel.inuyama.screens.HomeScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
 import ru.dyatel.inuyama.screens.TransmissionScreen
+import ru.dyatel.inuyama.utilities.grantPermissions
 
 class MainActivity : SingleActivity(), KodeinAware {
 

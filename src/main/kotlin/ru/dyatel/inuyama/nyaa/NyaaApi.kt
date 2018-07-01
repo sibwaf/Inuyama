@@ -8,7 +8,7 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
-import ru.dyatel.inuyama.asDateTime
+import ru.dyatel.inuyama.utilities.asDateTime
 import ru.dyatel.inuyama.model.NyaaTorrent
 import java.text.SimpleDateFormat
 import java.util.Locale

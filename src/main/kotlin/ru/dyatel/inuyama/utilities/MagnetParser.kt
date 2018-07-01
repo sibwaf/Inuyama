@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama
+package ru.dyatel.inuyama.utilities
 
 object MagnetParser {
 

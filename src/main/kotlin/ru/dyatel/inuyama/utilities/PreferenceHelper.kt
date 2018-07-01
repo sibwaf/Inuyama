@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama
+package ru.dyatel.inuyama.utilities
 
 import android.content.Context
 import android.content.SharedPreferences

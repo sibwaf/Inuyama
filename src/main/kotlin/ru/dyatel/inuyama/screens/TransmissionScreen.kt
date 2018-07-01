@@ -19,9 +19,9 @@ import org.jetbrains.anko.verticalLayout
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.PreferenceHelper
+import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.hideKeyboard
+import ru.dyatel.inuyama.utilities.hideKeyboard
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.uniformTextInput

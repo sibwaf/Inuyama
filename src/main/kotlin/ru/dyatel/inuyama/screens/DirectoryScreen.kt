@@ -23,11 +23,11 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.buildFastAdapter
-import ru.dyatel.inuyama.ctx
-import ru.dyatel.inuyama.disableSuggestions
-import ru.dyatel.inuyama.disableUiExtraction
-import ru.dyatel.inuyama.hideKeyboard
+import ru.dyatel.inuyama.utilities.buildFastAdapter
+import ru.dyatel.inuyama.utilities.ctx
+import ru.dyatel.inuyama.utilities.disableSuggestions
+import ru.dyatel.inuyama.utilities.disableUiExtraction
+import ru.dyatel.inuyama.utilities.hideKeyboard
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.DirectoryItem

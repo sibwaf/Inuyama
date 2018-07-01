@@ -4,7 +4,7 @@ import io.objectbox.Box
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.MagnetParser
+import ru.dyatel.inuyama.utilities.MagnetParser
 import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.model.RutrackerWatch_

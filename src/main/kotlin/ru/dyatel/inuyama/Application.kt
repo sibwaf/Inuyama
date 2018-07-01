@@ -21,6 +21,8 @@ import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.transmission.TorrentClient
 import ru.dyatel.inuyama.transmission.TransmissionClient
 import ru.dyatel.inuyama.transmission.TransmissionConfiguration
+import ru.dyatel.inuyama.utilities.PreferenceHelper
+import ru.dyatel.inuyama.utilities.boxFor
 
 class Application : Application(), KodeinAware {
 

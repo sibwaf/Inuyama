@@ -26,10 +26,7 @@ import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.PreferenceHelper
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.buildFastAdapter
-import ru.dyatel.inuyama.ctx
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.RutrackerWatchItem
 import ru.dyatel.inuyama.layout.uniformTextInput
@@ -39,6 +36,9 @@ import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.rutracker.RutrackerApi
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.dyatel.inuyama.utilities.DirectorySelector
+import ru.dyatel.inuyama.utilities.PreferenceHelper
+import ru.dyatel.inuyama.utilities.buildFastAdapter
+import ru.dyatel.inuyama.utilities.ctx
 
 class RutrackerView(context: Context) : BaseScreenView<RutrackerScreen>(context) {
 

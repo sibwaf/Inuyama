@@ -5,8 +5,8 @@ import io.objectbox.annotation.Convert
 import io.objectbox.annotation.Entity
 import io.objectbox.annotation.Id
 import io.objectbox.relation.ToOne
-import ru.dyatel.inuyama.DateTimeConverter
-import ru.dyatel.inuyama.currentDatetime
+import ru.dyatel.inuyama.utilities.DateTimeConverter
+import ru.dyatel.inuyama.utilities.currentDatetime
 
 @Entity
 data class NyaaTorrent(

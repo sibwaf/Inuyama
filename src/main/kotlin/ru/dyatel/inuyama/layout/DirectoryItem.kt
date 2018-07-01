@@ -27,9 +27,9 @@ import org.jetbrains.anko.textView
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_DIRECTORY
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.disableSuggestions
-import ru.dyatel.inuyama.disableUiExtraction
-import ru.dyatel.inuyama.hideIf
+import ru.dyatel.inuyama.utilities.disableSuggestions
+import ru.dyatel.inuyama.utilities.disableUiExtraction
+import ru.dyatel.inuyama.utilities.hideIf
 import ru.dyatel.inuyama.model.Directory
 
 class DirectoryItem(

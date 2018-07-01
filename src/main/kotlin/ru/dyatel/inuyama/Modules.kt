@@ -20,6 +20,8 @@ import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.dyatel.inuyama.rutracker.RutrackerWatcher
 import ru.dyatel.inuyama.screens.NyaaScreen
 import ru.dyatel.inuyama.screens.RutrackerScreen
+import ru.dyatel.inuyama.utilities.PreferenceHelper
+import ru.dyatel.inuyama.utilities.boxFor
 
 interface RemoteService {
     fun getName(context: Context): String

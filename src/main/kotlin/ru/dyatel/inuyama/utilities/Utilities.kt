@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama
+package ru.dyatel.inuyama.utilities
 
 import android.app.Activity
 import android.content.Context

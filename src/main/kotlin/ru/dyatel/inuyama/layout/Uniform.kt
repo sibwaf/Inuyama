@@ -9,8 +9,8 @@ import org.jetbrains.anko.leftPadding
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.rightPadding
 import org.jetbrains.anko.wrapContent
-import ru.dyatel.inuyama.disableSuggestions
-import ru.dyatel.inuyama.disableUiExtraction
+import ru.dyatel.inuyama.utilities.disableSuggestions
+import ru.dyatel.inuyama.utilities.disableUiExtraction
 
 inline fun ViewGroup.uniformTextInput(init: TextInputEditText.() -> Unit): TextInputLayout {
     return textInputLayout {
