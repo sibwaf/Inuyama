@@ -1,24 +1,14 @@
 package ru.dyatel.inuyama.layout
 
 import android.content.Context
-import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
-import org.jetbrains.anko.appcompat.v7.tintedButton
-import org.jetbrains.anko.cardview.v7.cardView
 import org.jetbrains.anko.find
-import org.jetbrains.anko.linearLayout
-import org.jetbrains.anko.margin
-import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.padding
-import org.jetbrains.anko.textResource
 import org.jetbrains.anko.textView
-import org.jetbrains.anko.verticalLayout
-import org.jetbrains.anko.wrapContent
 import org.ocpsoft.prettytime.PrettyTime
 import ru.dyatel.inuyama.ITEM_TYPE_RUTRACKER_WATCH
 import ru.dyatel.inuyama.LOCALE_RU
@@ -90,55 +80,17 @@ class RutrackerWatchItem(
     override fun getLayoutRes() = throw UnsupportedOperationException()
 
     override fun createView(ctx: Context, parent: ViewGroup?): View {
-        return ctx.cardView {
-            lparams(width = matchParent, height = wrapContent) {
-                margin = DIM_LARGE
+        return ctx.uniformWatchView(descriptionViewId, editButtonId, removeButtonId) {
+            textView {
+                id = directoryViewId
+                textSize = SP_MEDIUM
+            }.lparams {
+                bottomMargin = DIM_MEDIUM
             }
 
-            verticalLayout {
-                lparams(width = matchParent, height = wrapContent) {
-                    padding = DIM_LARGE
-                }
-
-                textView {
-                    id = descriptionViewId
-                    gravity = Gravity.CENTER_HORIZONTAL
-                    textSize = SP_MEDIUM
-                }
-
-                verticalLayout {
-                    textView {
-                        id = directoryViewId
-                        textSize = SP_MEDIUM
-                    }.lparams {
-                        bottomMargin = DIM_MEDIUM
-                    }
-
-                    textView {
-                        id = lastUpdateViewId
-                        textSize = SP_MEDIUM
-                    }
-                }.lparams(width = matchParent, height = wrapContent) {
-                    margin = DIM_EXTRA_LARGE
-                }
-
-                linearLayout {
-                    lparams(width = matchParent, height = wrapContent)
-
-                    tintedButton {
-                        id = editButtonId
-                        textResource = R.string.action_edit
-                    }.lparams(width = 0) {
-                        weight = 0.5f
-                    }
-
-                    tintedButton {
-                        id = removeButtonId
-                        textResource = R.string.action_remove
-                    }.lparams(width = 0) {
-                        weight = 0.5f
-                    }
-                }
+            textView {
+                id = lastUpdateViewId
+                textSize = SP_MEDIUM
             }
         }
     }
