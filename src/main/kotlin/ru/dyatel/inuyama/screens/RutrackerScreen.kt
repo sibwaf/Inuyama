@@ -7,7 +7,6 @@ import android.support.v7.widget.RecyclerView
 import android.text.InputType
 import android.view.Menu
 import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
 import com.mikepenz.fastadapter.adapters.ItemAdapter
@@ -39,6 +38,7 @@ import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.rutracker.RutrackerApi
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
+import ru.dyatel.inuyama.utilities.DirectorySelector
 
 class RutrackerView(context: Context) : BaseScreenView<RutrackerScreen>(context) {
 
@@ -135,22 +135,14 @@ class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
 
             tintedSpinner {
                 id = directorySelectorId
-
-                adapter = ArrayAdapter<String>(context, android.R.layout.simple_spinner_item).apply {
-                    setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-                    add(context.getString(R.string.const_directory_default))
-                    addAll(directories.map { it.path })
-                }
-
-                val position = directories.indexOfFirst { it.id == watch.directory.targetId }
-                setSelection(position + 1)
             }
         }
 
         val linkEditor = view.find<EditText>(linkEditorId)
         val descriptionEditor = view.find<EditText>(descriptionEditorId)
-        val directorySelector = view.find<Spinner>(directorySelectorId)
+        val directorySelector = view.find<Spinner>(directorySelectorId).let {
+            DirectorySelector(it, directories, watch.directory.target)
+        }
 
         AlertDialog.Builder(activity)
                 .setTitle(R.string.dialog_add_watch)
@@ -159,9 +151,7 @@ class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
                     watch.id = linkEditor.text.toString()
                             .let { it.toLongOrNull() ?: RutrackerApi.extractTopic(it) }
                     watch.description = descriptionEditor.text.toString()
-                    watch.directory.target = directorySelector.selectedItemPosition
-                            .takeIf { it != 0 }
-                            ?.let { directories[it - 1] }
+                    watch.directory.target = directorySelector.directory
 
                     watchBox.put(watch)
                 }
