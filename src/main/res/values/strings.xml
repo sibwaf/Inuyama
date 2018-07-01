@@ -38,6 +38,11 @@
     <string name="hint_rutracker_proxy_host">Прокси</string>
     <string name="hint_rutracker_proxy_port">Порт прокси</string>
 
+    <string name="hint_nyaa_watch_query">Поисковый запрос</string>
+    <string name="hint_nyaa_watch_start_date">Дата начала</string>
+    <string name="hint_nyaa_watch_description">Название</string>
+    <string name="hint_nyaa_watch_collect_path">Название папки</string>
+
     <string name="hint_transmission_host">Сервер</string>
     <string name="hint_transmission_port">Порт</string>
     <string name="hint_transmission_path">Путь</string>
