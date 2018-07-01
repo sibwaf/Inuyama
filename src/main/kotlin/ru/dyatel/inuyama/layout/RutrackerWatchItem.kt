@@ -9,11 +9,10 @@ import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
 import org.jetbrains.anko.find
 import org.jetbrains.anko.textView
-import org.ocpsoft.prettytime.PrettyTime
 import ru.dyatel.inuyama.ITEM_TYPE_RUTRACKER_WATCH
-import ru.dyatel.inuyama.LOCALE_RU
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.model.RutrackerWatch
+import ru.dyatel.inuyama.utilities.prettyTime
 import java.util.Date
 
 class RutrackerWatchItem(
@@ -29,8 +28,6 @@ class RutrackerWatchItem(
 
         val editButtonId = View.generateViewId()
         val removeButtonId = View.generateViewId()
-
-        val prettyTime by lazy { PrettyTime(LOCALE_RU) }
     }
 
     init {

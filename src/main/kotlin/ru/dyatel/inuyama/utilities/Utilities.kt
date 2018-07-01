@@ -17,7 +17,9 @@ import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.converter.PropertyConverter
 import org.jetbrains.anko.inputMethodManager
+import org.ocpsoft.prettytime.PrettyTime
 import java.util.Date
+import java.util.Locale
 import java.util.TimeZone
 
 fun Activity.grantPermissions(vararg permissions: String) {
@@ -60,7 +62,12 @@ fun EditText.disableSuggestions() {
 val Date.asDateTime
     get() = DateTime.forInstant(time, TimeZone.getDefault())!!
 
+val DateTime.asDate
+    get() = Date(getMilliseconds(TimeZone.getDefault()))
+
 class DateTimeConverter : PropertyConverter<DateTime?, String?> {
     override fun convertToDatabaseValue(entityProperty: DateTime?) = entityProperty?.toString()
     override fun convertToEntityProperty(databaseValue: String?) = databaseValue?.let { DateTime(it) }
 }
+
+val prettyTime by lazy { PrettyTime(Locale("ru", "RU")) }
