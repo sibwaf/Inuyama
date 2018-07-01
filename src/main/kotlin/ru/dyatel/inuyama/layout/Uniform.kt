@@ -1,5 +1,6 @@
 package ru.dyatel.inuyama.layout
 
+import android.app.AlertDialog
 import android.content.Context
 import android.support.design.widget.TextInputEditText
 import android.support.design.widget.TextInputLayout
@@ -91,4 +92,13 @@ inline fun Context.uniformWatchView(
             }
         }
     }
+}
+
+inline fun Context.showConfirmationDialog(title: String, message: String, action: String, crossinline callback: () -> Unit) {
+    AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(action) { _, _ -> callback() }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+            .show()
 }

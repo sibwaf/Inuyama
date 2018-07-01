@@ -30,6 +30,7 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DatePicker
 import ru.dyatel.inuyama.layout.NyaaWatchItem
+import ru.dyatel.inuyama.layout.showConfirmationDialog
 import ru.dyatel.inuyama.layout.uniformTextInput
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.NyaaTorrent
@@ -102,12 +103,18 @@ class NyaaScreen : Screen<NyaaView>(), KodeinAware {
     private fun reload() {
         val watches = watchBox.all.map {
             NyaaWatchItem(it, { showEditDialog(it) }, {
-                boxStore.runInTx {
-                    torrentBox.query()
-                            .equal(NyaaTorrent_.watchId, it.id)
-                            .build()
-                            .remove()
-                    watchBox.remove(it)
+                activity.showConfirmationDialog(
+                        activity.getString(R.string.dialog_remove_watch_title),
+                        activity.getString(R.string.dialog_remove_watch_message, it.description),
+                        activity.getString(R.string.action_remove)
+                ) {
+                    boxStore.runInTx {
+                        torrentBox.query()
+                                .equal(NyaaTorrent_.watchId, it.id)
+                                .build()
+                                .remove()
+                        watchBox.remove(it)
+                    }
                 }
             })
         }

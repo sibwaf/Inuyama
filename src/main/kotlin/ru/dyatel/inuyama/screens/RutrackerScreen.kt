@@ -29,6 +29,7 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.RutrackerWatchItem
+import ru.dyatel.inuyama.layout.showConfirmationDialog
 import ru.dyatel.inuyama.layout.uniformTextInput
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.Proxy
@@ -105,7 +106,13 @@ class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
 
     private fun reload() {
         val watches = watchBox.all.map {
-            RutrackerWatchItem(it, { showEditDialog(it) }, { watchBox.remove(it) })
+            RutrackerWatchItem(it, { showEditDialog(it) }, {
+                activity.showConfirmationDialog(
+                        activity.getString(R.string.dialog_remove_watch_title),
+                        activity.getString(R.string.dialog_remove_watch_message, it.description),
+                        activity.getString(R.string.action_remove)
+                ) { watchBox.remove(it) }
+            })
         }
 
         adapter.set(watches)
