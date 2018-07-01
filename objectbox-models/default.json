@@ -45,7 +45,7 @@
     },
     {
       "id": "3:8399173141570509748",
-      "lastPropertyId": "7:7166280106849270424",
+      "lastPropertyId": "8:1834225924890320662",
       "name": "RutrackerWatch",
       "properties": [
         {
@@ -72,6 +72,10 @@
         {
           "id": "7:7166280106849270424",
           "name": "magnet"
+        },
+        {
+          "id": "8:1834225924890320662",
+          "name": "topic"
         }
       ],
       "relations": []

@@ -75,10 +75,84 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "5:4748619924857803159",
+      "lastPropertyId": "7:4009943839170008995",
+      "name": "NyaaTorrent",
+      "properties": [
+        {
+          "id": "1:8660257505533490749",
+          "name": "id"
+        },
+        {
+          "id": "2:8411510385602965556",
+          "name": "title"
+        },
+        {
+          "id": "3:3166306035683854372",
+          "name": "link"
+        },
+        {
+          "id": "4:4313162907854358206",
+          "name": "hash"
+        },
+        {
+          "id": "5:1596839204655219287",
+          "name": "updateDatetime"
+        },
+        {
+          "id": "6:6194198507651329655",
+          "name": "dispatched"
+        },
+        {
+          "id": "7:4009943839170008995",
+          "indexId": "3:8912563623407927918",
+          "name": "watchId"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "6:4814708477695070253",
+      "lastPropertyId": "7:1029384321787936186",
+      "name": "NyaaWatch",
+      "properties": [
+        {
+          "id": "1:8932629182547425106",
+          "name": "id"
+        },
+        {
+          "id": "2:8029400304842347706",
+          "name": "description"
+        },
+        {
+          "id": "3:7801759267784352400",
+          "name": "query"
+        },
+        {
+          "id": "4:6793690132257872236",
+          "name": "startDatetime"
+        },
+        {
+          "id": "5:6329877719790903693",
+          "name": "collectPath"
+        },
+        {
+          "id": "6:4406471412606469058",
+          "name": "lastUpdate"
+        },
+        {
+          "id": "7:1029384321787936186",
+          "indexId": "4:3480198537382979956",
+          "name": "directoryId"
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "4:1881962175478644957",
-  "lastIndexId": "2:3316483580603730024",
+  "lastEntityId": "6:4814708477695070253",
+  "lastIndexId": "4:3480198537382979956",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 4,

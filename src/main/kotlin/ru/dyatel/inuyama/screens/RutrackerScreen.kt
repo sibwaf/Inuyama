@@ -130,7 +130,7 @@ class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
                 id = linkEditorId
                 hintResource = R.string.hint_rutracker_watch_link
 
-                setText(watch.id.takeIf { it != 0L }?.toString())
+                setText(watch.topic.takeIf { it != 0L }?.toString())
             }
 
             uniformTextInput {
@@ -155,7 +155,7 @@ class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
                 .setTitle(R.string.dialog_add_watch)
                 .setView(view)
                 .setPositiveButton(R.string.action_save) { _, _ ->
-                    watch.id = linkEditor.text.toString()
+                    watch.topic = linkEditor.text.toString()
                             .let { it.toLongOrNull() ?: RutrackerApi.extractTopic(it) }
                     watch.description = descriptionEditor.text.toString()
                     watch.directory.target = directorySelector.directory

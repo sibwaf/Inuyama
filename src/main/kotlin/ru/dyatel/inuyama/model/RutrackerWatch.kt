@@ -6,7 +6,8 @@ import io.objectbox.relation.ToOne
 
 @Entity
 data class RutrackerWatch(
-        @Id(assignable = true) var id: Long = 0,
+        @Id var id: Long = 0,
+        var topic: Long = 0,
         var description: String = "",
         var magnet: String? = null,
         var lastUpdate: Long? = null,
