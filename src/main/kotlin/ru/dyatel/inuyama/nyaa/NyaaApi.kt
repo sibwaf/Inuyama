@@ -8,8 +8,8 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
-import ru.dyatel.inuyama.utilities.asDateTime
 import ru.dyatel.inuyama.model.NyaaTorrent
+import ru.dyatel.inuyama.utilities.asDateTime
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -35,7 +35,7 @@ class NyaaApi(override val kodein: Kodein) : KodeinAware, RemoteService {
     fun query(query: String): List<NyaaTorrent> {
         try {
             return Jsoup.connect(host)
-                    .data("page", "rss").data("f", "0").data("c", "0_0").data("q", query)
+                    .data("page", "rss").data("f", "2").data("c", "0_0").data("q", query)
                     .parser(Parser.xmlParser())
                     .get()
                     .select("channel > item")
