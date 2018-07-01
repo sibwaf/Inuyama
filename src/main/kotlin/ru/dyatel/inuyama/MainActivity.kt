@@ -1,8 +1,6 @@
 package ru.dyatel.inuyama
 
 import android.Manifest
-import android.content.IntentFilter
-import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
@@ -35,7 +33,6 @@ class MainActivity : SingleActivity(), KodeinAware {
 
     override val kodein by closestKodein()
 
-    private val networkManager by instance<NetworkManager>()
     private val moduleScreens by allInstances<ModuleScreenProvider<*>>()
 
     override fun createNavigator() =
@@ -55,8 +52,6 @@ class MainActivity : SingleActivity(), KodeinAware {
                 .apply { generateDrawerItems() }
                 .build()
 
-        registerReceiver(networkManager, IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
-
         if (BuildConfig.DEBUG) {
             val boxStore by instance<BoxStore>()
             AndroidObjectBrowser(boxStore).start(applicationContext)
@@ -68,11 +63,6 @@ class MainActivity : SingleActivity(), KodeinAware {
     override fun onResume() {
         super.onResume()
         grantPermissions(Manifest.permission.ACCESS_COARSE_LOCATION)
-    }
-
-    override fun onDestroy() {
-        unregisterReceiver(networkManager)
-        super.onDestroy()
     }
 
     private fun DrawerBuilder.generateDrawerItems() {

@@ -1,7 +1,6 @@
 package ru.dyatel.inuyama.screens
 
 import android.content.Context
-import android.net.wifi.WifiManager
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -17,10 +16,11 @@ import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.layout.NetworkItem
 import ru.dyatel.inuyama.model.Network
+import ru.dyatel.inuyama.utilities.buildFastAdapter
 
 class NetworkView(context: Context) : BaseScreenView<NetworkScreen>(context) {
 
@@ -45,7 +45,7 @@ class NetworkScreen : Screen<NetworkView>(), KodeinAware {
 
     override val kodein by closestKodein { activity }
 
-    private val wifiManager by instance<WifiManager>()
+    private val networkManager by instance<NetworkManager>()
 
     private val networkBox by instance<Box<Network>>()
     private var networkBoxObserver: DataSubscription? = null
@@ -58,7 +58,7 @@ class NetworkScreen : Screen<NetworkView>(), KodeinAware {
     override fun onShow(context: Context?) {
         super.onShow(context)
 
-        wifiManager.startScan()
+        networkManager.isNetworkTrusted()
         refresh()
 
         networkBoxObserver = networkBox.store
@@ -90,7 +90,7 @@ class NetworkScreen : Screen<NetworkView>(), KodeinAware {
     override fun onUpdateMenu(menu: Menu) {
         menu.findItem(R.id.refresh).apply {
             isVisible = true
-            setOnMenuItemClickListener { wifiManager.startScan(); true }
+            setOnMenuItemClickListener { networkManager.isNetworkTrusted(); true }
         }
     }
 
