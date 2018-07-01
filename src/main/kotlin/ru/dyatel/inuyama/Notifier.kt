@@ -30,7 +30,7 @@ class Notifier(override val kodein: Kodein) : KodeinAware {
         val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_UPDATES)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(context.getString(R.string.notification_updates))
-                .setContentText(updates.joinToString("\n"))
+                .setContentText(updates.joinToString(", "))
                 .setNumber(updates.size)
                 .setSound(null)
                 .setLights(context.getColor(R.color.color_primary), 500, 500)
