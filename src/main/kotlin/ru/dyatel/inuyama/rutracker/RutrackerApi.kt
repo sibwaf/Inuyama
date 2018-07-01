@@ -30,14 +30,15 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     override fun getName(context: Context) = context.getString(R.string.module_rutracker)!!
 
-    private fun Connection.prepare(): Connection {
-        configuration.proxy?.let { proxy(it.host, it.port) }
-        return this
+    private fun connect(url: String): Connection {
+        val connection = Jsoup.connect(url)
+        configuration.proxy?.let { connection.proxy(it.host, it.port) }
+        return connection
     }
 
     override fun checkConnection(): Boolean {
         return try {
-            Jsoup.connect(configuration.host).prepare().get()
+            connect(configuration.host).get()
             true
         } catch (e: IOException) {
             false
@@ -46,9 +47,8 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     fun extractMagnet(topic: Long): String {
         try {
-            val connection = Jsoup.connect(generateLink(topic)).prepare()
-
-            val links = connection.get().select("a[data-topic_id=$topic]")
+            val links = connect(generateLink(topic)).get()
+                    .select("a[data-topic_id=$topic]")
             if (links.size == 1) {
                 return links[0].attr("href")
             }
