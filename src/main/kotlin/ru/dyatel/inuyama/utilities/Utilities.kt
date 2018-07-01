@@ -60,9 +60,6 @@ fun EditText.disableSuggestions() {
 val Date.asDateTime
     get() = DateTime.forInstant(time, TimeZone.getDefault())!!
 
-val currentDatetime
-    get() = DateTime.now(TimeZone.getDefault())
-
 class DateTimeConverter : PropertyConverter<DateTime?, String?> {
     override fun convertToDatabaseValue(entityProperty: DateTime?) = entityProperty?.toString()
     override fun convertToEntityProperty(databaseValue: String?) = databaseValue?.let { DateTime(it) }

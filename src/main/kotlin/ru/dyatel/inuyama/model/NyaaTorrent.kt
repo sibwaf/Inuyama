@@ -6,7 +6,7 @@ import io.objectbox.annotation.Entity
 import io.objectbox.annotation.Id
 import io.objectbox.relation.ToOne
 import ru.dyatel.inuyama.utilities.DateTimeConverter
-import ru.dyatel.inuyama.utilities.currentDatetime
+import java.util.TimeZone
 
 @Entity
 data class NyaaTorrent(
@@ -16,7 +16,7 @@ data class NyaaTorrent(
         var hash: String = "",
 
         @Convert(converter = DateTimeConverter::class, dbType = String::class)
-        var updateDatetime: DateTime = currentDatetime,
+        var updateDatetime: DateTime = DateTime.now(TimeZone.getDefault()),
 
         var dispatched: Boolean = false
 ) {

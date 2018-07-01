@@ -8,7 +8,7 @@ import io.objectbox.annotation.Id
 import io.objectbox.relation.ToMany
 import io.objectbox.relation.ToOne
 import ru.dyatel.inuyama.utilities.DateTimeConverter
-import ru.dyatel.inuyama.utilities.currentDatetime
+import java.util.TimeZone
 
 @Entity
 data class NyaaWatch(
@@ -17,7 +17,7 @@ data class NyaaWatch(
         var query: String = "",
 
         @Convert(converter = DateTimeConverter::class, dbType = String::class)
-        var startDatetime: DateTime = currentDatetime,
+        var startDatetime: DateTime = DateTime.today(TimeZone.getDefault()),
 
         var collectPath: String = "",
         var lastUpdate: Long? = null
