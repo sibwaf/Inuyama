@@ -33,7 +33,7 @@ class Notifier(override val kodein: Kodein) : KodeinAware {
                 .setContentText(updates.joinToString(", "))
                 .setNumber(updates.size)
                 .setSound(null)
-                .setLights(context.getColor(R.color.color_primary), 500, 500)
+                .setLights(context.getColor(R.color.color_primary), 2500, 2500)
                 .build()
 
         notificationManager.notify(NOTIFICATION_ID_UPDATE, notification)
