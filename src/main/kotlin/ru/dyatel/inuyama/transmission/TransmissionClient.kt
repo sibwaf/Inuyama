@@ -1,5 +1,6 @@
 package ru.dyatel.inuyama.transmission
 
+import android.content.Context
 import android.util.Base64
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -9,6 +10,9 @@ import org.jsoup.Jsoup
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.NetworkManager
+import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.UntrustedNetworkException
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URI
@@ -23,9 +27,15 @@ class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClie
 
     private val configuration by instance<TransmissionConfiguration>()
 
+    private val networkManager by instance<NetworkManager>()
+
     private var session: String? = null
 
     private fun connect(): Connection {
+        if (!networkManager.isNetworkTrusted()) {
+            throw UntrustedNetworkException()
+        }
+
         val url = with(configuration) { URI.create("http://$host:$port/$path").normalize().toString() }
 
         val connection = Jsoup.connect(url)
@@ -90,10 +100,21 @@ class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClie
         }
     }
 
+    override fun checkConnection(): Boolean {
+        return try {
+            executeRaw(TransmissionRequest("session-get"))
+            true
+        } catch (e: TransmissionException) {
+            false
+        }
+    }
+
     override fun download(magnet: String, directory: String?) {
         val arguments = mapOf("filename" to magnet, "download-dir" to directory)
         executeRaw(TransmissionRequest("torrent-add", arguments))
     }
+
+    override fun getName(context: Context) = context.getString(R.string.screen_transmission)
 
 }
 
