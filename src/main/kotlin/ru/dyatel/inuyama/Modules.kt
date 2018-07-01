@@ -43,8 +43,8 @@ abstract class ModuleScreenProvider<T : Screen<*>> {
 val rutrackerModule = Kodein.Module {
     bind<Box<RutrackerWatch>>() with singleton { instance<BoxStore>().boxFor<RutrackerWatch>() }
     bind<RutrackerConfiguration>() with singleton { instance<PreferenceHelper>().rutracker }
-    bind<RutrackerApi>() with singleton { RutrackerApi(instance()) }
-    bind<RutrackerWatcher>() with singleton { RutrackerWatcher(instance()) }
+    bind<RutrackerApi>() with singleton { RutrackerApi(kodein) }
+    bind<RutrackerWatcher>() with singleton { RutrackerWatcher(kodein) }
 
     bind<ModuleScreenProvider<RutrackerScreen>>() with singleton {
         object : ModuleScreenProvider<RutrackerScreen>() {
@@ -58,8 +58,8 @@ val rutrackerModule = Kodein.Module {
 val nyaaModule = Kodein.Module {
     bind<Box<NyaaTorrent>>() with singleton { instance<BoxStore>().boxFor<NyaaTorrent>() }
     bind<Box<NyaaWatch>>() with singleton { instance<BoxStore>().boxFor<NyaaWatch>() }
-    bind<NyaaApi>() with singleton { NyaaApi(instance()) }
-    bind<NyaaWatcher>() with singleton { NyaaWatcher(instance()) }
+    bind<NyaaApi>() with singleton { NyaaApi(kodein) }
+    bind<NyaaWatcher>() with singleton { NyaaWatcher(kodein) }
 
     bind<ModuleScreenProvider<NyaaScreen>>() with singleton {
         object : ModuleScreenProvider<NyaaScreen>() {

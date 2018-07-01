@@ -27,11 +27,9 @@ import ru.dyatel.inuyama.utilities.boxFor
 class Application : Application(), KodeinAware {
 
     override val kodein = Kodein.lazy {
-        bind<Kodein>() with singleton { kodein }
-
         import(androidModule(this@Application))
 
-        bind<NetworkManager>() with singleton { NetworkManager(instance()) }
+        bind<NetworkManager>() with singleton { NetworkManager(kodein) }
 
         bind<BoxStore>() with singleton {
             MyObjectBox.builder()
@@ -49,9 +47,9 @@ class Application : Application(), KodeinAware {
         bind<OverseerConfiguration>() with provider { instance<PreferenceHelper>().overseer }
         bind<TransmissionConfiguration>() with singleton { instance<PreferenceHelper>().transmission }
 
-        bind<Notifier>() with singleton { Notifier(instance()) }
+        bind<Notifier>() with singleton { Notifier(kodein) }
 
-        bind<TorrentClient>() with singleton { TransmissionClient(kodein) } // TODO: temporary fix
+        bind<TorrentClient>() with singleton { TransmissionClient(kodein) }
 
         import(rutrackerModule)
         import(nyaaModule)
