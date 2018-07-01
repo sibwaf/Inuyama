@@ -19,13 +19,13 @@ import org.jetbrains.anko.verticalLayout
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.utilities.hideKeyboard
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.uniformTextInput
 import ru.dyatel.inuyama.transmission.TransmissionConfiguration
+import ru.dyatel.inuyama.utilities.PreferenceHelper
+import ru.dyatel.inuyama.utilities.hideKeyboard
 
 class TransmissionView(context: Context) : BaseScreenView<TransmissionScreen>(context) {
 
@@ -42,6 +42,8 @@ class TransmissionView(context: Context) : BaseScreenView<TransmissionScreen>(co
     private val pathView: EditText
     private val usernameView: EditText
     private val passwordView: EditText
+
+    private lateinit var configuration: TransmissionConfiguration
 
     init {
         verticalLayout {
@@ -94,6 +96,8 @@ class TransmissionView(context: Context) : BaseScreenView<TransmissionScreen>(co
     }
 
     fun bindConfiguration(configuration: TransmissionConfiguration) {
+        this.configuration = configuration
+
         hostView.setText(configuration.host)
         portView.setText(configuration.port.toString())
         pathView.setText(configuration.path)
@@ -102,13 +106,13 @@ class TransmissionView(context: Context) : BaseScreenView<TransmissionScreen>(co
     }
 
     private fun save() {
-        val configuration = TransmissionConfiguration(
-                hostView.text.toString(),
-                portView.text.toString().toInt(),
-                pathView.text.toString(),
-                usernameView.text.toString(),
-                passwordView.text.toString()
-        )
+        with(configuration) {
+            host = hostView.text.toString()
+            port = portView.text.toString().toInt()
+            path = pathView.text.toString()
+            username = usernameView.text.toString()
+            password = passwordView.text.toString()
+        }
         screen.save(configuration)
     }
 

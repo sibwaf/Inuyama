@@ -47,7 +47,7 @@ class Application : Application(), KodeinAware {
 
         bind<PreferenceHelper>() with singleton { PreferenceHelper(instance()) }
         bind<OverseerConfiguration>() with provider { instance<PreferenceHelper>().overseer }
-        bind<TransmissionConfiguration>() with provider { instance<PreferenceHelper>().transmission }
+        bind<TransmissionConfiguration>() with singleton { instance<PreferenceHelper>().transmission }
 
         bind<Notifier>() with singleton { Notifier(instance()) }
 
