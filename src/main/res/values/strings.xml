@@ -32,7 +32,7 @@
     <string name="const_never">никогда</string>
 
     <string name="label_path">Путь: %s</string>
-    <string name="label_last_update">Последнее обновление: %s</string>
+    <string name="label_last_update">Обновление: %s</string>
     <string name="label_last_check">Последяя проверка: %s</string>
     <string name="label_checking">Проверяем…</string>
 
