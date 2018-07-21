@@ -7,6 +7,7 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.model.RutrackerWatch_
+import ru.dyatel.inuyama.model.Update
 import ru.dyatel.inuyama.transmission.TorrentClient
 import ru.dyatel.inuyama.transmission.TransmissionException
 import ru.dyatel.inuyama.utilities.MagnetParser
@@ -63,6 +64,10 @@ class RutrackerWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
                 }
             }
         }
+    }
+
+    override fun listUpdates(): List<Update> {
+        return watchBox.all.mapNotNull { update -> update.lastUpdate?.let { Update(update.description, it) } }
     }
 
 }

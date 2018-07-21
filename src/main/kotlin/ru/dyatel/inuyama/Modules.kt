@@ -13,6 +13,7 @@ import org.kodein.di.generic.singleton
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.model.NyaaWatch
 import ru.dyatel.inuyama.model.RutrackerWatch
+import ru.dyatel.inuyama.model.Update
 import ru.dyatel.inuyama.nyaa.NyaaApi
 import ru.dyatel.inuyama.nyaa.NyaaWatcher
 import ru.dyatel.inuyama.rutracker.RutrackerApi
@@ -31,6 +32,7 @@ interface RemoteService {
 interface Watcher {
     fun checkUpdates(): List<String>
     fun dispatchUpdates()
+    fun listUpdates(): List<Update>
 }
 
 @Suppress("FINITE_BOUNDS_VIOLATION_IN_JAVA")

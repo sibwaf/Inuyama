@@ -3,6 +3,7 @@ package ru.dyatel.inuyama.screens
 import android.content.Context
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.view.Gravity
 import android.view.Menu
 import android.view.View
 import android.widget.TextView
@@ -30,13 +31,16 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.allInstances
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.DASHBOARD_UPDATE_COUNT
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
+import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.ModuleStateItem
 import ru.dyatel.inuyama.layout.SP_MEDIUM
 import ru.dyatel.inuyama.layout.State
+import ru.dyatel.inuyama.layout.UpdateItem
 import ru.dyatel.inuyama.overseer.OverseerListener
 import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.overseer.OverseerWorker
@@ -51,10 +55,12 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
     private companion object {
         val overseerStateId = View.generateViewId()
         val serviceRecyclerId = View.generateViewId()
+        val updateRecyclerId = View.generateViewId()
     }
 
     val overseerState: TextView
-    private val recyclerView: RecyclerView
+    private val serviceRecycler: RecyclerView
+    private val updateRecycler: RecyclerView
 
     init {
         verticalLayout {
@@ -94,14 +100,49 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
 
                 overScrollMode = View.OVER_SCROLL_NEVER
             }
+
+            cardView {
+                lparams(width = matchParent, height = wrapContent) {
+                    margin = DIM_LARGE
+                }
+
+                verticalLayout {
+                    lparams(width = matchParent, height = wrapContent) {
+                        margin = DIM_EXTRA_LARGE
+                    }
+
+                    textView {
+                        textResource = R.string.label_update_list
+                        gravity = Gravity.CENTER
+
+                        textSize = SP_MEDIUM
+                    }
+
+                    recyclerView {
+                        lparams(width = matchParent, height = wrapContent) {
+                            topMargin = DIM_LARGE
+                        }
+
+                        id = updateRecyclerId
+                        layoutManager = LinearLayoutManager(context)
+
+                        overScrollMode = View.OVER_SCROLL_NEVER
+                    }
+                }
+            }
         }
 
         overseerState = find(overseerStateId)
-        recyclerView = find(serviceRecyclerId)
+        serviceRecycler = find(serviceRecyclerId)
+        updateRecycler = find(updateRecyclerId)
     }
 
-    fun bindAdapter(adapter: RecyclerView.Adapter<*>) {
-        recyclerView.adapter = adapter
+    fun bindServiceAdapter(adapter: RecyclerView.Adapter<*>) {
+        serviceRecycler.adapter = adapter
+    }
+
+    fun bindUpdateAdapter(adapter: RecyclerView.Adapter<*>) {
+        updateRecycler.adapter = adapter
     }
 
 }
@@ -113,14 +154,24 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
     private val preferenceHelper by instance<PreferenceHelper>()
 
     private val services by allInstances<RemoteService>()
+    private val watchers by allInstances<Watcher>()
+
     private val checkers = mutableListOf<StateChecker>()
 
-    private val adapter = ItemAdapter<ModuleStateItem>()
-    private val fastAdapter = adapter.buildFastAdapter()
+    private val serviceAdapter = ItemAdapter<ModuleStateItem>()
+    private val serviceFastAdapter = serviceAdapter.buildFastAdapter()
+
+    private val updateAdapter = ItemAdapter<UpdateItem>()
+    private val updateFastAdapter = updateAdapter.buildFastAdapter()
 
     private var overseerListener: OverseerListener? = null
 
-    override fun createView(context: Context) = HomeView(context).apply { bindAdapter(fastAdapter) }
+    override fun createView(context: Context): HomeView {
+        return HomeView(context).apply {
+            bindServiceAdapter(serviceFastAdapter)
+            bindUpdateAdapter(updateFastAdapter)
+        }
+    }
 
     override fun onShow(context: Context) {
         super.onShow(context)
@@ -134,27 +185,41 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
                         ?: context.getString(R.string.const_never)
                 view.overseerState.text = context.getString(R.string.label_last_check, lastCheckText)
             }
-        }.also { it(OverseerWorker.isWorking) }
+        }.also {
+            it(OverseerWorker.isWorking)
+        }
 
         for ((index, service) in services.withIndex()) {
             val item = ModuleStateItem(service.getName(context), State.PENDING)
-            adapter.add(item)
+            serviceAdapter.add(item)
+
             checkers += StateChecker(service) {
                 item.state = it
-                fastAdapter.notifyAdapterItemChanged(index)
+                serviceFastAdapter.notifyAdapterItemChanged(index)
+            }.also {
+                it.check()
             }
         }
 
-        checkers.forEach { it.check() }
+        val updates = watchers
+                .flatMap { it.listUpdates() }
+                .sortedByDescending { it.timestamp }
+                .take(DASHBOARD_UPDATE_COUNT)
+                .map { UpdateItem(it) }
+        updateAdapter.set(updates)
     }
 
     override fun onHide(context: Context) {
-        overseerListener?.let { OverseerWorker.removeListener(it) }
-        overseerListener = null
+        overseerListener?.let {
+            OverseerWorker.removeListener(it)
+            overseerListener = null
+        }
 
         checkers.forEach { it.cancel() }
         checkers.clear()
-        adapter.clear()
+
+        serviceAdapter.clear()
+        updateAdapter.clear()
 
         super.onHide(context)
     }
