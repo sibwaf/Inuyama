@@ -21,6 +21,7 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.NetworkItem
 import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.utilities.buildFastAdapter
+import ru.dyatel.inuyama.utilities.subscribeFor
 
 class NetworkView(context: Context) : BaseScreenView<NetworkScreen>(context) {
 
@@ -62,7 +63,7 @@ class NetworkScreen : Screen<NetworkView>(), KodeinAware {
         refresh()
 
         networkBoxObserver = networkBox.store
-                .subscribe(Network::class.java)
+                .subscribeFor<Network>()
                 .on(AndroidScheduler.mainThread())
                 .onlyChanges()
                 .observer { refresh() }

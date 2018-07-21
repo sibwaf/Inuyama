@@ -16,6 +16,7 @@ import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.converter.PropertyConverter
+import io.objectbox.reactive.SubscriptionBuilder
 import org.jetbrains.anko.inputMethodManager
 import org.ocpsoft.prettytime.PrettyTime
 import java.util.Date
@@ -44,6 +45,8 @@ val Screen<*>.ctx: Context
 inline fun <reified T> Gson.fromJson(json: String): T = fromJson(json, T::class.java)
 
 inline fun <reified T> BoxStore.boxFor(): Box<T> = boxFor(T::class.java)
+
+inline fun <reified T> BoxStore.subscribeFor(): SubscriptionBuilder<Class<T>> = subscribe(T::class.java)
 
 fun <I : IItem<*, *>> IAdapter<I>.buildFastAdapter(): FastAdapter<I> = FastAdapter.with(this)
 

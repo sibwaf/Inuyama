@@ -40,6 +40,7 @@ import ru.dyatel.inuyama.utilities.DirectorySelector
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.ctx
+import ru.dyatel.inuyama.utilities.subscribeFor
 
 class RutrackerView(context: Context) : BaseScreenView<RutrackerScreen>(context) {
 
@@ -91,7 +92,7 @@ class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
 
         reload()
         boxObserver = watchBox.store
-                .subscribe(RutrackerWatch::class.java)
+                .subscribeFor<RutrackerWatch>()
                 .on(AndroidScheduler.mainThread())
                 .onlyChanges()
                 .observer { reload() }

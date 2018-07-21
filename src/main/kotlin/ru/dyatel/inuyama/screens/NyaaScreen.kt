@@ -39,6 +39,7 @@ import ru.dyatel.inuyama.model.NyaaWatch
 import ru.dyatel.inuyama.utilities.DirectorySelector
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.ctx
+import ru.dyatel.inuyama.utilities.subscribeFor
 
 class NyaaView(context: Context) : BaseScreenView<NyaaScreen>(context) {
 
@@ -87,7 +88,7 @@ class NyaaScreen : Screen<NyaaView>(), KodeinAware {
 
         reload()
         boxObserver = watchBox.store
-                .subscribe(NyaaWatch::class.java)
+                .subscribeFor<NyaaWatch>()
                 .on(AndroidScheduler.mainThread())
                 .onlyChanges()
                 .observer { reload() }
