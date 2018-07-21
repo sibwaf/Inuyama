@@ -38,10 +38,12 @@ import ru.dyatel.inuyama.layout.ModuleStateItem
 import ru.dyatel.inuyama.layout.SP_MEDIUM
 import ru.dyatel.inuyama.layout.State
 import ru.dyatel.inuyama.overseer.OverseerListener
+import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.overseer.OverseerWorker
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.asDate
 import ru.dyatel.inuyama.utilities.buildFastAdapter
+import ru.dyatel.inuyama.utilities.ctx
 import ru.dyatel.inuyama.utilities.prettyTime
 
 class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
@@ -77,6 +79,10 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
                         id = overseerStateId
                         textSize = SP_MEDIUM
                     }
+                }
+
+                setOnClickListener {
+                    screen.requestOverseerCheck()
                 }
             }
 
@@ -149,6 +155,13 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
         adapter.clear()
 
         super.onHide(context)
+    }
+
+    fun requestOverseerCheck() {
+        if (!OverseerWorker.isWorking) {
+            view.overseerState.textResource = R.string.label_waiting_for_task
+            OverseerStarter.start(ctx, true)
+        }
     }
 
     override fun onUpdateMenu(menu: Menu) {
