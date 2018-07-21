@@ -8,7 +8,6 @@ import org.jetbrains.anko._LinearLayout
 import org.jetbrains.anko.backgroundColorResource
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.padding
 import org.jetbrains.anko.textView
 import org.jetbrains.anko.view
 import org.jetbrains.anko.wrapContent
@@ -27,8 +26,6 @@ class Marker(context: Context) : _LinearLayout(context) {
     init {
         lparams(width = matchParent, height = wrapContent)
 
-        padding = DIM_LARGE
-
         markerView = view {
         }.lparams(width = DIM_MEDIUM, height = matchParent)
 
@@ -36,6 +33,7 @@ class Marker(context: Context) : _LinearLayout(context) {
             textSize = SP_MEDIUM
         }.lparams {
             margin = DIM_LARGE
+            rightMargin = 0
         }
     }
 
@@ -61,3 +59,5 @@ fun ViewGroup.marker(init: Marker.() -> Unit): Marker {
     addView(view)
     return view
 }
+
+fun Context.marker(init: Marker.() -> Unit) = Marker(this).apply(init)

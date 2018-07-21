@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.Gravity
 import android.view.Menu
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
@@ -18,6 +19,7 @@ import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.cardview.v7.cardView
 import org.jetbrains.anko.find
+import org.jetbrains.anko.frameLayout
 import org.jetbrains.anko.imageView
 import org.jetbrains.anko.linearLayout
 import org.jetbrains.anko.margin
@@ -64,6 +66,8 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
 
     init {
         verticalLayout {
+            lparams(width = matchParent, height = matchParent)
+
             cardView {
                 lparams(width = matchParent, height = wrapContent)
 
@@ -90,38 +94,25 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
                 }
             }
 
-            recyclerView {
-                lparams(width = matchParent, height = wrapContent) {
+            verticalLayout {
+                lparams(width = matchParent, height = matchParent) {
                     topMargin = DIM_LARGE
                 }
 
-                id = serviceRecyclerId
-                layoutManager = LinearLayoutManager(context)
+                container(R.string.container_services) {
+                    recyclerView {
+                        lparams(width = matchParent, height = wrapContent)
 
-                overScrollMode = View.OVER_SCROLL_NEVER
-            }
+                        id = serviceRecyclerId
+                        layoutManager = LinearLayoutManager(context)
 
-            cardView {
-                lparams(width = matchParent, height = wrapContent) {
-                    margin = DIM_LARGE
+                        overScrollMode = View.OVER_SCROLL_NEVER
+                    }
                 }
 
-                verticalLayout {
-                    lparams(width = matchParent, height = wrapContent) {
-                        margin = DIM_EXTRA_LARGE
-                    }
-
-                    textView {
-                        textResource = R.string.label_update_list
-                        gravity = Gravity.CENTER
-
-                        textSize = SP_MEDIUM
-                    }
-
+                container(R.string.container_update_list) {
                     recyclerView {
-                        lparams(width = matchParent, height = wrapContent) {
-                            topMargin = DIM_LARGE
-                        }
+                        lparams(width = matchParent, height = wrapContent)
 
                         id = updateRecyclerId
                         layoutManager = LinearLayoutManager(context)
@@ -135,6 +126,34 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
         overseerState = find(overseerStateId)
         serviceRecycler = find(serviceRecyclerId)
         updateRecycler = find(updateRecyclerId)
+    }
+
+    private fun ViewGroup.container(titleResource: Int, init: ViewGroup.() -> Unit) {
+        cardView {
+            lparams(width = matchParent, height = wrapContent) {
+                margin = DIM_LARGE
+            }
+
+            verticalLayout {
+                lparams(width = matchParent, height = wrapContent) {
+                    margin = DIM_EXTRA_LARGE
+                }
+
+                frameLayout {
+                    lparams(width = matchParent, height = wrapContent) {
+                        bottomMargin = DIM_LARGE
+                    }
+
+                    textView {
+                        textResource = titleResource
+                        gravity = Gravity.CENTER
+                        textSize = SP_MEDIUM
+                    }
+                }
+
+                init()
+            }
+        }
     }
 
     fun bindServiceAdapter(adapter: RecyclerView.Adapter<*>) {

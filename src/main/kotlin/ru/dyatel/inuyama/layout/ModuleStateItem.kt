@@ -5,11 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
-import org.jetbrains.anko.cardview.v7.cardView
 import org.jetbrains.anko.find
-import org.jetbrains.anko.margin
-import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_MODULE_STATE
 
 class ModuleStateItem(
@@ -43,12 +39,13 @@ class ModuleStateItem(
     override fun getLayoutRes() = throw UnsupportedOperationException()
 
     override fun createView(ctx: Context, parent: ViewGroup?): View {
-        return ctx.cardView {
-            lparams(width = matchParent, height = wrapContent) {
-                margin = DIM_LARGE
+        return ctx.marker {
+            lparams {
+                topMargin = DIM_MEDIUM
+                bottomMargin = DIM_MEDIUM
             }
 
-            marker { id = markerViewId }
+            id = markerViewId
         }
     }
 }

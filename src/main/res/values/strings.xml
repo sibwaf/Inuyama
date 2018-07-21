@@ -36,7 +36,9 @@
     <string name="label_last_check">Последяя проверка: %s</string>
     <string name="label_checking">Проверяем…</string>
     <string name="label_waiting_for_task">Ждём запуска задачи…</string>
-    <string name="label_update_list">Обновления</string>
+
+    <string name="container_services">Сервисы</string>
+    <string name="container_update_list">Обновления</string>
 
     <string name="hint_rutracker_watch_link">Ссылка или идентификатор</string>
     <string name="hint_rutracker_watch_description">Название</string>
