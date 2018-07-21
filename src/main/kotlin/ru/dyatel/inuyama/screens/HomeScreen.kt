@@ -59,9 +59,7 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
     init {
         verticalLayout {
             cardView {
-                lparams(width = matchParent, height = wrapContent) {
-                    bottomMargin = DIM_LARGE
-                }
+                lparams(width = matchParent, height = wrapContent)
 
                 linearLayout {
                     lparams(width = matchParent, height = wrapContent) {
@@ -87,10 +85,14 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
             }
 
             recyclerView {
-                lparams(width = matchParent, height = wrapContent)
+                lparams(width = matchParent, height = wrapContent) {
+                    topMargin = DIM_LARGE
+                }
 
                 id = serviceRecyclerId
                 layoutManager = LinearLayoutManager(context)
+
+                overScrollMode = View.OVER_SCROLL_NEVER
             }
         }
 
