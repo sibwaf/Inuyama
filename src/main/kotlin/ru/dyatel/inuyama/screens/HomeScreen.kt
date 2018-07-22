@@ -17,6 +17,7 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import org.jetbrains.anko.bottomPadding
 import org.jetbrains.anko.cardview.v7.cardView
 import org.jetbrains.anko.find
 import org.jetbrains.anko.frameLayout
@@ -25,8 +26,10 @@ import org.jetbrains.anko.linearLayout
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.recyclerview.v7.recyclerView
+import org.jetbrains.anko.support.v4.nestedScrollView
 import org.jetbrains.anko.textResource
 import org.jetbrains.anko.textView
+import org.jetbrains.anko.topPadding
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
@@ -97,37 +100,42 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
                 }
             }
 
-            verticalLayout {
-                lparams(width = matchParent, height = matchParent) {
-                    topMargin = DIM_LARGE
-                }
+            nestedScrollView {
+                lparams(width = matchParent, height = matchParent)
 
-                container(R.string.container_services) {
-                    recyclerView {
-                        lparams(width = matchParent, height = wrapContent)
-
-                        id = serviceRecyclerId
-                        layoutManager = LinearLayoutManager(context)
-
-                        overScrollMode = View.OVER_SCROLL_NEVER
-                    }
-                }
-
-                container(R.string.container_update_list) {
-                    textView {
-                        id = noUpdatesMarkerId
-
-                        textResource = R.string.label_no_updates
-                        textSize = SP_MEDIUM
+                verticalLayout {
+                    lparams(width = matchParent, height = wrapContent) {
+                        topPadding = DIM_LARGE
+                        bottomPadding = DIM_LARGE
                     }
 
-                    recyclerView {
-                        lparams(width = matchParent, height = wrapContent)
+                    container(R.string.container_services) {
+                        recyclerView {
+                            lparams(width = matchParent, height = wrapContent)
 
-                        id = updateRecyclerId
-                        layoutManager = LinearLayoutManager(context)
+                            id = serviceRecyclerId
+                            layoutManager = LinearLayoutManager(context)
 
-                        overScrollMode = View.OVER_SCROLL_NEVER
+                            isNestedScrollingEnabled = false
+                        }
+                    }
+
+                    container(R.string.container_update_list) {
+                        textView {
+                            id = noUpdatesMarkerId
+
+                            textResource = R.string.label_no_updates
+                            textSize = SP_MEDIUM
+                        }
+
+                        recyclerView {
+                            lparams(width = matchParent, height = wrapContent)
+
+                            id = updateRecyclerId
+                            layoutManager = LinearLayoutManager(context)
+
+                            isNestedScrollingEnabled = false
+                        }
                     }
                 }
             }
