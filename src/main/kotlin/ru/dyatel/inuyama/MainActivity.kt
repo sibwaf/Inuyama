@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
 import android.view.Menu
+import androidx.work.WorkManager
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.IIcon
@@ -56,13 +57,24 @@ class MainActivity : SingleActivity(), KodeinAware {
             val boxStore by instance<BoxStore>()
             AndroidObjectBrowser(boxStore).start(applicationContext)
         }
+    }
 
+    override fun onStart() {
+        super.onStart()
         OverseerStarter.start(applicationContext, false)
     }
 
     override fun onResume() {
         super.onResume()
         grantPermissions(Manifest.permission.ACCESS_COARSE_LOCATION)
+    }
+
+    override fun onStop() {
+        if (BuildConfig.DEBUG) {
+            WorkManager.getInstance().cancelUniqueWork(WORK_NAME_OVERSEER)
+        }
+
+        super.onStop()
     }
 
     private fun DrawerBuilder.generateDrawerItems() {

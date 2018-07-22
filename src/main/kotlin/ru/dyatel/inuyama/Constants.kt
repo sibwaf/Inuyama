@@ -11,6 +11,6 @@ const val NOTIFICATION_CHANNEL_UPDATES = "updates"
 
 const val NOTIFICATION_ID_UPDATE = 1
 
-const val WORK_NAME_OVERSEER = "overseer"
+const val WORK_NAME_OVERSEER = "ru.dyatel.inuyama:overseer"
 
 const val DASHBOARD_UPDATE_COUNT = 8
