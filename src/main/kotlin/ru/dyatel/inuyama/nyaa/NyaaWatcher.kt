@@ -12,6 +12,7 @@ import ru.dyatel.inuyama.model.NyaaWatch
 import ru.dyatel.inuyama.model.Update
 import ru.dyatel.inuyama.transmission.TorrentClient
 import ru.dyatel.inuyama.transmission.TransmissionException
+import ru.dyatel.inuyama.utilities.subscribeFor
 
 class NyaaWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
 
@@ -26,6 +27,14 @@ class NyaaWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
         torrentBox.query()
                 .equal(NyaaTorrent_.dispatched, false)
                 .build()
+    }
+
+    private val updateListeners = mutableListOf<() -> Unit>()
+
+    init {
+        boxStore.subscribeFor<NyaaWatch>()
+                .onlyChanges()
+                .observer { updateListeners.forEach { it() } }
     }
 
     override fun checkUpdates(): List<String> {
@@ -83,4 +92,11 @@ class NyaaWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
         return watchBox.all.mapNotNull { update -> update.lastUpdate?.let { Update(update.description, it) } }
     }
 
+    override fun addUpdateListener(listener: () -> Unit) {
+        updateListeners += listener
+    }
+
+    override fun removeUpdateListener(listener: () -> Unit) {
+        updateListeners -= listener
+    }
 }

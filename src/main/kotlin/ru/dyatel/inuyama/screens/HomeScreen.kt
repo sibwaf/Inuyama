@@ -176,6 +176,7 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
     private val watchers by allInstances<Watcher>()
 
     private val checkers = mutableListOf<StateChecker>()
+    private var updateListener: (() -> Unit)? = null
 
     private val serviceAdapter = ItemAdapter<ModuleStateItem>()
     private val serviceFastAdapter = serviceAdapter.buildFastAdapter()
@@ -220,12 +221,15 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
             }
         }
 
-        val updates = watchers
-                .flatMap { it.listUpdates() }
-                .sortedByDescending { it.timestamp }
-                .take(DASHBOARD_UPDATE_COUNT)
-                .map { UpdateItem(it) }
-        updateAdapter.set(updates)
+        updateListener = {
+            reloadUpdates()
+        }.also { listener ->
+            watchers.forEach {
+                it.addUpdateListener(listener)
+            }
+
+            listener()
+        }
     }
 
     override fun onHide(context: Context) {
@@ -237,10 +241,29 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
         checkers.forEach { it.cancel() }
         checkers.clear()
 
+        updateListener?.let { listener ->
+            watchers.forEach {
+                it.removeUpdateListener(listener)
+            }
+            updateListener = null
+        }
+
         serviceAdapter.clear()
         updateAdapter.clear()
 
         super.onHide(context)
+    }
+
+    private fun reloadUpdates() {
+        val updates = watchers
+                .flatMap { it.listUpdates() }
+                .sortedByDescending { it.timestamp }
+                .take(DASHBOARD_UPDATE_COUNT)
+                .map { UpdateItem(it) }
+
+        launch(UI) {
+            updateAdapter.set(updates)
+        }
     }
 
     fun requestOverseerCheck() {

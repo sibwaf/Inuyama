@@ -33,6 +33,8 @@ interface Watcher {
     fun checkUpdates(): List<String>
     fun dispatchUpdates()
     fun listUpdates(): List<Update>
+    fun addUpdateListener(listener: () -> Unit)
+    fun removeUpdateListener(listener: () -> Unit)
 }
 
 @Suppress("FINITE_BOUNDS_VIOLATION_IN_JAVA")
