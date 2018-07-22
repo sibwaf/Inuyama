@@ -33,7 +33,7 @@
 
     <string name="label_path">Путь: %s</string>
     <string name="label_last_update">Обновление: %s</string>
-    <string name="label_last_check">Последяя проверка: %s</string>
+    <string name="label_last_check">Последняя проверка: %s</string>
     <string name="label_checking">Проверяем…</string>
     <string name="label_waiting_for_task">Ждём запуска задачи…</string>
 
