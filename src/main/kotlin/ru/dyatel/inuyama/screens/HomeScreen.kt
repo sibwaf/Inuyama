@@ -50,6 +50,7 @@ import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.asDate
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.ctx
+import ru.dyatel.inuyama.utilities.hideIf
 import ru.dyatel.inuyama.utilities.prettyTime
 
 class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
@@ -57,11 +58,13 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
     private companion object {
         val overseerStateId = View.generateViewId()
         val serviceRecyclerId = View.generateViewId()
+        val noUpdatesMarkerId = View.generateViewId()
         val updateRecyclerId = View.generateViewId()
     }
 
     val overseerState: TextView
     private val serviceRecycler: RecyclerView
+    private val noUpdatesMarker: View
     private val updateRecycler: RecyclerView
 
     init {
@@ -111,6 +114,13 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
                 }
 
                 container(R.string.container_update_list) {
+                    textView {
+                        id = noUpdatesMarkerId
+
+                        textResource = R.string.label_no_updates
+                        textSize = SP_MEDIUM
+                    }
+
                     recyclerView {
                         lparams(width = matchParent, height = wrapContent)
 
@@ -125,6 +135,7 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
 
         overseerState = find(overseerStateId)
         serviceRecycler = find(serviceRecyclerId)
+        noUpdatesMarker = find(noUpdatesMarkerId)
         updateRecycler = find(updateRecyclerId)
     }
 
@@ -162,6 +173,13 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
 
     fun bindUpdateAdapter(adapter: RecyclerView.Adapter<*>) {
         updateRecycler.adapter = adapter
+    }
+
+    fun refreshUpdateList() {
+        val hasUpdates = updateRecycler.adapter.itemCount > 0
+
+        noUpdatesMarker.hideIf(hasUpdates)
+        updateRecycler.hideIf(!hasUpdates)
     }
 
 }
@@ -263,6 +281,7 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
 
         launch(UI) {
             updateAdapter.set(updates)
+            view.refreshUpdateList()
         }
     }
 
