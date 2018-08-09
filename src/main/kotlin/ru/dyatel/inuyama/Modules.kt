@@ -16,6 +16,7 @@ import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.model.Update
 import ru.dyatel.inuyama.nyaa.NyaaApi
 import ru.dyatel.inuyama.nyaa.NyaaWatcher
+import ru.dyatel.inuyama.ruranobe.RuranobeApi
 import ru.dyatel.inuyama.rutracker.RutrackerApi
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.dyatel.inuyama.rutracker.RutrackerWatcher
@@ -72,4 +73,8 @@ val nyaaModule = Kodein.Module {
             override fun getScreen() = NyaaScreen()
         }
     }
+}
+
+val ruranobeModule = Kodein.Module {
+    bind<RuranobeApi>() with singleton { RuranobeApi(kodein) }
 }

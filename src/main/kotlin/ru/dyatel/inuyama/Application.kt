@@ -53,6 +53,7 @@ class Application : Application(), KodeinAware {
 
         import(rutrackerModule)
         import(nyaaModule)
+        import(ruranobeModule)
     }
 
 }
