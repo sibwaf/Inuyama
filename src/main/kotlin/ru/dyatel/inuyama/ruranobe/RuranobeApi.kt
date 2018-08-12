@@ -65,7 +65,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
             val response = Jsoup.connect("$host/api/projects")
                     .ignoreContentType(true)
                     .ignoreHttpErrors(true)
-                    .data("fields", "projectId,title,author,works,status,translationStatus,issueStatus")
+                    .data("fields", "projectId,title,nameRomaji,author,works,status,translationStatus,issueStatus")
                     .execute()
 
             if (handleResponseCode(response)) {
@@ -76,6 +76,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
             val typeToken = object : TypeToken<List<RuranobeProject>>() {}.type
             return gson.fromJson<List<RuranobeProject>>(json, typeToken)
+                    .onEach { it.status = it.status.toLowerCase() }
         } catch (e: Exception) {
             throw e
         }

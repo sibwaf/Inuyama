@@ -11,6 +11,7 @@ data class RuranobeProject(
         @Id(assignable = true) @SerializedName("projectId") var id: Long = 0,
 
         var title: String = "",
+        @SerializedName("nameRomaji") var titleRomaji: String? = null,
         var author: String = "",
 
         var works: Boolean = false,

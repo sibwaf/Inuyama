@@ -26,7 +26,7 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.model.RuranobeProject
 
 class RuranobeProjectItem(
-        private val project: RuranobeProject
+        val project: RuranobeProject
 ) : AbstractItem<RuranobeProjectItem, RuranobeProjectItem.ViewHolder>() {
 
     private companion object {

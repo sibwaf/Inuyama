@@ -6,4 +6,8 @@
         <item name="colorAccent">@color/color_accent</item>
     </style>
 
+    <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="colorAccent">@color/material_drawer_dark_hint_text</item>
+    </style>
+
 </resources>

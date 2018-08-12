@@ -156,7 +156,7 @@
     },
     {
       "id": "7:9079643043425856199",
-      "lastPropertyId": "8:1062211230482584897",
+      "lastPropertyId": "9:1241377724491423297",
       "name": "RuranobeProject",
       "properties": [
         {
@@ -190,6 +190,10 @@
         {
           "id": "8:1062211230482584897",
           "name": "watching"
+        },
+        {
+          "id": "9:1241377724491423297",
+          "name": "titleRomaji"
         }
       ],
       "relations": []

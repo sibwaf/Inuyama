@@ -156,7 +156,7 @@
     },
     {
       "id": "7:9079643043425856199",
-      "lastPropertyId": "7:4362877862621660230",
+      "lastPropertyId": "8:1062211230482584897",
       "name": "RuranobeProject",
       "properties": [
         {
@@ -186,6 +186,10 @@
         {
           "id": "7:4362877862621660230",
           "name": "translationStatus"
+        },
+        {
+          "id": "8:1062211230482584897",
+          "name": "watching"
         }
       ],
       "relations": []

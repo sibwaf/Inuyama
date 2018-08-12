@@ -4,9 +4,13 @@ import android.content.Context
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.SearchView
 import android.support.v7.widget.SimpleItemAnimator
+import android.view.Menu
 import android.view.View
+import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.adapters.ItemAdapter
+import com.mikepenz.fastadapter.utils.ComparableItemListImpl
 import com.wealthfront.magellan.BaseScreenView
 import com.wealthfront.magellan.Screen
 import io.objectbox.Box
@@ -86,10 +90,56 @@ class RuranobeScreen : Screen<RuranobeView>(), KodeinAware {
 
     private val watcher by instance<RuranobeWatcher>()
 
-    private val adapter = ItemAdapter<RuranobeProjectItem>()
-    private val fastAdapter = adapter.buildFastAdapter()
+    private val adapter: ItemAdapter<RuranobeProjectItem>
+    private val fastAdapter: FastAdapter<RuranobeProjectItem>
 
     private var fetchTask: Job? = null
+
+    init {
+        val comparableList = ComparableItemListImpl<RuranobeProjectItem> { item1, item2 ->
+            val first = item1.project
+            val second = item2.project
+
+            if (first.watching && !second.watching) {
+                return@ComparableItemListImpl -1
+            }
+            if (!first.watching && second.watching) {
+                return@ComparableItemListImpl 1
+            }
+
+            if (!first.works && second.works) {
+                return@ComparableItemListImpl -1
+            }
+            if (first.works && !second.works) {
+                return@ComparableItemListImpl 1
+            }
+
+            first.title.compareTo(second.title)
+        }
+
+        adapter = ItemAdapter(comparableList)
+        fastAdapter = adapter.buildFastAdapter()
+
+        adapter.itemFilter.withFilterPredicate { item, constraint ->
+            if (constraint == null) {
+                return@withFilterPredicate true
+            }
+
+            val itemTokens = listOfNotNull(item.project.title, item.project.titleRomaji)
+                    .flatMap { it.split(" ") }
+                    .filter { it.isNotEmpty() }
+
+            val constraintTokens = constraint.split(" ").filter { it.isNotEmpty() }
+
+            for (token in constraintTokens) {
+                if (itemTokens.none { it.contains(token, true) }) {
+                    return@withFilterPredicate false
+                }
+            }
+
+            return@withFilterPredicate true
+        }
+    }
 
     override fun createView(context: Context) = RuranobeView(context).apply { bindAdapter(fastAdapter) }
 
@@ -128,7 +178,7 @@ class RuranobeScreen : Screen<RuranobeView>(), KodeinAware {
             RuranobeProjectItem(it)
         }
 
-        adapter.set(projects)
+        adapter.setNewList(projects)
     }
 
     fun fetch() {
@@ -156,4 +206,23 @@ class RuranobeScreen : Screen<RuranobeView>(), KodeinAware {
 
     override fun getTitle(context: Context) = context.getString(R.string.module_ruranobe)!!
 
+    override fun onUpdateMenu(menu: Menu) {
+        menu.findItem(R.id.search).apply {
+            isVisible = true
+
+            val actionView = actionView as SearchView
+
+            actionView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    adapter.filter(query)
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    adapter.filter(newText)
+                    return true
+                }
+            })
+        }
+    }
 }

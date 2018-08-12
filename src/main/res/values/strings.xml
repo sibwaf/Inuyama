@@ -28,6 +28,7 @@
     <string name="action_edit">Изменить</string>
     <string name="action_remove">Удалить</string>
     <string name="action_cancel">Отмена</string>
+    <string name="action_search">Поиск</string>
 
     <string name="const_directory_default">[по умолчанию]</string>
     <string name="const_never">никогда</string>
