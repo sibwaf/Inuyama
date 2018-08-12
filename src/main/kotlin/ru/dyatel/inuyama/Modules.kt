@@ -12,15 +12,19 @@ import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.model.NyaaWatch
+import ru.dyatel.inuyama.model.RuranobeProject
+import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.model.Update
 import ru.dyatel.inuyama.nyaa.NyaaApi
 import ru.dyatel.inuyama.nyaa.NyaaWatcher
 import ru.dyatel.inuyama.ruranobe.RuranobeApi
+import ru.dyatel.inuyama.ruranobe.RuranobeWatcher
 import ru.dyatel.inuyama.rutracker.RutrackerApi
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.dyatel.inuyama.rutracker.RutrackerWatcher
 import ru.dyatel.inuyama.screens.NyaaScreen
+import ru.dyatel.inuyama.screens.RuranobeScreen
 import ru.dyatel.inuyama.screens.RutrackerScreen
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
@@ -76,5 +80,16 @@ val nyaaModule = Kodein.Module {
 }
 
 val ruranobeModule = Kodein.Module {
+    bind<Box<RuranobeProject>>() with singleton { instance<BoxStore>().boxFor<RuranobeProject>() }
+    bind<Box<RuranobeVolume>>() with singleton { instance<BoxStore>().boxFor<RuranobeVolume>() }
     bind<RuranobeApi>() with singleton { RuranobeApi(kodein) }
+    bind<RuranobeWatcher>() with singleton { RuranobeWatcher(kodein) }
+
+    bind<ModuleScreenProvider<RuranobeScreen>>() with singleton {
+        object : ModuleScreenProvider<RuranobeScreen>() {
+            override fun getIcon() = CommunityMaterial.Icon.cmd_book
+            override fun getTitle(context: Context) = context.getString(R.string.module_ruranobe)!!
+            override fun getScreen() = RuranobeScreen()
+        }
+    }
 }

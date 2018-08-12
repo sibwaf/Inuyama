@@ -7,7 +7,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.view.View
 import android.widget.EditText
-import android.widget.Spinner
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import com.wealthfront.magellan.Screen
@@ -87,7 +86,7 @@ class NyaaScreen : Screen<NyaaView>(), KodeinAware {
         super.onShow(context)
 
         reload()
-        boxObserver = watchBox.store
+        boxObserver = boxStore
                 .subscribeFor<NyaaWatch>()
                 .on(AndroidScheduler.mainThread())
                 .onlyChanges()
@@ -172,9 +171,7 @@ class NyaaScreen : Screen<NyaaView>(), KodeinAware {
         }
         val descriptionEditor = view.find<EditText>(descriptionEditorId)
         val collectPathEditor = view.find<EditText>(collectPathEditorId)
-        val directorySelector = view.find<Spinner>(directorySelectorId).let {
-            DirectorySelector(it, directories, watch.directory.target)
-        }
+        val directorySelector = DirectorySelector(view.find(directorySelectorId), directories, watch.directory.target)
 
         AlertDialog.Builder(activity)
                 .setTitle(R.string.dialog_add_watch)

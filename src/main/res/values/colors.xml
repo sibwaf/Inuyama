@@ -7,4 +7,7 @@
     <color name="color_fail">@color/md_red_700</color>
     <color name="color_pending">@color/md_yellow_700</color>
     <color name="color_ok">@color/md_green_700</color>
+
+    <color name="ruranobe_project_main">@color/md_blue_500</color>
+    <color name="ruranobe_project_works">@color/md_teal_500</color>
 </resources>

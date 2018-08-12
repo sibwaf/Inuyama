@@ -5,6 +5,7 @@ import io.objectbox.BoxStore
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.model.NyaaTorrent_
@@ -22,6 +23,8 @@ class NyaaWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
     private val boxStore by instance<BoxStore>()
     private val torrentBox by instance<Box<NyaaTorrent>>()
     private val watchBox by instance<Box<NyaaWatch>>()
+
+    private val networkManager by instance<NetworkManager>()
 
     private val undispatchedQuery by lazy {
         torrentBox.query()
@@ -69,6 +72,10 @@ class NyaaWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
     }
 
     override fun dispatchUpdates() {
+        if (!networkManager.isNetworkTrusted()) {
+            return
+        }
+
         boxStore.runInTx {
             for (torrent in undispatchedQuery.find()) {
                 try {

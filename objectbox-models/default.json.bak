@@ -45,7 +45,7 @@
     },
     {
       "id": "3:8399173141570509748",
-      "lastPropertyId": "7:7166280106849270424",
+      "lastPropertyId": "8:1834225924890320662",
       "name": "RutrackerWatch",
       "properties": [
         {
@@ -72,6 +72,10 @@
         {
           "id": "7:7166280106849270424",
           "name": "magnet"
+        },
+        {
+          "id": "8:1834225924890320662",
+          "name": "topic"
         }
       ],
       "relations": []
@@ -149,10 +153,91 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "7:9079643043425856199",
+      "lastPropertyId": "7:4362877862621660230",
+      "name": "RuranobeProject",
+      "properties": [
+        {
+          "id": "1:3476544888533620111",
+          "name": "id"
+        },
+        {
+          "id": "2:8839484974357975681",
+          "name": "title"
+        },
+        {
+          "id": "3:4657051873077870108",
+          "name": "author"
+        },
+        {
+          "id": "4:5778665689393010114",
+          "name": "works"
+        },
+        {
+          "id": "5:320599720807498218",
+          "name": "status"
+        },
+        {
+          "id": "6:7457111520240375766",
+          "name": "issueStatus"
+        },
+        {
+          "id": "7:4362877862621660230",
+          "name": "translationStatus"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "8:1764664596220470040",
+      "lastPropertyId": "9:648865879513795281",
+      "name": "RuranobeVolume",
+      "properties": [
+        {
+          "id": "1:3498347921107808505",
+          "name": "id"
+        },
+        {
+          "id": "2:5584013846151414334",
+          "name": "order"
+        },
+        {
+          "id": "3:2424244815866718090",
+          "name": "url"
+        },
+        {
+          "id": "4:4690721791359750504",
+          "name": "coverUrl"
+        },
+        {
+          "id": "5:3581820511969398487",
+          "name": "title"
+        },
+        {
+          "id": "6:6583456495036693122",
+          "name": "status"
+        },
+        {
+          "id": "7:2388195235568045795",
+          "name": "updateDatetime"
+        },
+        {
+          "id": "8:8481442839404716326",
+          "name": "dispatched"
+        },
+        {
+          "id": "9:648865879513795281",
+          "indexId": "5:6922854573612349812",
+          "name": "projectId"
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "6:4814708477695070253",
-  "lastIndexId": "4:3480198537382979956",
+  "lastEntityId": "8:1764664596220470040",
+  "lastIndexId": "5:6922854573612349812",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 4,

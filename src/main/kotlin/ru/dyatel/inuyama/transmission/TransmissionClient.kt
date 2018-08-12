@@ -17,7 +17,6 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URI
 
-
 private const val SESSION_HEADER = "X-Transmission-Session-Id"
 
 class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClient {
@@ -114,7 +113,7 @@ class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClie
         executeRaw(TransmissionRequest("torrent-add", arguments))
     }
 
-    override fun getName(context: Context) = context.getString(R.string.screen_transmission)
+    override fun getName(context: Context) = context.getString(R.string.screen_transmission)!!
 
 }
 

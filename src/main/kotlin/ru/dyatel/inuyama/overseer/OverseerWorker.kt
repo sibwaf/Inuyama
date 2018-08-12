@@ -61,9 +61,7 @@ class OverseerWorker : Worker(), KodeinAware {
                     .takeUnless { it.isEmpty() }
                     ?.let { notifier.notifyUpdates(it) }
 
-            if (networkManager.isNetworkTrusted()) {
-                watchers.forEach { it.dispatchUpdates() }
-            }
+            watchers.forEach { it.dispatchUpdates() }
 
             return Result.SUCCESS
         } catch (e: Exception) {
