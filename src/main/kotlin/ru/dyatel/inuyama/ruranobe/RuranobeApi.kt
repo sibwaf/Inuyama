@@ -4,6 +4,8 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
+import org.jsoup.Connection
+import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
@@ -14,6 +16,7 @@ import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.utilities.asDateTime
 import java.io.IOException
+import java.net.HttpURLConnection
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -22,6 +25,8 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     private companion object {
         const val host = "http://ruranobe.ru"
+        const val tooManyRequestsDelay = 2500L
+
         val datetimeFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss Z", Locale.US)
     }
 
@@ -39,13 +44,35 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
         }
     }
 
+    private fun handleResponseCode(response: Connection.Response): Boolean {
+        val code = response.statusCode()
+
+        // TODO: replace with HttpURLConnection constant when it is present
+        if (code == 429) {
+            Thread.sleep(tooManyRequestsDelay)
+            return true
+        }
+
+        if (code < HttpURLConnection.HTTP_OK || response.statusCode() >= HttpURLConnection.HTTP_BAD_REQUEST) {
+            throw HttpStatusException("HTTP error fetching URL", code, response.url().toString())
+        }
+
+        return false
+    }
+
     fun fetchProjects(): List<RuranobeProject> {
         try {
-            val json = Jsoup.connect("$host/api/projects")
+            val response = Jsoup.connect("$host/api/projects")
                     .ignoreContentType(true)
+                    .ignoreHttpErrors(true)
                     .data("fields", "projectId,title,author,works,status,translationStatus,issueStatus")
-                    .get()
-                    .text()
+                    .execute()
+
+            if (handleResponseCode(response)) {
+                return fetchProjects()
+            }
+
+            val json = response.body()
 
             val typeToken = object : TypeToken<List<RuranobeProject>>() {}.type
             return gson.fromJson<List<RuranobeProject>>(json, typeToken)
@@ -56,11 +83,17 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     fun fetchVolumes(project: RuranobeProject): List<RuranobeVolume> {
         try {
-            val json = Jsoup.connect("$host/api/projects/${project.id}/volumes")
+            val response = Jsoup.connect("$host/api/projects/${project.id}/volumes")
                     .ignoreContentType(true)
-                    .data("fields", "volumeId,url,imageUrl,nameTitle,volumeStatus,lastUpdateDate,lastEditDate")
-                    .get()
-                    .text()
+                    .ignoreHttpErrors(true)
+                    .data("fields", "volumeId,url,imageThumbnail,nameTitle,volumeStatus,lastUpdateDate,lastEditDate")
+                    .execute()
+
+            if (handleResponseCode(response)) {
+                return fetchVolumes(project)
+            }
+
+            val json = response.body()
 
             return jsonParser.parse(json).asJsonArray
                     .map { it.asJsonObject!! }
@@ -74,14 +107,17 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
                         )
 
                         parsed.coverUrl = volume.getAsJsonArray("covers")
-                                .map { it.asJsonObject["url"].asString }
-                                .lastOrNull()
+                                .map { it.asJsonObject["thumbnail"].asString }
+                                .firstOrNull()
                                 ?.let { if (it.startsWith("//")) "http:$it" else it }
+                                ?.replace("%dpx", "240px")
 
                         parsed.updateDatetime = listOfNotNull(volume["lastUpdateDate"], volume["lastEditDate"])
                                 .map { datetimeFormat.parse(it.asString).asDateTime }
                                 .sorted()
                                 .lastOrNull()
+
+                        parsed.project.target = project
 
                         return@mapIndexed parsed
                     }
