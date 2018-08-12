@@ -24,6 +24,7 @@ import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_RURANOBE_PROJECT
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.model.RuranobeProject
+import ru.dyatel.inuyama.utilities.hideIf
 
 class RuranobeProjectItem(
         val project: RuranobeProject
@@ -32,7 +33,10 @@ class RuranobeProjectItem(
     private companion object {
         val worksMarkerId = View.generateViewId()
         val coverViewId = View.generateViewId()
+
         val titleViewId = View.generateViewId()
+        val authorViewId = View.generateViewId()
+        val statusViewId = View.generateViewId()
 
         const val COVER_ASPECT_RATIO = 240.0 / 343
     }
@@ -45,13 +49,20 @@ class RuranobeProjectItem(
 
         private val worksMarker = view.find<View>(worksMarkerId)
         private val coverView = view.find<ImageView>(coverViewId)
+
         private val titleView = view.find<TextView>(titleViewId)
+        private val authorView = view.find<TextView>(authorViewId)
+        private val statusView = view.find<TextView>(statusViewId)
+
+        private val context = view.context
 
         private val glide = Glide.with(view)
 
         override fun unbindView(item: RuranobeProjectItem) {
             glide.clear(coverView)
             titleView.text = null
+            authorView.text = null
+            statusView.text = null
         }
 
         override fun bindView(item: RuranobeProjectItem, payloads: MutableList<Any>?) {
@@ -64,6 +75,15 @@ class RuranobeProjectItem(
             }
 
             titleView.text = item.project.title
+
+            authorView.text = item.project.author
+            authorView.hideIf(item.project.author.isBlank())
+
+            val volumes = item.project.volumes.count()
+            statusView.text = context.resources.getQuantityString(
+                    R.plurals.ruranobe_volumes, volumes,
+                    volumes, item.project.status
+            )
         }
     }
 
@@ -105,6 +125,18 @@ class RuranobeProjectItem(
                         id = titleViewId
                         textSize = SP_MEDIUM
                         gravity = Gravity.CENTER
+                    }.lparams(width = matchParent) {
+                        bottomMargin = DIM_LARGE
+                    }
+
+                    textView {
+                        id = authorViewId
+                        textSize = SP_MEDIUM
+                    }
+
+                    textView {
+                        id = statusViewId
+                        textSize = SP_MEDIUM
                     }
                 }
             }

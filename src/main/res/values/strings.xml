@@ -40,6 +40,12 @@
     <string name="label_waiting_for_task">Ждём запуска задачи…</string>
     <string name="label_no_updates">Обновлений не найдено</string>
 
+    <plurals name="ruranobe_volumes">
+        <item quantity="one">%d том, %s</item>
+        <item quantity="few">%d тома, %s</item>
+        <item quantity="other">%d томов, %s</item>
+    </plurals>
+
     <string name="container_services">Сервисы</string>
     <string name="container_update_list">Обновления</string>
 
