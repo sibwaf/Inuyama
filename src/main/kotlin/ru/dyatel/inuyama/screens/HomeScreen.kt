@@ -241,6 +241,7 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
             it(OverseerWorker.isWorking)
         }
 
+        val services = services.sortedBy { it.getName(context) }
         for ((index, service) in services.withIndex()) {
             val item = ModuleStateItem(service.getName(context), State.PENDING)
             serviceAdapter.add(item)

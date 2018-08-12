@@ -85,7 +85,7 @@ class MainActivity : SingleActivity(), KodeinAware {
 
         addDrawerItems(DividerDrawerItem())
 
-        for (provider in moduleScreens) {
+        for (provider in moduleScreens.sortedBy { it.getTitle(ctx) }) {
             addDrawerItems(PrimaryDrawerItem()
                     .withIcon(provider.getIcon())
                     .withName(provider.getTitle(ctx))
