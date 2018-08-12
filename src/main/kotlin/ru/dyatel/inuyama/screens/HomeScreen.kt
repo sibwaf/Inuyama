@@ -4,7 +4,6 @@ import android.content.Context
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.Gravity
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -55,6 +54,7 @@ import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.ctx
 import ru.dyatel.inuyama.utilities.hideIf
 import ru.dyatel.inuyama.utilities.prettyTime
+import ru.dyatel.inuyama.utilities.propagateTouchEvents
 
 class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
 
@@ -117,6 +117,12 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
                             layoutManager = LinearLayoutManager(context)
 
                             isNestedScrollingEnabled = false
+                        }.apply {
+                            propagateTouchEvents()
+                        }
+
+                        setOnClickListener {
+                            screen.requestServiceCheck()
                         }
                     }
 
@@ -300,10 +306,9 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
         }
     }
 
-    override fun onUpdateMenu(menu: Menu) {
-        menu.findItem(R.id.refresh).apply {
-            isVisible = true
-            setOnMenuItemClickListener { checkers.forEach { it.check() }; true }
+    fun requestServiceCheck() {
+        for (checker in checkers) {
+            checker.check()
         }
     }
 

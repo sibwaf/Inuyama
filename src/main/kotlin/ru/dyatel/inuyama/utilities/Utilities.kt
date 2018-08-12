@@ -3,8 +3,11 @@ package ru.dyatel.inuyama.utilities
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.support.v7.widget.RecyclerView
 import android.text.InputType
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import com.google.gson.Gson
@@ -60,6 +63,20 @@ fun EditText.disableUiExtraction() {
 
 fun EditText.disableSuggestions() {
     inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+}
+
+fun RecyclerView.propagateTouchEvents() {
+    val parent = parent as ViewGroup
+
+    setOnTouchListener { _, event -> parent.onTouchEvent(event)}
+    addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
+        override fun onTouchEvent(rv: RecyclerView?, e: MotionEvent) {
+            parent.onTouchEvent(e)
+        }
+
+        override fun onInterceptTouchEvent(rv: RecyclerView?, e: MotionEvent?) = true
+        override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) = Unit
+    })
 }
 
 val Date.asDateTime
