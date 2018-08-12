@@ -57,6 +57,10 @@ fun View.hideIf(condition: Boolean) {
     visibility = if (condition) View.GONE else View.VISIBLE
 }
 
+fun <T : View> T.hideIf(predicate: (T) -> Boolean) {
+    hideIf(predicate(this))
+}
+
 fun EditText.disableUiExtraction() {
     imeOptions = imeOptions or EditorInfo.IME_FLAG_NO_EXTRACT_UI
 }

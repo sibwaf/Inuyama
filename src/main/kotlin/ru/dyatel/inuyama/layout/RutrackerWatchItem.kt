@@ -61,7 +61,8 @@ class RutrackerWatchItem(
                     ?: context.getString(R.string.const_directory_default)
             directoryView.text = context.getString(R.string.label_path, directoryText)
 
-            val lastUpdateText = item.watch.lastUpdate?.let { prettyTime.format(Date(it)) }
+            val lastUpdateText = item.watch.lastUpdate
+                    ?.let { prettyTime.format(Date(it)) }
                     ?: context.getString(R.string.const_never)
             lastUpdateView.text = context.getString(R.string.label_last_update, lastUpdateText)
 

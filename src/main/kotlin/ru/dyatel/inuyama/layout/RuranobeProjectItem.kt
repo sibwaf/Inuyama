@@ -24,7 +24,9 @@ import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_RURANOBE_PROJECT
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.model.RuranobeProject
+import ru.dyatel.inuyama.utilities.asDate
 import ru.dyatel.inuyama.utilities.hideIf
+import ru.dyatel.inuyama.utilities.prettyTime
 
 class RuranobeProjectItem(
         val project: RuranobeProject
@@ -37,6 +39,8 @@ class RuranobeProjectItem(
         val titleViewId = View.generateViewId()
         val authorViewId = View.generateViewId()
         val statusViewId = View.generateViewId()
+
+        val lastUpdateViewId = View.generateViewId()
 
         const val COVER_ASPECT_RATIO = 240.0 / 343
     }
@@ -54,6 +58,8 @@ class RuranobeProjectItem(
         private val authorView = view.find<TextView>(authorViewId)
         private val statusView = view.find<TextView>(statusViewId)
 
+        private val lastUpdateView = view.find<TextView>(lastUpdateViewId)
+
         private val context = view.context
 
         private val glide = Glide.with(view)
@@ -63,6 +69,7 @@ class RuranobeProjectItem(
             titleView.text = null
             authorView.text = null
             statusView.text = null
+            lastUpdateView.text = null
         }
 
         override fun bindView(item: RuranobeProjectItem, payloads: MutableList<Any>?) {
@@ -77,13 +84,20 @@ class RuranobeProjectItem(
             titleView.text = item.project.title
 
             authorView.text = item.project.author
-            authorView.hideIf(item.project.author.isBlank())
+            authorView.hideIf { it.text.isBlank() }
 
-            val volumes = item.project.volumes.count()
+            val volumes = item.project.volumes
+
+            val volumeCount = volumes.count()
             statusView.text = context.resources.getQuantityString(
-                    R.plurals.ruranobe_volumes, volumes,
-                    volumes, item.project.status
+                    R.plurals.ruranobe_volumes, volumeCount,
+                    volumeCount, item.project.status
             )
+
+            val lastUpdateText = volumes.mapNotNull { it.updateDatetime }.max()
+                    ?.let { prettyTime.format(it.asDate) }
+                    ?: context.getString(R.string.const_never)
+            lastUpdateView.text = context.getString(R.string.label_last_update, lastUpdateText)
         }
     }
 
@@ -114,7 +128,9 @@ class RuranobeProjectItem(
                 val coverHeight = (coverWidth / COVER_ASPECT_RATIO).toInt()
                 imageView {
                     id = coverViewId
-                }.lparams(width = coverWidth, height = coverHeight)
+                }.lparams(width = coverWidth, height = coverHeight) {
+                    gravity = Gravity.CENTER_VERTICAL
+                }
 
                 verticalLayout {
                     lparams(width = matchParent, height = wrapContent) {
@@ -124,7 +140,7 @@ class RuranobeProjectItem(
                     textView {
                         id = titleViewId
                         textSize = SP_MEDIUM
-                        gravity = Gravity.CENTER
+                        gravity = Gravity.CENTER_HORIZONTAL
                     }.lparams(width = matchParent) {
                         bottomMargin = DIM_LARGE
                     }
@@ -136,6 +152,11 @@ class RuranobeProjectItem(
 
                     textView {
                         id = statusViewId
+                        textSize = SP_MEDIUM
+                    }
+
+                    textView {
+                        id = lastUpdateViewId
                         textSize = SP_MEDIUM
                     }
                 }
