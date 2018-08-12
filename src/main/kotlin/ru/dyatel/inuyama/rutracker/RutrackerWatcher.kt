@@ -14,7 +14,7 @@ import ru.dyatel.inuyama.transmission.TransmissionException
 import ru.dyatel.inuyama.utilities.MagnetParser
 import ru.dyatel.inuyama.utilities.subscribeFor
 
-class RutrackerWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
+class RutrackerWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
 
     private val api by instance<RutrackerApi>()
     private val torrentClient by instance<TorrentClient>()
@@ -29,12 +29,10 @@ class RutrackerWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
                 .build()
     }
 
-    private val updateListeners = mutableListOf<() -> Unit>()
-
     init {
         watchBox.store.subscribeFor<RutrackerWatch>()
                 .onlyChanges()
-                .observer { updateListeners.forEach { it() } }
+                .observer { notifyListeners() }
     }
 
     override fun checkUpdates(): List<String> {
@@ -86,11 +84,4 @@ class RutrackerWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
         return watchBox.all.mapNotNull { update -> update.lastUpdate?.let { Update(update.description, it) } }
     }
 
-    override fun addUpdateListener(listener: () -> Unit) {
-        updateListeners += listener
-    }
-
-    override fun removeUpdateListener(listener: () -> Unit) {
-        updateListeners -= listener
-    }
 }

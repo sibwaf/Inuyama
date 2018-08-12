@@ -13,7 +13,7 @@ import ru.dyatel.inuyama.model.RuranobeVolume_
 import ru.dyatel.inuyama.model.Update
 import java.util.TimeZone
 
-class RuranobeWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
+class RuranobeWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
 
     private val api by instance<RuranobeApi>()
 
@@ -32,8 +32,6 @@ class RuranobeWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
                 .equal(RuranobeVolume_.dispatched, false)
                 .build()
     }
-
-    private val updateListeners = mutableListOf<() -> Unit>()
 
     fun syncProjects() {
         val projects = try {
@@ -115,14 +113,6 @@ class RuranobeWatcher(override val kodein: Kodein) : KodeinAware, Watcher {
                     }
                 }
                 .distinctBy { it.description }
-    }
-
-    override fun addUpdateListener(listener: () -> Unit) {
-        updateListeners += listener
-    }
-
-    override fun removeUpdateListener(listener: () -> Unit) {
-        updateListeners -= listener
     }
 
 }

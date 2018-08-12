@@ -34,12 +34,26 @@ interface RemoteService {
     fun checkConnection(): Boolean
 }
 
-interface Watcher {
-    fun checkUpdates(): List<String>
-    fun dispatchUpdates()
-    fun listUpdates(): List<Update>
-    fun addUpdateListener(listener: () -> Unit)
-    fun removeUpdateListener(listener: () -> Unit)
+abstract class Watcher {
+
+    private val listeners = mutableListOf<() -> Unit>()
+
+    abstract fun checkUpdates(): List<String>
+    abstract fun dispatchUpdates()
+    abstract fun listUpdates(): List<Update>
+
+    fun addUpdateListener(listener: () -> Unit) {
+        listeners += listener
+    }
+
+    fun removeUpdateListener(listener: () -> Unit) {
+        listeners -= listener
+    }
+
+    protected fun notifyListeners() {
+        listeners.forEach { it() }
+    }
+
 }
 
 @Suppress("FINITE_BOUNDS_VIOLATION_IN_JAVA")
