@@ -6,10 +6,8 @@ import android.support.v7.widget.RecyclerView
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
-import com.mikepenz.iconics.IconicsDrawable
 import com.wealthfront.magellan.BaseScreenView
 import com.wealthfront.magellan.Screen
 import kotlinx.coroutines.experimental.Job
@@ -20,8 +18,6 @@ import org.jetbrains.anko.bottomPadding
 import org.jetbrains.anko.cardview.v7.cardView
 import org.jetbrains.anko.find
 import org.jetbrains.anko.frameLayout
-import org.jetbrains.anko.imageView
-import org.jetbrains.anko.linearLayout
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.recyclerview.v7.recyclerView
@@ -44,7 +40,9 @@ import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.ModuleStateItem
 import ru.dyatel.inuyama.layout.SP_MEDIUM
 import ru.dyatel.inuyama.layout.State
+import ru.dyatel.inuyama.layout.StatusBar
 import ru.dyatel.inuyama.layout.UpdateItem
+import ru.dyatel.inuyama.layout.statusBar
 import ru.dyatel.inuyama.overseer.OverseerListener
 import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.overseer.OverseerWorker
@@ -59,13 +57,13 @@ import ru.dyatel.inuyama.utilities.propagateTouchEvents
 class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
 
     private companion object {
-        val overseerStateId = View.generateViewId()
+        val statusBarId = View.generateViewId()
         val serviceRecyclerId = View.generateViewId()
         val noUpdatesMarkerId = View.generateViewId()
         val updateRecyclerId = View.generateViewId()
     }
 
-    val overseerState: TextView
+    val statusBar: StatusBar
     private val serviceRecycler: RecyclerView
     private val noUpdatesMarker: View
     private val updateRecycler: RecyclerView
@@ -74,30 +72,13 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
         verticalLayout {
             lparams(width = matchParent, height = matchParent)
 
-            cardView {
-                lparams(width = matchParent, height = wrapContent)
+            statusBar {
+                id = statusBarId
 
-                linearLayout {
-                    lparams(width = matchParent, height = wrapContent) {
-                        margin = DIM_EXTRA_LARGE
-                    }
+                icon = CommunityMaterial.Icon.cmd_update
+                switchEnabled = false
 
-                    val icon = IconicsDrawable(context)
-                            .icon(CommunityMaterial.Icon.cmd_update)
-                            .sizeDp(24)
-                            .colorRes(R.color.material_drawer_dark_secondary_text)
-
-                    imageView(icon).lparams { rightMargin = DIM_EXTRA_LARGE }
-
-                    textView {
-                        id = overseerStateId
-                        textSize = SP_MEDIUM
-                    }
-                }
-
-                setOnClickListener {
-                    screen.requestOverseerCheck()
-                }
+                setOnClickListener { screen.requestOverseerCheck() }
             }
 
             nestedScrollView {
@@ -147,7 +128,7 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
             }
         }
 
-        overseerState = find(overseerStateId)
+        statusBar = find(statusBarId)
         serviceRecycler = find(serviceRecyclerId)
         noUpdatesMarker = find(noUpdatesMarkerId)
         updateRecycler = find(updateRecyclerId)
@@ -230,12 +211,12 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
 
         overseerListener = OverseerWorker.addListener { state ->
             if (state) {
-                view.overseerState.textResource = R.string.label_checking
+                view.statusBar.textResource = R.string.label_checking
             } else {
                 val lastCheckText = preferenceHelper.lastCheck
                         ?.let { prettyTime.format(it.asDate) }
                         ?: context.getString(R.string.const_never)
-                view.overseerState.text = context.getString(R.string.label_last_check, lastCheckText)
+                view.statusBar.text = context.getString(R.string.label_last_check, lastCheckText)
             }
         }.also {
             it(OverseerWorker.isWorking)
@@ -302,7 +283,7 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
 
     fun requestOverseerCheck() {
         if (!OverseerWorker.isWorking) {
-            view.overseerState.textResource = R.string.label_waiting_for_task
+            view.statusBar.textResource = R.string.label_waiting_for_task
             OverseerStarter.start(ctx, true)
         }
     }
