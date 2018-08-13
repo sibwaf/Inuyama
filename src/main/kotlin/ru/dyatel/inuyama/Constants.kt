@@ -7,6 +7,7 @@ const val ITEM_TYPE_MODULE_STATE = 4
 const val ITEM_TYPE_NYAA_WATCH = 5
 const val ITEM_TYPE_DASHBOARD_UPDATE = 6
 const val ITEM_TYPE_RURANOBE_PROJECT = 7
+const val ITEM_TYPE_RURANOBE_VOLUME = 8
 
 const val NOTIFICATION_CHANNEL_UPDATES = "updates"
 
@@ -15,3 +16,6 @@ const val NOTIFICATION_ID_UPDATE = 1
 const val WORK_NAME_OVERSEER = "ru.dyatel.inuyama:overseer"
 
 const val DASHBOARD_UPDATE_COUNT = 8
+
+const val RURANOBE_COVER_ASPECT_RATIO = 240.0 / 343
+const val RURANOBE_COVER_SIZE = 6

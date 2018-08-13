@@ -39,12 +39,22 @@
     <string name="label_checking">Проверяем…</string>
     <string name="label_waiting_for_task">Ждём запуска задачи…</string>
     <string name="label_no_updates">Обновлений не найдено</string>
+    <string name="label_watching">Отслеживание обновлений</string>
 
     <plurals name="ruranobe_volumes">
         <item quantity="one">%d том, %s</item>
         <item quantity="few">%d тома, %s</item>
         <item quantity="other">%d томов, %s</item>
     </plurals>
+
+    <string name="ruranobe_status_no_eng">Нет анлейта</string>
+    <string name="ruranobe_status_done">Завершён</string>
+    <string name="ruranobe_status_translating">Переводится</string>
+    <string name="ruranobe_status_proofread">Редактируется</string>
+    <string name="ruranobe_status_decor">Не оформлен</string>
+    <string name="ruranobe_status_queue">В очереди</string>
+    <string name="ruranobe_status_external_done">Внешний, завершён</string>
+    <string name="ruranobe_status_external_dropped">Внешний, заброшен</string>
 
     <string name="container_services">Сервисы</string>
     <string name="container_update_list">Обновления</string>

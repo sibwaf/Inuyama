@@ -8,9 +8,7 @@ import android.support.v7.widget.SearchView
 import android.support.v7.widget.SimpleItemAnimator
 import android.view.Menu
 import android.view.View
-import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.adapters.ItemAdapter
-import com.mikepenz.fastadapter.utils.ComparableItemListImpl
 import com.wealthfront.magellan.BaseScreenView
 import com.wealthfront.magellan.Screen
 import io.objectbox.Box
@@ -40,7 +38,6 @@ import ru.dyatel.inuyama.utilities.buildFastAdapter
 class RuranobeView(context: Context) : BaseScreenView<RuranobeScreen>(context) {
 
     private companion object {
-        private val swipeRefreshId = View.generateViewId()
         private val recyclerViewId = View.generateViewId()
     }
 
@@ -54,9 +51,7 @@ class RuranobeView(context: Context) : BaseScreenView<RuranobeScreen>(context) {
         }
 
     init {
-        swipeRefreshLayout {
-            id = swipeRefreshId
-
+        swipeRefresh = swipeRefreshLayout {
             onRefresh { screen.fetch() }
 
             recyclerView {
@@ -69,7 +64,6 @@ class RuranobeView(context: Context) : BaseScreenView<RuranobeScreen>(context) {
             }
         }
 
-        swipeRefresh = find(swipeRefreshId)
         recyclerView = find(recyclerViewId)
     }
 
@@ -81,6 +75,26 @@ class RuranobeView(context: Context) : BaseScreenView<RuranobeScreen>(context) {
 
 class RuranobeScreen : Screen<RuranobeView>(), KodeinAware {
 
+    private companion object {
+        val projectComparator = Comparator<RuranobeProject> { first, second ->
+            if (first.watching && !second.watching) {
+                return@Comparator -1
+            }
+            if (!first.watching && second.watching) {
+                return@Comparator 1
+            }
+
+            if (!first.works && second.works) {
+                return@Comparator -1
+            }
+            if (first.works && !second.works) {
+                return@Comparator 1
+            }
+
+            first.title.compareTo(second.title)
+        }
+    }
+
     override val kodein by closestKodein { activity }
 
     private val boxStore by instance<BoxStore>()
@@ -90,36 +104,12 @@ class RuranobeScreen : Screen<RuranobeView>(), KodeinAware {
 
     private val watcher by instance<RuranobeWatcher>()
 
-    private val adapter: ItemAdapter<RuranobeProjectItem>
-    private val fastAdapter: FastAdapter<RuranobeProjectItem>
+    private val adapter = ItemAdapter<RuranobeProjectItem>()
+    private val fastAdapter = adapter.buildFastAdapter()
 
     private var fetchTask: Job? = null
 
     init {
-        val comparableList = ComparableItemListImpl<RuranobeProjectItem> { item1, item2 ->
-            val first = item1.project
-            val second = item2.project
-
-            if (first.watching && !second.watching) {
-                return@ComparableItemListImpl -1
-            }
-            if (!first.watching && second.watching) {
-                return@ComparableItemListImpl 1
-            }
-
-            if (!first.works && second.works) {
-                return@ComparableItemListImpl -1
-            }
-            if (first.works && !second.works) {
-                return@ComparableItemListImpl 1
-            }
-
-            first.title.compareTo(second.title)
-        }
-
-        adapter = ItemAdapter(comparableList)
-        fastAdapter = adapter.buildFastAdapter()
-
         adapter.itemFilter.withFilterPredicate { item, constraint ->
             if (constraint == null) {
                 return@withFilterPredicate true
@@ -174,11 +164,17 @@ class RuranobeScreen : Screen<RuranobeView>(), KodeinAware {
     }
 
     private fun reload() {
-        val projects = projectBox.all.map {
-            RuranobeProjectItem(it)
-        }
+        val projects = projectBox.all
+                .sortedWith(projectComparator)
+                .map {
+                    RuranobeProjectItem(it)
+                            .withOnItemClickListener { _, _, item, _ ->
+                                navigator.goTo(RuranobeProjectScreen(item.project))
+                                true
+                            }
+                }
 
-        adapter.setNewList(projects)
+        adapter.set(projects)
     }
 
     fun fetch() {

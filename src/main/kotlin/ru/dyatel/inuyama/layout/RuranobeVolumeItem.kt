@@ -9,7 +9,6 @@ import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
-import org.jetbrains.anko.backgroundColorResource
 import org.jetbrains.anko.cardview.v7.cardView
 import org.jetbrains.anko.find
 import org.jetbrains.anko.imageView
@@ -19,89 +18,70 @@ import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.padding
 import org.jetbrains.anko.textView
 import org.jetbrains.anko.verticalLayout
-import org.jetbrains.anko.view
 import org.jetbrains.anko.wrapContent
-import ru.dyatel.inuyama.ITEM_TYPE_RURANOBE_PROJECT
+import ru.dyatel.inuyama.ITEM_TYPE_RURANOBE_VOLUME
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RURANOBE_COVER_ASPECT_RATIO
 import ru.dyatel.inuyama.RURANOBE_COVER_SIZE
-import ru.dyatel.inuyama.model.RuranobeProject
+import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.utilities.asDate
-import ru.dyatel.inuyama.utilities.hideIf
 import ru.dyatel.inuyama.utilities.prettyTime
 
-class RuranobeProjectItem(
-        val project: RuranobeProject
-) : AbstractItem<RuranobeProjectItem, RuranobeProjectItem.ViewHolder>() {
+class RuranobeVolumeItem(val volume: RuranobeVolume) : AbstractItem<RuranobeVolumeItem, RuranobeVolumeItem.ViewHolder>() {
 
     private companion object {
-        val worksMarkerId = View.generateViewId()
         val coverViewId = View.generateViewId()
-
         val titleViewId = View.generateViewId()
-        val authorViewId = View.generateViewId()
         val statusViewId = View.generateViewId()
-
         val lastUpdateViewId = View.generateViewId()
     }
 
     init {
-        withIdentifier(project.id)
+        withIdentifier(volume.id)
     }
 
-    class ViewHolder(view: View) : FastAdapter.ViewHolder<RuranobeProjectItem>(view) {
+    class ViewHolder(view: View) : FastAdapter.ViewHolder<RuranobeVolumeItem>(view) {
 
-        private val worksMarker = view.find<View>(worksMarkerId)
         private val coverView = view.find<ImageView>(coverViewId)
-
         private val titleView = view.find<TextView>(titleViewId)
-        private val authorView = view.find<TextView>(authorViewId)
         private val statusView = view.find<TextView>(statusViewId)
-
         private val lastUpdateView = view.find<TextView>(lastUpdateViewId)
 
         private val context = view.context
 
         private val glide = Glide.with(view)
 
-        override fun unbindView(item: RuranobeProjectItem) {
+        override fun unbindView(item: RuranobeVolumeItem) {
             glide.clear(coverView)
             titleView.text = null
-            authorView.text = null
             statusView.text = null
             lastUpdateView.text = null
         }
 
-        override fun bindView(item: RuranobeProjectItem, payloads: MutableList<Any>?) {
-            worksMarker.backgroundColorResource =
-                    if (item.project.works) R.color.ruranobe_project_works else R.color.ruranobe_project_main
+        override fun bindView(item: RuranobeVolumeItem, payloads: MutableList<Any>?) {
+            glide.load(item.volume.coverUrl).into(coverView)
 
-            val coverUrl = item.project.volumes.firstOrNull()?.coverUrl
-            if (coverUrl != null) {
-                glide.load(coverUrl).into(coverView)
+            titleView.text = item.volume.title
+            statusView.text = when (item.volume.status) {
+                "no_eng" -> context.getString(R.string.ruranobe_status_no_eng)
+                "done" -> context.getString(R.string.ruranobe_status_done)
+                "translating" -> context.getString(R.string.ruranobe_status_translating)
+                "proofread" -> context.getString(R.string.ruranobe_status_proofread)
+                "decor" -> context.getString(R.string.ruranobe_status_decor)
+                "queue" -> context.getString(R.string.ruranobe_status_queue)
+                "external_done" -> context.getString(R.string.ruranobe_status_external_done)
+                "external_dropped" -> context.getString(R.string.ruranobe_status_external_dropped)
+                else -> item.volume.status
             }
 
-            titleView.text = item.project.title
-
-            authorView.text = item.project.author
-            authorView.hideIf { it.text.isBlank() }
-
-            val volumes = item.project.volumes
-
-            val volumeCount = volumes.count()
-            statusView.text = context.resources.getQuantityString(
-                    R.plurals.ruranobe_volumes, volumeCount,
-                    volumeCount, item.project.status
-            )
-
-            val lastUpdateText = volumes.mapNotNull { it.updateDatetime }.max()
+            val lastUpdateText = item.volume.updateDatetime
                     ?.let { prettyTime.format(it.asDate) }
                     ?: context.getString(R.string.const_never)
             lastUpdateView.text = context.getString(R.string.label_last_update, lastUpdateText)
         }
     }
 
-    override fun getType() = ITEM_TYPE_RURANOBE_PROJECT
+    override fun getType() = ITEM_TYPE_RURANOBE_VOLUME
 
     override fun getViewHolder(view: View) = ViewHolder(view)
 
@@ -116,12 +96,6 @@ class RuranobeProjectItem(
             linearLayout {
                 lparams(width = matchParent, height = wrapContent) {
                     padding = DIM_LARGE
-                }
-
-                view {
-                    id = worksMarkerId
-                }.lparams(width = DIM_MEDIUM, height = matchParent) {
-                    rightMargin = DIM_LARGE
                 }
 
                 val coverWidth = DIM_EXTRA_LARGE * RURANOBE_COVER_SIZE
@@ -146,11 +120,6 @@ class RuranobeProjectItem(
                     }
 
                     textView {
-                        id = authorViewId
-                        textSize = SP_MEDIUM
-                    }
-
-                    textView {
                         id = statusViewId
                         textSize = SP_MEDIUM
                     }
@@ -163,16 +132,4 @@ class RuranobeProjectItem(
             }
         }
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        if (!super.equals(other)) return false
-
-        other as RuranobeProjectItem
-        return project == other.project
-    }
-
-    override fun hashCode() = project.hashCode()
-
 }
