@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.support.v7.widget.SimpleItemAnimator
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
@@ -107,6 +108,8 @@ class RuranobeScreen : Screen<RuranobeView>(), KodeinAware {
     private val adapter = ItemAdapter<RuranobeProjectItem>()
     private val fastAdapter = adapter.buildFastAdapter()
 
+    private lateinit var searchViewItem: MenuItem
+
     private var fetchTask: Job? = null
 
     init {
@@ -160,6 +163,8 @@ class RuranobeScreen : Screen<RuranobeView>(), KodeinAware {
         boxObserver?.cancel()
         boxObserver = null
 
+        searchViewItem.collapseActionView()
+
         super.onHide(context)
     }
 
@@ -206,6 +211,7 @@ class RuranobeScreen : Screen<RuranobeView>(), KodeinAware {
         menu.findItem(R.id.search).apply {
             isVisible = true
 
+            searchViewItem = this
             val actionView = actionView as SearchView
 
             actionView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
