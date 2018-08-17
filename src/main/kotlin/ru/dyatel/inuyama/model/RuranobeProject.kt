@@ -5,6 +5,7 @@ import io.objectbox.annotation.Backlink
 import io.objectbox.annotation.Entity
 import io.objectbox.annotation.Id
 import io.objectbox.relation.ToMany
+import io.objectbox.relation.ToOne
 
 @Entity
 data class RuranobeProject(
@@ -22,5 +23,6 @@ data class RuranobeProject(
 
         var watching: Boolean = false
 ) {
+    lateinit var directory: ToOne<Directory>
     @Backlink lateinit var volumes: ToMany<RuranobeVolume>
 }

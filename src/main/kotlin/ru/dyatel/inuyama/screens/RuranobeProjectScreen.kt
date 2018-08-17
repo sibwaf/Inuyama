@@ -36,10 +36,13 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
+import ru.dyatel.inuyama.layout.DirectorySelector
 import ru.dyatel.inuyama.layout.RuranobeVolumeItem
 import ru.dyatel.inuyama.layout.SP_MEDIUM
 import ru.dyatel.inuyama.layout.StatusBar
+import ru.dyatel.inuyama.layout.directorySelector
 import ru.dyatel.inuyama.layout.statusBar
+import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.model.RuranobeVolume_
@@ -58,6 +61,8 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
         val issueStatusViewId = View.generateViewId()
         val translationStatusViewId = View.generateViewId()
 
+        val directorySelectorId = View.generateViewId()
+
         val recyclerViewId = View.generateViewId()
     }
 
@@ -69,6 +74,8 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
     private val statusView: TextView
     private val issueStatusView: TextView
     private val translationStatusView: TextView
+
+    private val directorySelector: DirectorySelector
 
     private val recyclerView: RecyclerView
 
@@ -138,6 +145,13 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
                                 id = translationStatusViewId
                                 textSize = SP_MEDIUM
                             }
+
+                            directorySelector {
+                                id = directorySelectorId
+                                onItemSelected { screen.changeDirectory(it) }
+                            }.lparams(width = matchParent) {
+                                topMargin = DIM_LARGE
+                            }
                         }
 
                         recyclerView {
@@ -160,7 +174,13 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
         issueStatusView = find(issueStatusViewId)
         translationStatusView = find(translationStatusViewId)
 
+        directorySelector = find(directorySelectorId)
+
         recyclerView = find(recyclerViewId)
+    }
+
+    fun bindDirectories(directories: List<Directory>) {
+        directorySelector.bindDirectories(directories)
     }
 
     fun bindProjectInfo(project: RuranobeProject) {
@@ -176,6 +196,8 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
         translationStatusView.text =
                 context.getString(R.string.ruranobe_label_status_translation, project.translationStatus)
         translationStatusView.hideIf { it.text.isNullOrBlank() }
+
+        directorySelector.directory = project.directory.target
     }
 
     fun bindAdapter(adapter: RecyclerView.Adapter<*>) {
@@ -189,6 +211,7 @@ class RuranobeProjectScreen(private val project: RuranobeProject) : Screen<Ruran
     override val kodein by closestKodein { activity }
 
     private val boxStore by instance<BoxStore>()
+    private val directoryBox by instance<Box<Directory>>()
     private val projectBox by instance<Box<RuranobeProject>>()
     private val volumeBox by instance<Box<RuranobeVolume>>()
 
@@ -210,6 +233,7 @@ class RuranobeProjectScreen(private val project: RuranobeProject) : Screen<Ruran
 
     override fun createView(context: Context): RuranobeProjectView {
         return RuranobeProjectView(context).apply {
+            bindDirectories(directoryBox.all)
             bindProjectInfo(project)
             bindAdapter(fastAdapter)
         }
@@ -237,7 +261,7 @@ class RuranobeProjectScreen(private val project: RuranobeProject) : Screen<Ruran
         super.onHide(context)
     }
 
-    fun reload() {
+    private fun reload() {
         val items = volumeQuery.find().map {
             RuranobeVolumeItem(it)
         }
@@ -270,6 +294,15 @@ class RuranobeProjectScreen(private val project: RuranobeProject) : Screen<Ruran
         }
 
         project.watching = state
+        projectBox.put(project)
+    }
+
+    fun changeDirectory(directory: Directory?) {
+        if (directory == project.directory.target) {
+            return
+        }
+
+        project.directory.target = directory
         projectBox.put(project)
     }
 

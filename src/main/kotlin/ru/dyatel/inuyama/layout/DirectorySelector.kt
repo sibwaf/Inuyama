@@ -2,7 +2,9 @@ package ru.dyatel.inuyama.layout
 
 import android.content.Context
 import android.support.v7.widget.AppCompatSpinner
+import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.model.Directory
@@ -23,12 +25,22 @@ class DirectorySelector(context: Context) : AppCompatSpinner(context) {
             }
         }
 
+    private var listener: ((Directory?) -> Unit)? = null
+
     init {
         directoryAdapter = ArrayAdapter<String>(context, android.R.layout.simple_spinner_item).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
         adapter = directoryAdapter
+
+        onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>) = Unit
+
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                listener?.invoke(directory)
+            }
+        }
     }
 
 
@@ -39,6 +51,10 @@ class DirectorySelector(context: Context) : AppCompatSpinner(context) {
         directoryAdapter.addAll(directories.map { it.path })
 
         this.directories = directories.toList()
+    }
+
+    fun onItemSelected(listener: (Directory?) -> Unit) {
+        this.listener = listener
     }
 
 }

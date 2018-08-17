@@ -156,7 +156,7 @@
     },
     {
       "id": "7:9079643043425856199",
-      "lastPropertyId": "9:1241377724491423297",
+      "lastPropertyId": "10:3444870517717800072",
       "name": "RuranobeProject",
       "properties": [
         {
@@ -194,6 +194,11 @@
         {
           "id": "9:1241377724491423297",
           "name": "titleRomaji"
+        },
+        {
+          "id": "10:3444870517717800072",
+          "indexId": "6:3513579292692193570",
+          "name": "directoryId"
         }
       ],
       "relations": []
@@ -245,7 +250,7 @@
     }
   ],
   "lastEntityId": "8:1764664596220470040",
-  "lastIndexId": "5:6922854573612349812",
+  "lastIndexId": "6:3513579292692193570",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 4,
