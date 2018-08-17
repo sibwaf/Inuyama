@@ -8,14 +8,12 @@ import android.text.InputType
 import android.view.Menu
 import android.view.View
 import android.widget.EditText
-import android.widget.Spinner
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import com.wealthfront.magellan.Screen
 import io.objectbox.Box
 import io.objectbox.android.AndroidScheduler
 import io.objectbox.reactive.DataSubscription
-import org.jetbrains.anko.appcompat.v7.tintedSpinner
 import org.jetbrains.anko.find
 import org.jetbrains.anko.hintResource
 import org.jetbrains.anko.matchParent
@@ -28,7 +26,9 @@ import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
+import ru.dyatel.inuyama.layout.DirectorySelector
 import ru.dyatel.inuyama.layout.RutrackerWatchItem
+import ru.dyatel.inuyama.layout.directorySelector
 import ru.dyatel.inuyama.layout.showConfirmationDialog
 import ru.dyatel.inuyama.layout.uniformTextInput
 import ru.dyatel.inuyama.model.Directory
@@ -36,7 +36,6 @@ import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.rutracker.RutrackerApi
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
-import ru.dyatel.inuyama.utilities.DirectorySelector
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.ctx
@@ -141,16 +140,17 @@ class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
                 setText(watch.description)
             }
 
-            tintedSpinner {
+            directorySelector {
                 id = directorySelectorId
+
+                bindDirectories(directories)
+                directory = watch.directory.target
             }
         }
 
         val linkEditor = view.find<EditText>(linkEditorId)
         val descriptionEditor = view.find<EditText>(descriptionEditorId)
-        val directorySelector = view.find<Spinner>(directorySelectorId).let {
-            DirectorySelector(it, directories, watch.directory.target)
-        }
+        val directorySelector = view.find<DirectorySelector>(directorySelectorId)
 
         AlertDialog.Builder(activity)
                 .setTitle(R.string.dialog_add_watch)

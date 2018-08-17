@@ -14,7 +14,6 @@ import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.android.AndroidScheduler
 import io.objectbox.reactive.DataSubscription
-import org.jetbrains.anko.appcompat.v7.tintedSpinner
 import org.jetbrains.anko.find
 import org.jetbrains.anko.hintResource
 import org.jetbrains.anko.matchParent
@@ -28,14 +27,15 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DatePicker
+import ru.dyatel.inuyama.layout.DirectorySelector
 import ru.dyatel.inuyama.layout.NyaaWatchItem
+import ru.dyatel.inuyama.layout.directorySelector
 import ru.dyatel.inuyama.layout.showConfirmationDialog
 import ru.dyatel.inuyama.layout.uniformTextInput
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.model.NyaaTorrent_
 import ru.dyatel.inuyama.model.NyaaWatch
-import ru.dyatel.inuyama.utilities.DirectorySelector
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.ctx
 import ru.dyatel.inuyama.utilities.subscribeFor
@@ -158,8 +158,11 @@ class NyaaScreen : Screen<NyaaView>(), KodeinAware {
                 setText(watch.collectPath)
             }
 
-            tintedSpinner {
+            directorySelector {
                 id = directorySelectorId
+
+                bindDirectories(directories)
+                directory = watch.directory.target
             }
         }
 
@@ -171,7 +174,7 @@ class NyaaScreen : Screen<NyaaView>(), KodeinAware {
         }
         val descriptionEditor = view.find<EditText>(descriptionEditorId)
         val collectPathEditor = view.find<EditText>(collectPathEditorId)
-        val directorySelector = DirectorySelector(view.find(directorySelectorId), directories, watch.directory.target)
+        val directorySelector = view.find<DirectorySelector>(directorySelectorId)
 
         AlertDialog.Builder(activity)
                 .setTitle(R.string.dialog_add_watch)
