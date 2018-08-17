@@ -15,6 +15,7 @@ import ru.dyatel.inuyama.RemoteService
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.utilities.asDateTime
+import ru.dyatel.inuyama.utilities.fromJson
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -99,13 +100,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
             return jsonParser.parse(json).asJsonArray
                     .map { it.asJsonObject!! }
                     .mapIndexed { index, volume ->
-                        val parsed = RuranobeVolume(
-                                id = volume["volumeId"].asLong,
-                                order = index,
-                                url = volume["url"].asString,
-                                title = volume["nameTitle"].asString,
-                                status = volume["volumeStatus"].asString
-                        )
+                        val parsed = gson.fromJson<RuranobeVolume>(volume)
 
                         parsed.coverUrl = volume.getAsJsonArray("covers")
                                 .map { it.asJsonObject["thumbnail"].asString }
@@ -118,6 +113,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
                                 .sorted()
                                 .lastOrNull()
 
+                        parsed.order = index
                         parsed.project.target = project
 
                         return@mapIndexed parsed

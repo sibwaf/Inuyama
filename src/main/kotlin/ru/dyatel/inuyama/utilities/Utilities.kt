@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import com.google.gson.Gson
+import com.google.gson.JsonElement
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.IAdapter
 import com.mikepenz.fastadapter.IItem
@@ -46,6 +47,8 @@ val Screen<*>.ctx: Context
     get() = getActivity()
 
 inline fun <reified T> Gson.fromJson(json: String): T = fromJson(json, T::class.java)
+
+inline fun <reified T> Gson.fromJson(json: JsonElement): T = fromJson(json, T::class.java)
 
 inline fun <reified T> BoxStore.boxFor(): Box<T> = boxFor(T::class.java)
 
