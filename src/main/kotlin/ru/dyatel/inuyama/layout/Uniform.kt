@@ -7,6 +7,7 @@ import android.support.design.widget.TextInputLayout
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import org.jetbrains.anko._LinearLayout
 import org.jetbrains.anko.appcompat.v7.tintedButton
 import org.jetbrains.anko.cardview.v7.cardView
@@ -25,6 +26,13 @@ import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.utilities.disableSuggestions
 import ru.dyatel.inuyama.utilities.disableUiExtraction
+
+inline fun ViewGroup.uniformTextView(init: TextView.() -> Unit = {}): TextView {
+    return textView {
+        textSize = SP_MEDIUM
+        init()
+    }
+}
 
 inline fun ViewGroup.uniformTextInput(init: TextInputEditText.() -> Unit): TextInputLayout {
     return textInputLayout {
@@ -59,10 +67,9 @@ inline fun Context.uniformWatchView(
                 padding = DIM_LARGE
             }
 
-            textView {
+            uniformTextView {
                 id = descriptionViewId
                 gravity = Gravity.CENTER_HORIZONTAL
-                textSize = SP_MEDIUM
             }
 
             verticalLayout {

@@ -16,7 +16,6 @@ import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.padding
 import org.jetbrains.anko.relativeLayout
 import org.jetbrains.anko.switch
-import org.jetbrains.anko.textView
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_NETWORK
 import ru.dyatel.inuyama.model.Network
@@ -68,10 +67,8 @@ class NetworkItem(
                 padding = DIM_LARGE
             }
 
-            textView {
+            uniformTextView {
                 id = nameViewId
-
-                textSize = SP_MEDIUM
             }.lparams {
                 centerVertically()
                 alignParentLeft()

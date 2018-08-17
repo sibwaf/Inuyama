@@ -8,7 +8,6 @@ import org.jetbrains.anko._LinearLayout
 import org.jetbrains.anko.backgroundColorResource
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.textView
 import org.jetbrains.anko.view
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.R
@@ -29,9 +28,7 @@ class Marker(context: Context) : _LinearLayout(context) {
         markerView = view {
         }.lparams(width = DIM_MEDIUM, height = matchParent)
 
-        textView = textView {
-            textSize = SP_MEDIUM
-        }.lparams {
+        textView = uniformTextView().lparams {
             margin = DIM_LARGE
             rightMargin = 0
         }

@@ -23,7 +23,6 @@ import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.support.v4.nestedScrollView
 import org.jetbrains.anko.textResource
-import org.jetbrains.anko.textView
 import org.jetbrains.anko.topPadding
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
@@ -38,11 +37,11 @@ import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.ModuleStateItem
-import ru.dyatel.inuyama.layout.SP_MEDIUM
 import ru.dyatel.inuyama.layout.State
 import ru.dyatel.inuyama.layout.StatusBar
 import ru.dyatel.inuyama.layout.UpdateItem
 import ru.dyatel.inuyama.layout.statusBar
+import ru.dyatel.inuyama.layout.uniformTextView
 import ru.dyatel.inuyama.overseer.OverseerListener
 import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.overseer.OverseerWorker
@@ -108,11 +107,9 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
                     }
 
                     container(R.string.container_update_list) {
-                        textView {
+                        uniformTextView {
                             id = noUpdatesMarkerId
-
                             textResource = R.string.label_no_updates
-                            textSize = SP_MEDIUM
                         }
 
                         recyclerView {
@@ -150,10 +147,9 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
                         bottomMargin = DIM_LARGE
                     }
 
-                    textView {
+                    uniformTextView {
                         textResource = titleResource
                         gravity = Gravity.CENTER
-                        textSize = SP_MEDIUM
                     }
                 }
 

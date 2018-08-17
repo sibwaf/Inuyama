@@ -8,7 +8,6 @@ import android.widget.TextView
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
 import org.jetbrains.anko.find
-import org.jetbrains.anko.textView
 import ru.dyatel.inuyama.ITEM_TYPE_RUTRACKER_WATCH
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.model.RutrackerWatch
@@ -79,17 +78,13 @@ class RutrackerWatchItem(
 
     override fun createView(ctx: Context, parent: ViewGroup?): View {
         return ctx.uniformWatchView(descriptionViewId, editButtonId, removeButtonId) {
-            textView {
+            uniformTextView {
                 id = directoryViewId
-                textSize = SP_MEDIUM
             }.lparams {
                 bottomMargin = DIM_MEDIUM
             }
 
-            textView {
-                id = lastUpdateViewId
-                textSize = SP_MEDIUM
-            }
+            uniformTextView { id = lastUpdateViewId }
         }
     }
 }

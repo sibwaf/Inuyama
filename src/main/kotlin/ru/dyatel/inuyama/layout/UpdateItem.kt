@@ -9,7 +9,6 @@ import com.mikepenz.fastadapter.items.AbstractItem
 import hirondelle.date4j.DateTime
 import org.jetbrains.anko.find
 import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.textView
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_DASHBOARD_UPDATE
@@ -55,15 +54,8 @@ class UpdateItem(private val update: Update) : AbstractItem<UpdateItem, UpdateIt
                 bottomMargin = DIM_MEDIUM
             }
 
-            textView {
-                id = timestampViewId
-                textSize = SP_MEDIUM
-            }
-
-            textView {
-                id = descriptionViewId
-                textSize = SP_MEDIUM
-            }
+            uniformTextView { id = timestampViewId }
+            uniformTextView { id = descriptionViewId }
         }
     }
 

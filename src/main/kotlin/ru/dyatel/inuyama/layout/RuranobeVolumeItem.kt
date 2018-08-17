@@ -16,7 +16,6 @@ import org.jetbrains.anko.linearLayout
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.padding
-import org.jetbrains.anko.textView
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_RURANOBE_VOLUME
@@ -111,23 +110,15 @@ class RuranobeVolumeItem(val volume: RuranobeVolume) : AbstractItem<RuranobeVolu
                         leftMargin = DIM_LARGE
                     }
 
-                    textView {
+                    uniformTextView {
                         id = titleViewId
-                        textSize = SP_MEDIUM
                         gravity = Gravity.CENTER_HORIZONTAL
                     }.lparams(width = matchParent) {
                         bottomMargin = DIM_LARGE
                     }
 
-                    textView {
-                        id = statusViewId
-                        textSize = SP_MEDIUM
-                    }
-
-                    textView {
-                        id = lastUpdateViewId
-                        textSize = SP_MEDIUM
-                    }
+                    uniformTextView { id = statusViewId }
+                    uniformTextView { id = lastUpdateViewId }
                 }
             }
         }

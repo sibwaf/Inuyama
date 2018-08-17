@@ -23,14 +23,13 @@ import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.padding
 import org.jetbrains.anko.relativeLayout
 import org.jetbrains.anko.rightPadding
-import org.jetbrains.anko.textView
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_DIRECTORY
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.utilities.disableSuggestions
 import ru.dyatel.inuyama.utilities.disableUiExtraction
 import ru.dyatel.inuyama.utilities.hideIf
-import ru.dyatel.inuyama.model.Directory
 
 class DirectoryItem(
         private val directory: Directory,
@@ -119,10 +118,8 @@ class DirectoryItem(
                 rightPadding = DIM_EXTRA_LARGE
             }
 
-            textView {
+            uniformTextView {
                 id = pathViewId
-
-                textSize = SP_MEDIUM
             }.lparams {
                 centerVertically()
                 alignParentLeft()

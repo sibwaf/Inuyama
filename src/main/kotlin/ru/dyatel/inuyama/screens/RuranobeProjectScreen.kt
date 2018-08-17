@@ -27,7 +27,6 @@ import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.support.v4.nestedScrollView
 import org.jetbrains.anko.support.v4.onRefresh
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
-import org.jetbrains.anko.textView
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
@@ -38,10 +37,10 @@ import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.DirectorySelector
 import ru.dyatel.inuyama.layout.RuranobeVolumeItem
-import ru.dyatel.inuyama.layout.SP_MEDIUM
 import ru.dyatel.inuyama.layout.StatusBar
 import ru.dyatel.inuyama.layout.directorySelector
 import ru.dyatel.inuyama.layout.statusBar
+import ru.dyatel.inuyama.layout.uniformTextView
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
@@ -123,28 +122,16 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
                                 rightMargin = DIM_EXTRA_LARGE
                             }
 
-                            textView {
+                            uniformTextView {
                                 id = romajiViewId
-                                textSize = SP_MEDIUM
                                 gravity = Gravity.CENTER_HORIZONTAL
                             }.lparams(width = matchParent) {
                                 bottomMargin = DIM_LARGE
                             }
 
-                            textView {
-                                id = statusViewId
-                                textSize = SP_MEDIUM
-                            }
-
-                            textView {
-                                id = issueStatusViewId
-                                textSize = SP_MEDIUM
-                            }
-
-                            textView {
-                                id = translationStatusViewId
-                                textSize = SP_MEDIUM
-                            }
+                            uniformTextView { id = statusViewId }
+                            uniformTextView { id = issueStatusViewId }
+                            uniformTextView { id = translationStatusViewId }
 
                             directorySelector {
                                 id = directorySelectorId
