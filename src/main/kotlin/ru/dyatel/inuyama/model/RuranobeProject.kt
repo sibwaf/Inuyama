@@ -6,6 +6,7 @@ import io.objectbox.annotation.Entity
 import io.objectbox.annotation.Id
 import io.objectbox.relation.ToMany
 import io.objectbox.relation.ToOne
+import ru.dyatel.inuyama.utilities.NoJson
 
 @Entity
 data class RuranobeProject(
@@ -21,8 +22,8 @@ data class RuranobeProject(
         var issueStatus: String? = "",
         var translationStatus: String? = "",
 
-        var watching: Boolean = false
+        @NoJson var watching: Boolean = false
 ) {
-    lateinit var directory: ToOne<Directory>
-    @Backlink lateinit var volumes: ToMany<RuranobeVolume>
+    @NoJson lateinit var directory: ToOne<Directory>
+    @NoJson @Backlink lateinit var volumes: ToMany<RuranobeVolume>
 }
