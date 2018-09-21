@@ -10,6 +10,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.BuildConfig
 import ru.dyatel.inuyama.WORK_NAME_OVERSEER
 import java.util.concurrent.TimeUnit
 
@@ -37,6 +38,10 @@ class OverseerStarter : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (BuildConfig.DEBUG) {
+            return
+        }
+
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
             start(context, false)
         }
