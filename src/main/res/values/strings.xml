@@ -5,6 +5,7 @@
     <string name="screen_watches">Раздачи</string>
     <string name="screen_directories">Пути</string>
     <string name="screen_networks">Wi-Fi сети</string>
+    <string name="screen_proxy">Прокси</string>
     <string name="screen_transmission">Transmission</string>
 
     <string name="module_rutracker">Rutracker</string>
@@ -18,12 +19,14 @@
     <string name="notification_channel_updates">Обновления</string>
     <string name="notification_updates">Найдены обновления</string>
 
+    <string name="dialog_add_proxy">Добавление прокси</string>
     <string name="dialog_add_directory">Добавление пути</string>
     <string name="dialog_add_watch">Добавление отслеживания</string>
     <string name="dialog_remove_watch_title">Удаление отслеживания</string>
     <string name="dialog_remove_watch_message">Вы действительно хотите перестать отслеживать %s?</string>
     <string name="dialog_settings">Настройки</string>
 
+    <string name="action_add">Добавить</string>
     <string name="action_save">Сохранить</string>
     <string name="action_edit">Изменить</string>
     <string name="action_remove">Удалить</string>
@@ -31,6 +34,7 @@
     <string name="action_search">Поиск</string>
 
     <string name="const_directory_default">[по умолчанию]</string>
+    <string name="const_proxy_default">[прямое подключение]</string>
     <string name="const_never">никогда</string>
 
     <string name="label_path">Путь: %s</string>
@@ -63,19 +67,18 @@
     <string name="container_services">Сервисы</string>
     <string name="container_update_list">Обновления</string>
 
+    <string name="hint_host">Сервер</string>
+    <string name="hint_port">Порт</string>
+
     <string name="hint_rutracker_watch_link">Ссылка или идентификатор</string>
     <string name="hint_rutracker_watch_description">Название</string>
     <string name="hint_rutracker_host">Адрес</string>
-    <string name="hint_rutracker_proxy_host">Прокси</string>
-    <string name="hint_rutracker_proxy_port">Порт прокси</string>
 
     <string name="hint_nyaa_watch_query">Поисковый запрос</string>
     <string name="hint_nyaa_watch_start_date">Дата начала</string>
     <string name="hint_nyaa_watch_description">Название</string>
     <string name="hint_nyaa_watch_collect_path">Название папки</string>
 
-    <string name="hint_transmission_host">Сервер</string>
-    <string name="hint_transmission_port">Порт</string>
     <string name="hint_transmission_path">Путь</string>
     <string name="hint_transmission_username">Имя пользователя</string>
     <string name="hint_transmission_password">Пароль</string>

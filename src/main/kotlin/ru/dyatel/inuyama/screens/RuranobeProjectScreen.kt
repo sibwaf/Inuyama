@@ -167,7 +167,7 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
     }
 
     fun bindDirectories(directories: List<Directory>) {
-        directorySelector.bindDirectories(directories)
+        directorySelector.bindItems(directories)
     }
 
     fun bindProjectInfo(project: RuranobeProject) {
@@ -184,7 +184,7 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
                 context.getString(R.string.ruranobe_label_status_translation, project.translationStatus)
         translationStatusView.hideIf { it.text.isNullOrBlank() }
 
-        directorySelector.directory = project.directory.target
+        directorySelector.selected = project.directory.target
     }
 
     fun bindAdapter(adapter: RecyclerView.Adapter<*>) {

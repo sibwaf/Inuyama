@@ -56,11 +56,11 @@ class TransmissionView(context: Context) : BaseScreenView<TransmissionScreen>(co
 
             uniformTextInput {
                 id = hostViewId
-                hintResource = R.string.hint_transmission_host
+                hintResource = R.string.hint_host
             }
             uniformTextInput {
                 id = portViewId
-                hintResource = R.string.hint_transmission_port
+                hintResource = R.string.hint_port
 
                 inputType = InputType.TYPE_CLASS_NUMBER
             }

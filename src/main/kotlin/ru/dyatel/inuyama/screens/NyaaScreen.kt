@@ -161,8 +161,8 @@ class NyaaScreen : Screen<NyaaView>(), KodeinAware {
             directorySelector {
                 id = directorySelectorId
 
-                bindDirectories(directories)
-                directory = watch.directory.target
+                bindItems(directories)
+                selected = watch.directory.target
             }
         }
 
@@ -184,7 +184,7 @@ class NyaaScreen : Screen<NyaaView>(), KodeinAware {
                     watch.startDatetime = startDateSelector.date
                     watch.description = descriptionEditor.text.toString()
                     watch.collectPath = collectPathEditor.text.toString()
-                    watch.directory.target = directorySelector.directory
+                    watch.directory.target = directorySelector.selected
 
                     watchBox.put(watch)
                 }

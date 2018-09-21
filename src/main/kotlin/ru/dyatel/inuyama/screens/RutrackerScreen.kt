@@ -4,7 +4,6 @@ import android.app.AlertDialog
 import android.content.Context
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.text.InputType
 import android.view.Menu
 import android.view.View
 import android.widget.EditText
@@ -27,8 +26,10 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DirectorySelector
+import ru.dyatel.inuyama.layout.ProxySelector
 import ru.dyatel.inuyama.layout.RutrackerWatchItem
 import ru.dyatel.inuyama.layout.directorySelector
+import ru.dyatel.inuyama.layout.proxySelector
 import ru.dyatel.inuyama.layout.showConfirmationDialog
 import ru.dyatel.inuyama.layout.uniformTextInput
 import ru.dyatel.inuyama.model.Directory
@@ -41,7 +42,7 @@ import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.ctx
 import ru.dyatel.inuyama.utilities.subscribeFor
 
-class RutrackerView(context: Context) : BaseScreenView<RutrackerScreen>(context) {
+class RutrackerScreenView(context: Context) : BaseScreenView<RutrackerScreen>(context) {
 
     private val recyclerView: RecyclerView
 
@@ -59,7 +60,7 @@ class RutrackerView(context: Context) : BaseScreenView<RutrackerScreen>(context)
 
 }
 
-class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
+class RutrackerScreen : Screen<RutrackerScreenView>(), KodeinAware {
 
     private companion object {
         val linkEditorId = View.generateViewId()
@@ -67,8 +68,7 @@ class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
         val directorySelectorId = View.generateViewId()
 
         val hostEditorId = View.generateViewId()
-        val proxyHostEditorId = View.generateViewId()
-        val proxyPortEditorId = View.generateViewId()
+        val proxySelectorId = View.generateViewId()
     }
 
     override val kodein by closestKodein { activity }
@@ -78,13 +78,14 @@ class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
 
     private val watchBox by instance<Box<RutrackerWatch>>()
     private val directoryBox by instance<Box<Directory>>()
+    private val proxyBox by instance<Box<Proxy>>()
 
     private var boxObserver: DataSubscription? = null
 
     private val adapter = ItemAdapter<RutrackerWatchItem>()
     private val fastAdapter = adapter.buildFastAdapter()
 
-    override fun createView(context: Context) = RutrackerView(context).apply { bindAdapter(fastAdapter) }
+    override fun createView(context: Context) = RutrackerScreenView(context).apply { bindAdapter(fastAdapter) }
 
     override fun onShow(context: Context?) {
         super.onShow(context)
@@ -119,8 +120,6 @@ class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
     }
 
     private fun showEditDialog(watch: RutrackerWatch) {
-        val directories = directoryBox.all
-
         val view = ctx.verticalLayout {
             lparams(width = matchParent, height = wrapContent) {
                 padding = DIM_EXTRA_LARGE
@@ -143,8 +142,8 @@ class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
             directorySelector {
                 id = directorySelectorId
 
-                bindDirectories(directories)
-                directory = watch.directory.target
+                bindItems(directoryBox.all)
+                selected = watch.directory.target
             }
         }
 
@@ -159,7 +158,7 @@ class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
                     watch.topic = linkEditor.text.toString()
                             .let { it.toLongOrNull() ?: RutrackerApi.extractTopic(it) }
                     watch.description = descriptionEditor.text.toString()
-                    watch.directory.target = directorySelector.directory
+                    watch.directory.target = directorySelector.selected
 
                     watchBox.put(watch)
                 }
@@ -180,36 +179,20 @@ class RutrackerScreen : Screen<RutrackerView>(), KodeinAware {
                 setText(rutrackerConfiguration.host)
             }
 
-            uniformTextInput {
-                id = proxyHostEditorId
-                hintResource = R.string.hint_rutracker_proxy_host
+            proxySelector {
+                id = proxySelectorId
 
-                setText(rutrackerConfiguration.proxy?.host)
-            }
-            uniformTextInput {
-                id = proxyPortEditorId
-                hintResource = R.string.hint_rutracker_proxy_port
-
-                inputType = InputType.TYPE_CLASS_NUMBER
-
-                setText(rutrackerConfiguration.proxy?.port?.toString())
+                bindItems(proxyBox.all)
+                selected = rutrackerConfiguration.proxy?.let { proxyBox[it] }
             }
         }
-
-        val hostEditor = view.find<EditText>(hostEditorId)
-        val proxyHostEditor = view.find<EditText>(proxyHostEditorId)
-        val proxyPortEditor = view.find<EditText>(proxyPortEditorId)
 
         AlertDialog.Builder(activity)
                 .setTitle(R.string.dialog_settings)
                 .setView(view)
                 .setPositiveButton(R.string.action_save) { _, _ ->
-                    val proxy = proxyHostEditor.text.toString()
-                            .takeUnless { it.isBlank() }
-                            ?.let { Proxy(it, proxyPortEditor.text.toString().toInt()) }
-
-                    rutrackerConfiguration.host = hostEditor.text.toString()
-                    rutrackerConfiguration.proxy = proxy
+                    rutrackerConfiguration.host = view.find<EditText>(hostEditorId).text.toString()
+                    rutrackerConfiguration.proxy = view.find<ProxySelector>(proxySelectorId).selected?.id
                     preferenceHelper.rutracker = rutrackerConfiguration
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }

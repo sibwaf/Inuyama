@@ -1,3 +1,11 @@
 package ru.dyatel.inuyama.model
 
-data class Proxy(val host: String, val port: Int)
+import io.objectbox.annotation.Entity
+import io.objectbox.annotation.Id
+
+@Entity
+data class Proxy(
+        @Id var id: Long = 0,
+        var host: String,
+        var port: Int
+)

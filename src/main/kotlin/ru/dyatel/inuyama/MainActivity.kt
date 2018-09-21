@@ -27,6 +27,7 @@ import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.screens.DirectoryScreen
 import ru.dyatel.inuyama.screens.HomeScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
+import ru.dyatel.inuyama.screens.ProxyScreen
 import ru.dyatel.inuyama.screens.TransmissionScreen
 import ru.dyatel.inuyama.utilities.grantPermissions
 
@@ -99,6 +100,11 @@ class MainActivity : SingleActivity(), KodeinAware {
                 .withIcon(CommunityMaterial.Icon.cmd_wifi)
                 .withName(R.string.screen_networks)
                 .withOnClickListener { getNavigator().replace(NetworkScreen()) })
+
+        addDrawerItems(PrimaryDrawerItem()
+                .withIcon(CommunityMaterial.Icon.cmd_cloud)
+                .withName(R.string.screen_proxy)
+                .withOnClickListener { getNavigator().replace(ProxyScreen()) })
 
         addDrawerItems(PrimaryDrawerItem()
                 .withIcon(CommunityMaterial.Icon.cmd_folder)

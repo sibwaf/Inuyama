@@ -1,6 +1,7 @@
 package ru.dyatel.inuyama.rutracker
 
 import android.content.Context
+import io.objectbox.Box
 import org.jsoup.Connection
 import org.jsoup.Jsoup
 import org.kodein.di.Kodein
@@ -8,6 +9,7 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
+import ru.dyatel.inuyama.model.Proxy
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.URI
@@ -28,11 +30,15 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     private val configuration by instance<RutrackerConfiguration>()
 
+    private val proxyBox by instance<Box<Proxy>>()
+
     override fun getName(context: Context) = context.getString(R.string.module_rutracker)!!
 
     private fun connect(url: String): Connection {
+        val proxy = configuration.proxy?.let { proxyBox[it] }
+
         val connection = Jsoup.connect(url)
-        configuration.proxy?.let { connection.proxy(it.host, it.port) }
+        proxy?.let { connection.proxy(it.host, it.port) }
         return connection
     }
 
