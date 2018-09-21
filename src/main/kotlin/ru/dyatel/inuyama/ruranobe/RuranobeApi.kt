@@ -6,12 +6,13 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import org.jsoup.Connection
 import org.jsoup.HttpStatusException
-import org.jsoup.Jsoup
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
+import ru.dyatel.inuyama.SERVICE_RURANOBE
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.utilities.asDateTime
@@ -31,6 +32,10 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
         val datetimeFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss Z", Locale.US)
     }
 
+    override val serviceId = SERVICE_RURANOBE
+
+    override val networkManager by instance<NetworkManager>()
+
     private val gson by instance<Gson>()
     private val jsonParser by instance<JsonParser>()
 
@@ -38,7 +43,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     override fun checkConnection(): Boolean {
         return try {
-            Jsoup.connect(host).get()
+            createConnection(host).get()
             true
         } catch (e: IOException) {
             false
@@ -63,7 +68,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     fun fetchProjects(): List<RuranobeProject> {
         try {
-            val response = Jsoup.connect("$host/api/projects")
+            val response = createConnection("$host/api/projects")
                     .ignoreContentType(true)
                     .ignoreHttpErrors(true)
                     .data("fields", "projectId,title,nameRomaji,author,works,status,translationStatus,issueStatus")
@@ -85,7 +90,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     fun fetchVolumes(project: RuranobeProject): List<RuranobeVolume> {
         try {
-            val response = Jsoup.connect("$host/api/projects/${project.id}/volumes")
+            val response = createConnection("$host/api/projects/${project.id}/volumes")
                     .ignoreContentType(true)
                     .ignoreHttpErrors(true)
                     .data("fields", "volumeId,url,imageThumbnail,nameTitle,volumeStatus,lastUpdateDate,lastEditDate")
@@ -125,7 +130,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     fun getDownloadUrl(volume: RuranobeVolume, format: String): URL {
         try {
-            return Jsoup.connect("$host/d/$format/${volume.url}")
+            return createConnection("$host/d/$format/${volume.url}")
                     .ignoreContentType(true)
                     .followRedirects(true)
                     .header("Referer", "$host/r/${volume.url}")

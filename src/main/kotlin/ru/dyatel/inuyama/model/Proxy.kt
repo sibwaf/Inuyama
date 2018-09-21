@@ -6,6 +6,6 @@ import io.objectbox.annotation.Id
 @Entity
 data class Proxy(
         @Id var id: Long = 0,
-        var host: String,
-        var port: Int
+        var host: String = "",
+        var port: Int = 0
 )

@@ -6,12 +6,12 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import org.jsoup.Connection
-import org.jsoup.Jsoup
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.SERVICE_TRANSMISSION
 import ru.dyatel.inuyama.UntrustedNetworkException
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -21,12 +21,14 @@ private const val SESSION_HEADER = "X-Transmission-Session-Id"
 
 class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClient {
 
+    override val serviceId = SERVICE_TRANSMISSION
+
     private val gson by instance<Gson>()
     private val parser by instance<JsonParser>()
 
     private val configuration by instance<TransmissionConfiguration>()
 
-    private val networkManager by instance<NetworkManager>()
+    override val networkManager by instance<NetworkManager>()
 
     private var session: String? = null
 
@@ -37,7 +39,7 @@ class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClie
 
         val url = with(configuration) { URI.create("http://$host:$port/$path").normalize().toString() }
 
-        val connection = Jsoup.connect(url)
+        val connection = createConnection(url)
                 .ignoreHttpErrors(true)
                 .ignoreContentType(true)
                 .method(Connection.Method.POST)

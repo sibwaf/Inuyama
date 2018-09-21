@@ -9,7 +9,6 @@ import org.jetbrains.anko.backgroundColorResource
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.view
-import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.R
 import kotlin.properties.Delegates
 
@@ -23,8 +22,6 @@ class Marker(context: Context) : _LinearLayout(context) {
     private val textView: TextView
 
     init {
-        lparams(width = matchParent, height = wrapContent)
-
         markerView = view {
         }.lparams(width = DIM_MEDIUM, height = matchParent)
 

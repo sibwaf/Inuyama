@@ -247,9 +247,29 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "9:6325241775927102884",
+      "lastPropertyId": "3:4754810569760171001",
+      "name": "Proxy",
+      "properties": [
+        {
+          "id": "1:6080736637035419722",
+          "name": "id"
+        },
+        {
+          "id": "2:4376024441628922866",
+          "name": "host"
+        },
+        {
+          "id": "3:4754810569760171001",
+          "name": "port"
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "8:1764664596220470040",
+  "lastEntityId": "9:6325241775927102884",
   "lastIndexId": "6:3513579292692193570",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

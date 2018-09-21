@@ -1,15 +1,13 @@
 package ru.dyatel.inuyama.rutracker
 
 import android.content.Context
-import io.objectbox.Box
-import org.jsoup.Connection
-import org.jsoup.Jsoup
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
-import ru.dyatel.inuyama.model.Proxy
+import ru.dyatel.inuyama.SERVICE_RUTRACKER
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.URI
@@ -28,23 +26,16 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     }
 
-    private val configuration by instance<RutrackerConfiguration>()
+    override val serviceId = SERVICE_RUTRACKER
 
-    private val proxyBox by instance<Box<Proxy>>()
+    private val configuration by instance<RutrackerConfiguration>()
+    override val networkManager by instance<NetworkManager>()
 
     override fun getName(context: Context) = context.getString(R.string.module_rutracker)!!
 
-    private fun connect(url: String): Connection {
-        val proxy = configuration.proxy?.let { proxyBox[it] }
-
-        val connection = Jsoup.connect(url)
-        proxy?.let { connection.proxy(it.host, it.port) }
-        return connection
-    }
-
     override fun checkConnection(): Boolean {
         return try {
-            connect(configuration.host).get()
+            createConnection(configuration.host).get()
             true
         } catch (e: IOException) {
             false
@@ -53,7 +44,7 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     fun extractMagnet(topic: Long): String {
         try {
-            val links = connect(generateLink(topic)).get()
+            val links = createConnection(generateLink(topic)).get()
                     .select("a[data-topic_id=$topic]")
             if (links.size == 1) {
                 return links[0].attr("href")

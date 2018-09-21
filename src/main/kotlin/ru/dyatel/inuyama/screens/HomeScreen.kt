@@ -1,6 +1,7 @@
 package ru.dyatel.inuyama.screens
 
 import android.content.Context
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.Gravity
@@ -10,16 +11,19 @@ import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import com.wealthfront.magellan.Screen
+import io.objectbox.Box
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import org.jetbrains.anko.backgroundColorResource
 import org.jetbrains.anko.bottomPadding
 import org.jetbrains.anko.cardview.v7.cardView
 import org.jetbrains.anko.find
 import org.jetbrains.anko.frameLayout
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
+import org.jetbrains.anko.padding
 import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.support.v4.nestedScrollView
 import org.jetbrains.anko.textResource
@@ -30,18 +34,24 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.allInstances
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.BuildConfig
 import ru.dyatel.inuyama.DASHBOARD_UPDATE_COUNT
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
 import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
+import ru.dyatel.inuyama.layout.DIM_MEDIUM
 import ru.dyatel.inuyama.layout.ModuleStateItem
+import ru.dyatel.inuyama.layout.ProxySelector
 import ru.dyatel.inuyama.layout.State
 import ru.dyatel.inuyama.layout.StatusBar
 import ru.dyatel.inuyama.layout.UpdateItem
+import ru.dyatel.inuyama.layout.proxySelector
 import ru.dyatel.inuyama.layout.statusBar
 import ru.dyatel.inuyama.layout.uniformTextView
+import ru.dyatel.inuyama.model.Proxy
+import ru.dyatel.inuyama.model.ProxyBinding
 import ru.dyatel.inuyama.overseer.OverseerListener
 import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.overseer.OverseerWorker
@@ -51,9 +61,8 @@ import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.ctx
 import ru.dyatel.inuyama.utilities.hideIf
 import ru.dyatel.inuyama.utilities.prettyTime
-import ru.dyatel.inuyama.utilities.propagateTouchEvents
 
-class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
+class HomeScreenView(context: Context) : BaseScreenView<HomeScreen>(context) {
 
     private companion object {
         val statusBarId = View.generateViewId()
@@ -97,8 +106,6 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
                             layoutManager = LinearLayoutManager(context)
 
                             isNestedScrollingEnabled = false
-                        }.apply {
-                            propagateTouchEvents()
                         }
 
                         setOnClickListener {
@@ -139,13 +146,16 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
 
             verticalLayout {
                 lparams(width = matchParent, height = wrapContent) {
-                    margin = DIM_EXTRA_LARGE
+                    padding = DIM_EXTRA_LARGE
                 }
 
                 frameLayout {
                     lparams(width = matchParent, height = wrapContent) {
                         bottomMargin = DIM_LARGE
+                        padding = DIM_MEDIUM
                     }
+
+                    backgroundColorResource = R.color.color_primary
 
                     uniformTextView {
                         textResource = titleResource
@@ -175,11 +185,18 @@ class HomeView(context: Context) : BaseScreenView<HomeScreen>(context) {
 
 }
 
-class HomeScreen : Screen<HomeView>(), KodeinAware {
+class HomeScreen : Screen<HomeScreenView>(), KodeinAware {
+
+    private companion object {
+        val proxySelectorId = View.generateViewId()
+    }
 
     override val kodein by closestKodein { activity }
 
     private val preferenceHelper by instance<PreferenceHelper>()
+
+    private val proxyBox by instance<Box<Proxy>>()
+    private val proxyBindingBox by instance<Box<ProxyBinding>>()
 
     private val services by allInstances<RemoteService>()
     private val watchers by allInstances<Watcher>()
@@ -195,8 +212,8 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
 
     private var overseerListener: OverseerListener? = null
 
-    override fun createView(context: Context): HomeView {
-        return HomeView(context).apply {
+    override fun createView(context: Context): HomeScreenView {
+        return HomeScreenView(context).apply {
             bindServiceAdapter(serviceFastAdapter)
             bindUpdateAdapter(updateFastAdapter)
         }
@@ -229,6 +246,15 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
             }.also {
                 it.check()
             }
+        }
+
+        serviceFastAdapter.withOnClickListener { _, _, _, _ ->
+            requestServiceCheck()
+            true
+        }
+        serviceFastAdapter.withOnLongClickListener { _, _, _, position ->
+            editProxy(services[position])
+            true
         }
 
         updateListener = {
@@ -277,6 +303,33 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
         }
     }
 
+    private fun editProxy(service: RemoteService) {
+        val binding = proxyBindingBox[service.serviceId] ?: ProxyBinding(service.serviceId)
+
+        val view = ctx.frameLayout {
+            lparams(width = matchParent, height = wrapContent) {
+                padding = DIM_EXTRA_LARGE
+            }
+
+            proxySelector {
+                id = proxySelectorId
+
+                bindItems(proxyBox.all)
+                selected = binding.proxy.target
+            }
+        }
+
+        AlertDialog.Builder(activity)
+                .setTitle(R.string.dialog_select_proxy)
+                .setView(view)
+                .setPositiveButton(R.string.action_save) { _, _ ->
+                    binding.proxy.target = view.find<ProxySelector>(proxySelectorId).selected
+                    proxyBindingBox.put(binding)
+                }
+                .setNegativeButton(R.string.action_cancel) { _, _ -> }
+                .show()
+    }
+
     fun requestOverseerCheck() {
         if (!OverseerWorker.isWorking) {
             view.statusBar.textResource = R.string.label_waiting_for_task
@@ -290,7 +343,13 @@ class HomeScreen : Screen<HomeView>(), KodeinAware {
         }
     }
 
-    override fun getTitle(context: Context) = context.getString(R.string.screen_home)!!
+    override fun getTitle(context: Context): String {
+        var title = context.getString(R.string.screen_home);
+        if (BuildConfig.DEBUG) {
+            title += " / Debug"
+        }
+        return title
+    }
 }
 
 private class StateChecker(private val service: RemoteService, private val onUpdate: (State) -> Unit) {
@@ -298,9 +357,7 @@ private class StateChecker(private val service: RemoteService, private val onUpd
     private var coroutine: Job? = null
 
     fun check() {
-        if (coroutine != null) {
-            return
-        }
+        cancel()
 
         coroutine = launch(UI) {
             onUpdate(State.PENDING)

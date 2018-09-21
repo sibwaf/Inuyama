@@ -6,6 +6,7 @@ import com.mikepenz.iconics.typeface.IIcon
 import com.wealthfront.magellan.Screen
 import io.objectbox.Box
 import io.objectbox.BoxStore
+import org.jsoup.Connection
 import org.kodein.di.Kodein
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
@@ -30,8 +31,16 @@ import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
 
 interface RemoteService {
+    val serviceId: Long
+
+    val networkManager: NetworkManager
+
     fun getName(context: Context): String
     fun checkConnection(): Boolean
+
+    fun createConnection(url: String): Connection {
+        return networkManager.createConnection(url, serviceId)
+    }
 }
 
 abstract class Watcher {

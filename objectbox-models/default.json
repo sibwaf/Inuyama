@@ -267,10 +267,27 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "10:5135149167932873456",
+      "lastPropertyId": "2:7575337680994973635",
+      "name": "ProxyBinding",
+      "properties": [
+        {
+          "id": "1:4534649711353975042",
+          "name": "id"
+        },
+        {
+          "id": "2:7575337680994973635",
+          "indexId": "7:8859066697585114891",
+          "name": "proxyId"
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "9:6325241775927102884",
-  "lastIndexId": "6:3513579292692193570",
+  "lastEntityId": "10:5135149167932873456",
+  "lastIndexId": "7:8859066697585114891",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 4,

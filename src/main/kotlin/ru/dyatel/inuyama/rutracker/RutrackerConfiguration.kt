@@ -1,6 +1,5 @@
 package ru.dyatel.inuyama.rutracker
 
 data class RutrackerConfiguration(
-        var host: String = "https://rutracker.org",
-        var proxy: Long? = null
+        var host: String = "https://rutracker.org"
 )

@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
 import org.jetbrains.anko.find
+import org.jetbrains.anko.matchParent
+import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_MODULE_STATE
 
 class ModuleStateItem(
@@ -40,7 +42,7 @@ class ModuleStateItem(
 
     override fun createView(ctx: Context, parent: ViewGroup?): View {
         return ctx.marker {
-            lparams {
+            lparams(width = matchParent, height = wrapContent) {
                 topMargin = DIM_MEDIUM
                 bottomMargin = DIM_MEDIUM
             }

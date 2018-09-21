@@ -20,6 +20,7 @@ import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.MyObjectBox
 import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.model.Proxy
+import ru.dyatel.inuyama.model.ProxyBinding
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.transmission.TorrentClient
 import ru.dyatel.inuyama.transmission.TransmissionClient
@@ -43,6 +44,7 @@ class Application : Application(), KodeinAware {
 
         bind<Box<Network>>() with singleton { instance<BoxStore>().boxFor<Network>() }
         bind<Box<Proxy>>() with singleton { instance<BoxStore>().boxFor<Proxy>() }
+        bind<Box<ProxyBinding>>() with singleton { instance<BoxStore>().boxFor<ProxyBinding>() }
         bind<Box<Directory>>() with singleton { instance<BoxStore>().boxFor<Directory>() }
 
         bind<Gson>() with singleton {

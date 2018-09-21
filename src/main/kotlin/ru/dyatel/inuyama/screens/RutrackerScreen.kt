@@ -26,14 +26,11 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DirectorySelector
-import ru.dyatel.inuyama.layout.ProxySelector
 import ru.dyatel.inuyama.layout.RutrackerWatchItem
 import ru.dyatel.inuyama.layout.directorySelector
-import ru.dyatel.inuyama.layout.proxySelector
 import ru.dyatel.inuyama.layout.showConfirmationDialog
 import ru.dyatel.inuyama.layout.uniformTextInput
 import ru.dyatel.inuyama.model.Directory
-import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.rutracker.RutrackerApi
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
@@ -78,7 +75,6 @@ class RutrackerScreen : Screen<RutrackerScreenView>(), KodeinAware {
 
     private val watchBox by instance<Box<RutrackerWatch>>()
     private val directoryBox by instance<Box<Directory>>()
-    private val proxyBox by instance<Box<Proxy>>()
 
     private var boxObserver: DataSubscription? = null
 
@@ -178,13 +174,6 @@ class RutrackerScreen : Screen<RutrackerScreenView>(), KodeinAware {
 
                 setText(rutrackerConfiguration.host)
             }
-
-            proxySelector {
-                id = proxySelectorId
-
-                bindItems(proxyBox.all)
-                selected = rutrackerConfiguration.proxy?.let { proxyBox[it] }
-            }
         }
 
         AlertDialog.Builder(activity)
@@ -192,7 +181,6 @@ class RutrackerScreen : Screen<RutrackerScreenView>(), KodeinAware {
                 .setView(view)
                 .setPositiveButton(R.string.action_save) { _, _ ->
                     rutrackerConfiguration.host = view.find<EditText>(hostEditorId).text.toString()
-                    rutrackerConfiguration.proxy = view.find<ProxySelector>(proxySelectorId).selected?.id
                     preferenceHelper.rutracker = rutrackerConfiguration
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }

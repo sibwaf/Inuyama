@@ -24,6 +24,7 @@
     <string name="dialog_add_watch">Добавление отслеживания</string>
     <string name="dialog_remove_watch_title">Удаление отслеживания</string>
     <string name="dialog_remove_watch_message">Вы действительно хотите перестать отслеживать %s?</string>
+    <string name="dialog_select_proxy">Выбор прокси</string>
     <string name="dialog_settings">Настройки</string>
 
     <string name="action_add">Добавить</string>

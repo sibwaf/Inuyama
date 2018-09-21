@@ -1,13 +1,15 @@
 package ru.dyatel.inuyama.nyaa
 
 import android.content.Context
-import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.parser.Parser
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
+import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
+import ru.dyatel.inuyama.SERVICE_NYAA
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.utilities.asDateTime
 import java.text.SimpleDateFormat
@@ -21,11 +23,15 @@ class NyaaApi(override val kodein: Kodein) : KodeinAware, RemoteService {
         val datetimeFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US)
     }
 
+    override val serviceId = SERVICE_NYAA
+
+    override val networkManager by instance<NetworkManager>()
+
     override fun getName(context: Context) = context.getString(R.string.module_nyaa)!!
 
     override fun checkConnection(): Boolean {
         return try {
-            Jsoup.connect(host).get()
+            createConnection(host).get()
             true
         } catch (e: Exception) {
             false
@@ -34,7 +40,7 @@ class NyaaApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     fun query(query: String): List<NyaaTorrent> {
         try {
-            return Jsoup.connect(host)
+            return createConnection(host)
                     .data("page", "rss").data("f", "2").data("c", "0_0").data("q", query)
                     .parser(Parser.xmlParser())
                     .get()

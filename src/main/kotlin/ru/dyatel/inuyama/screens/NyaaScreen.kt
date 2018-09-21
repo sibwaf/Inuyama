@@ -125,8 +125,6 @@ class NyaaScreen : Screen<NyaaView>(), KodeinAware {
     override fun getTitle(context: Context) = context.getString(R.string.module_nyaa)!!
 
     private fun showEditDialog(watch: NyaaWatch) {
-        val directories = directoryBox.all
-
         val view = ctx.verticalLayout {
             lparams(width = matchParent, height = wrapContent) {
                 padding = DIM_EXTRA_LARGE
@@ -161,7 +159,7 @@ class NyaaScreen : Screen<NyaaView>(), KodeinAware {
             directorySelector {
                 id = directorySelectorId
 
-                bindItems(directories)
+                bindItems(directoryBox.all)
                 selected = watch.directory.target
             }
         }
