@@ -1,5 +1,6 @@
 package ru.dyatel.inuyama
 
+import android.content.Context
 import android.net.wifi.SupplicantState
 import android.net.wifi.WifiManager
 import io.objectbox.Box
@@ -8,6 +9,7 @@ import org.jsoup.Jsoup
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
+import org.kodein.di.generic.on
 import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.model.Network_
 import ru.dyatel.inuyama.model.ProxyBinding
@@ -15,9 +17,11 @@ import java.io.IOException
 
 class NetworkManager(override val kodein: Kodein) : KodeinAware {
 
-    private val wifiManager by kodein.instance<WifiManager>()
-    private val networkBox by kodein.instance<Box<Network>>()
-    private val proxyBindingBox by kodein.instance<Box<ProxyBinding>>()
+    private val context by instance<Context>()
+    private val wifiManager by on(context).instance<WifiManager>()
+
+    private val networkBox by instance<Box<Network>>()
+    private val proxyBindingBox by instance<Box<ProxyBinding>>()
 
     fun isNetworkTrusted(): Boolean {
         val connection = wifiManager.connectionInfo

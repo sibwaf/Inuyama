@@ -8,11 +8,12 @@ import androidx.core.app.NotificationCompat
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
+import org.kodein.di.generic.on
 
 class Notifier(override val kodein: Kodein) : KodeinAware {
 
     private val context by instance<Context>()
-    private val notificationManager by instance<NotificationManager>()
+    private val notificationManager by on(context).instance<NotificationManager>()
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
