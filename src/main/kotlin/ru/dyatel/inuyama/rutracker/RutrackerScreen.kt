@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.screens
+package ru.dyatel.inuyama.rutracker
 
 import android.app.AlertDialog
 import android.content.Context
@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
-import com.wealthfront.magellan.Screen
 import io.objectbox.Box
 import io.objectbox.android.AndroidScheduler
 import io.objectbox.reactive.DataSubscription
@@ -32,8 +31,7 @@ import ru.dyatel.inuyama.layout.showConfirmationDialog
 import ru.dyatel.inuyama.layout.uniformTextInput
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.RutrackerWatch
-import ru.dyatel.inuyama.rutracker.RutrackerApi
-import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
+import ru.dyatel.inuyama.screens.NavigatableScreen
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.ctx
@@ -57,7 +55,7 @@ class RutrackerScreenView(context: Context) : BaseScreenView<RutrackerScreen>(co
 
 }
 
-class RutrackerScreen : Screen<RutrackerScreenView>(), KodeinAware {
+class RutrackerScreen : NavigatableScreen<RutrackerScreenView>(), KodeinAware {
 
     private companion object {
         val linkEditorId = View.generateViewId()
@@ -83,7 +81,7 @@ class RutrackerScreen : Screen<RutrackerScreenView>(), KodeinAware {
 
     override fun createView(context: Context) = RutrackerScreenView(context).apply { bindAdapter(fastAdapter) }
 
-    override fun onShow(context: Context?) {
+    override fun onShow(context: Context) {
         super.onShow(context)
 
         reload()

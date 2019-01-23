@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.screens
+package ru.dyatel.inuyama.nyaa
 
 import android.app.AlertDialog
 import android.content.Context
@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
-import com.wealthfront.magellan.Screen
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.android.AndroidScheduler
@@ -36,6 +35,7 @@ import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.model.NyaaTorrent_
 import ru.dyatel.inuyama.model.NyaaWatch
+import ru.dyatel.inuyama.screens.NavigatableScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.ctx
 import ru.dyatel.inuyama.utilities.subscribeFor
@@ -58,7 +58,7 @@ class NyaaView(context: Context) : BaseScreenView<NyaaScreen>(context) {
 
 }
 
-class NyaaScreen : Screen<NyaaView>(), KodeinAware {
+class NyaaScreen : NavigatableScreen<NyaaView>(), KodeinAware {
 
     private companion object {
         val queryEditorId = View.generateViewId()

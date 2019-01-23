@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.screens
+package ru.dyatel.inuyama.ruranobe
 
 import android.content.Context
 import android.view.Menu
@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
-import com.wealthfront.magellan.Screen
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.android.AndroidScheduler
@@ -34,7 +33,7 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.RuranobeProjectItem
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
-import ru.dyatel.inuyama.ruranobe.RuranobeWatcher
+import ru.dyatel.inuyama.screens.NavigatableScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 
 class RuranobeView(context: Context) : BaseScreenView<RuranobeScreen>(context) {
@@ -75,7 +74,7 @@ class RuranobeView(context: Context) : BaseScreenView<RuranobeScreen>(context) {
 
 }
 
-class RuranobeScreen : Screen<RuranobeView>(), KodeinAware {
+class RuranobeScreen : NavigatableScreen<RuranobeView>(), KodeinAware {
 
     private companion object {
         val projectComparator = Comparator<RuranobeProject> { first, second ->

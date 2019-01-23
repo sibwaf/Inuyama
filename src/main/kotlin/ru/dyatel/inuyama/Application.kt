@@ -15,6 +15,7 @@ import org.kodein.di.android.androidModule
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.provider
+import org.kodein.di.generic.setBinding
 import org.kodein.di.generic.singleton
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.MyObjectBox
@@ -66,6 +67,7 @@ class Application : Application(), KodeinAware {
 
         bind<TorrentClient>() with singleton { TransmissionClient(kodein) }
 
+        bind() from setBinding<ModuleScreenProvider>()
         import(rutrackerModule)
         import(nyaaModule)
         import(ruranobeModule)

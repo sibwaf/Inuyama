@@ -9,6 +9,7 @@ import io.objectbox.BoxStore
 import org.jsoup.Connection
 import org.kodein.di.Kodein
 import org.kodein.di.generic.bind
+import org.kodein.di.generic.inSet
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
 import ru.dyatel.inuyama.model.NyaaTorrent
@@ -24,9 +25,9 @@ import ru.dyatel.inuyama.ruranobe.RuranobeWatcher
 import ru.dyatel.inuyama.rutracker.RutrackerApi
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.dyatel.inuyama.rutracker.RutrackerWatcher
-import ru.dyatel.inuyama.screens.NyaaScreen
-import ru.dyatel.inuyama.screens.RuranobeScreen
-import ru.dyatel.inuyama.screens.RutrackerScreen
+import ru.dyatel.inuyama.nyaa.NyaaScreen
+import ru.dyatel.inuyama.ruranobe.RuranobeScreen
+import ru.dyatel.inuyama.rutracker.RutrackerScreen
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
 
@@ -65,54 +66,53 @@ abstract class Watcher {
 
 }
 
-@Suppress("FINITE_BOUNDS_VIOLATION_IN_JAVA")
-abstract class ModuleScreenProvider<T : Screen<*>> {
+abstract class ModuleScreenProvider {
     abstract fun getIcon(): IIcon
     abstract fun getTitle(context: Context): String
-    abstract fun getScreen(): T
+    abstract fun getScreenClass(): Class<out Screen<*>>
 }
 
-val rutrackerModule = Kodein.Module {
+val rutrackerModule = Kodein.Module("rutracker") {
     bind<Box<RutrackerWatch>>() with singleton { instance<BoxStore>().boxFor<RutrackerWatch>() }
     bind<RutrackerConfiguration>() with singleton { instance<PreferenceHelper>().rutracker }
     bind<RutrackerApi>() with singleton { RutrackerApi(kodein) }
     bind<RutrackerWatcher>() with singleton { RutrackerWatcher(kodein) }
 
-    bind<ModuleScreenProvider<RutrackerScreen>>() with singleton {
-        object : ModuleScreenProvider<RutrackerScreen>() {
+    bind<ModuleScreenProvider>().inSet() with singleton {
+        object : ModuleScreenProvider() {
             override fun getIcon() = CommunityMaterial.Icon.cmd_database
-            override fun getTitle(context: Context) = context.getString(R.string.module_rutracker)!!
-            override fun getScreen() = RutrackerScreen()
+            override fun getTitle(context: Context) = context.getString(R.string.module_rutracker)
+            override fun getScreenClass() = RutrackerScreen::class.java
         }
     }
 }
 
-val nyaaModule = Kodein.Module {
+val nyaaModule = Kodein.Module("nyaa") {
     bind<Box<NyaaTorrent>>() with singleton { instance<BoxStore>().boxFor<NyaaTorrent>() }
     bind<Box<NyaaWatch>>() with singleton { instance<BoxStore>().boxFor<NyaaWatch>() }
     bind<NyaaApi>() with singleton { NyaaApi(kodein) }
     bind<NyaaWatcher>() with singleton { NyaaWatcher(kodein) }
 
-    bind<ModuleScreenProvider<NyaaScreen>>() with singleton {
-        object : ModuleScreenProvider<NyaaScreen>() {
+    bind<ModuleScreenProvider>().inSet() with singleton {
+        object : ModuleScreenProvider() {
             override fun getIcon() = CommunityMaterial.Icon.cmd_database
-            override fun getTitle(context: Context) = context.getString(R.string.module_nyaa)!!
-            override fun getScreen() = NyaaScreen()
+            override fun getTitle(context: Context) = context.getString(R.string.module_nyaa)
+            override fun getScreenClass() = NyaaScreen::class.java
         }
     }
 }
 
-val ruranobeModule = Kodein.Module {
+val ruranobeModule = Kodein.Module("ruranobe") {
     bind<Box<RuranobeProject>>() with singleton { instance<BoxStore>().boxFor<RuranobeProject>() }
     bind<Box<RuranobeVolume>>() with singleton { instance<BoxStore>().boxFor<RuranobeVolume>() }
     bind<RuranobeApi>() with singleton { RuranobeApi(kodein) }
     bind<RuranobeWatcher>() with singleton { RuranobeWatcher(kodein) }
 
-    bind<ModuleScreenProvider<RuranobeScreen>>() with singleton {
-        object : ModuleScreenProvider<RuranobeScreen>() {
+    bind<ModuleScreenProvider>().inSet() with singleton {
+        object : ModuleScreenProvider() {
             override fun getIcon() = CommunityMaterial.Icon.cmd_book
-            override fun getTitle(context: Context) = context.getString(R.string.module_ruranobe)!!
-            override fun getScreen() = RuranobeScreen()
+            override fun getTitle(context: Context) = context.getString(R.string.module_ruranobe)
+            override fun getScreenClass() = RuranobeScreen::class.java
         }
     }
 }

@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
-import com.wealthfront.magellan.Screen
 import io.objectbox.Box
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -186,7 +185,7 @@ class HomeScreenView(context: Context) : BaseScreenView<HomeScreen>(context) {
 
 }
 
-class HomeScreen : Screen<HomeScreenView>(), KodeinAware {
+class HomeScreen : NavigatableScreen<HomeScreenView>(), KodeinAware {
 
     private companion object {
         val proxySelectorId = View.generateViewId()

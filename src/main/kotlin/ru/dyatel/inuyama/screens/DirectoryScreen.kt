@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
-import com.wealthfront.magellan.Screen
 import io.objectbox.Box
 import org.jetbrains.anko.editText
 import org.jetbrains.anko.frameLayout
@@ -52,7 +51,7 @@ class DirectoryView(context: Context) : BaseScreenView<DirectoryScreen>(context)
 
 }
 
-class DirectoryScreen : Screen<DirectoryView>(), KodeinAware {
+class DirectoryScreen : NavigatableScreen<DirectoryView>(), KodeinAware {
 
     override val kodein by closestKodein { activity }
 

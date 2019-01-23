@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
-import com.wealthfront.magellan.Screen
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.android.AndroidScheduler
@@ -78,7 +77,7 @@ class ProxyScreenView(context: Context) : BaseScreenView<ProxyScreen>(context) {
 
 }
 
-class ProxyScreen : Screen<ProxyScreenView>(), KodeinAware {
+class ProxyScreen : NavigatableScreen<ProxyScreenView>(), KodeinAware {
 
     private companion object {
         val hostEditId = View.generateViewId()
@@ -97,7 +96,7 @@ class ProxyScreen : Screen<ProxyScreenView>(), KodeinAware {
 
     override fun createView(context: Context) = ProxyScreenView(context).apply { bindAdapter(fastAdapter) }
 
-    override fun onShow(context: Context?) {
+    override fun onShow(context: Context) {
         super.onShow(context)
 
         reload()

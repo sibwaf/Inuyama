@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
-import com.wealthfront.magellan.Screen
 import io.objectbox.Box
 import io.objectbox.android.AndroidScheduler
 import io.objectbox.reactive.DataSubscription
@@ -42,7 +41,7 @@ class NetworkView(context: Context) : BaseScreenView<NetworkScreen>(context) {
 
 }
 
-class NetworkScreen : Screen<NetworkView>(), KodeinAware {
+class NetworkScreen : NavigatableScreen<NetworkView>(), KodeinAware {
 
     override val kodein by closestKodein { activity }
 
@@ -56,7 +55,7 @@ class NetworkScreen : Screen<NetworkView>(), KodeinAware {
 
     override fun createView(context: Context) = NetworkView(context).apply { bindAdapter(fastAdapter) }
 
-    override fun onShow(context: Context?) {
+    override fun onShow(context: Context) {
         super.onShow(context)
 
         networkManager.isNetworkTrusted()

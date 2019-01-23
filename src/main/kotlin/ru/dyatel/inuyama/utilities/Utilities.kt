@@ -3,7 +3,6 @@ package ru.dyatel.inuyama.utilities
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
-import android.support.v7.widget.RecyclerView
 import android.text.InputType
 import android.view.MotionEvent
 import android.view.View
@@ -24,6 +23,7 @@ import io.objectbox.converter.PropertyConverter
 import io.objectbox.reactive.SubscriptionBuilder
 import org.jetbrains.anko.inputMethodManager
 import org.ocpsoft.prettytime.PrettyTime
+import ru.dyatel.inuyama.MainActivity
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -46,6 +46,9 @@ fun Activity.hideKeyboard() {
 
 val Screen<*>.ctx: Context
     get() = getActivity()
+
+val Screen<*>.act: MainActivity
+    get() = getActivity() as MainActivity
 
 inline fun <reified T> Gson.fromJson(json: String): T = fromJson(json, T::class.java)
 

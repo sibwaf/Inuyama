@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.screens
+package ru.dyatel.inuyama.ruranobe
 
 import android.content.Context
 import android.view.Gravity
@@ -11,7 +11,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
-import com.wealthfront.magellan.Screen
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.android.AndroidScheduler
@@ -46,7 +45,7 @@ import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.model.RuranobeVolume_
-import ru.dyatel.inuyama.ruranobe.RuranobeWatcher
+import ru.dyatel.inuyama.screens.NavigatableScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.hideIf
 import ru.dyatel.inuyama.utilities.subscribeFor
@@ -194,7 +193,7 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
 
 }
 
-class RuranobeProjectScreen(private val project: RuranobeProject) : Screen<RuranobeProjectView>(), KodeinAware {
+class RuranobeProjectScreen(private val project: RuranobeProject) : NavigatableScreen<RuranobeProjectView>(), KodeinAware {
 
     override val kodein by closestKodein { activity }
 
@@ -227,7 +226,7 @@ class RuranobeProjectScreen(private val project: RuranobeProject) : Screen<Ruran
         }
     }
 
-    override fun onShow(context: Context?) {
+    override fun onShow(context: Context) {
         super.onShow(context)
 
         view.watching = project.watching

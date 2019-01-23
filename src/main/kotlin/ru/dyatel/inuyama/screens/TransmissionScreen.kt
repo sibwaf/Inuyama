@@ -5,7 +5,6 @@ import android.text.InputType
 import android.view.View
 import android.widget.EditText
 import com.wealthfront.magellan.BaseScreenView
-import com.wealthfront.magellan.Screen
 import org.jetbrains.anko.appcompat.v7.tintedButton
 import org.jetbrains.anko.bottomPadding
 import org.jetbrains.anko.find
@@ -118,7 +117,7 @@ class TransmissionView(context: Context) : BaseScreenView<TransmissionScreen>(co
 
 }
 
-class TransmissionScreen : Screen<TransmissionView>(), KodeinAware {
+class TransmissionScreen : NavigatableScreen<TransmissionView>(), KodeinAware {
 
     override val kodein by closestKodein { activity }
 
