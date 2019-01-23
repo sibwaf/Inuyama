@@ -4,7 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import android.support.v4.app.NotificationCompat
+import androidx.core.app.NotificationCompat
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
@@ -17,9 +17,11 @@ class Notifier(override val kodein: Kodein) : KodeinAware {
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channels = arrayListOf(
-                    NotificationChannel(NOTIFICATION_CHANNEL_UPDATES,
+                    NotificationChannel(
+                            NOTIFICATION_CHANNEL_UPDATES,
                             context.getString(R.string.notification_channel_updates),
-                            NotificationManager.IMPORTANCE_DEFAULT)
+                            NotificationManager.IMPORTANCE_DEFAULT
+                    )
             )
 
             notificationManager.createNotificationChannels(channels)

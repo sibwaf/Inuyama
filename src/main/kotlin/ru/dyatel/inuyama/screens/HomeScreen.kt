@@ -1,21 +1,22 @@
 package ru.dyatel.inuyama.screens
 
 import android.content.Context
-import android.support.v7.app.AlertDialog
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import com.wealthfront.magellan.Screen
 import io.objectbox.Box
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jetbrains.anko.backgroundColorResource
 import org.jetbrains.anko.bottomPadding
 import org.jetbrains.anko.cardview.v7.cardView
@@ -83,7 +84,7 @@ class HomeScreenView(context: Context) : BaseScreenView<HomeScreen>(context) {
             statusBar {
                 id = statusBarId
 
-                icon = CommunityMaterial.Icon.cmd_update
+                icon = CommunityMaterial.Icon2.cmd_update
                 switchEnabled = false
 
                 setOnClickListener { screen.requestOverseerCheck() }
@@ -177,7 +178,7 @@ class HomeScreenView(context: Context) : BaseScreenView<HomeScreen>(context) {
     }
 
     fun refreshUpdateList() {
-        val hasUpdates = updateRecycler.adapter.itemCount > 0
+        val hasUpdates = updateRecycler.adapter!!.itemCount > 0
 
         noUpdatesMarker.hideIf(hasUpdates)
         updateRecycler.hideIf(!hasUpdates)
@@ -297,7 +298,7 @@ class HomeScreen : Screen<HomeScreenView>(), KodeinAware {
                 .take(DASHBOARD_UPDATE_COUNT)
                 .map { UpdateItem(it) }
 
-        launch(UI) {
+        GlobalScope.launch(Dispatchers.Main) {
             updateAdapter.set(updates)
             view.refreshUpdateList()
         }
@@ -359,12 +360,12 @@ private class StateChecker(private val service: RemoteService, private val onUpd
     fun check() {
         cancel()
 
-        coroutine = launch(UI) {
+        coroutine = GlobalScope.launch(Dispatchers.Main) {
             onUpdate(State.PENDING)
 
-            val state = async {
+            val state = withContext(Dispatchers.Default) {
                 if (service.checkConnection()) State.OK else State.FAIL
-            }.await()
+            }
 
             onUpdate(state)
 

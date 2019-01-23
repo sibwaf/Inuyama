@@ -2,9 +2,8 @@ package ru.dyatel.inuyama
 
 import android.Manifest
 import android.os.Bundle
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.Toolbar
 import android.view.Menu
+import androidx.appcompat.widget.Toolbar
 import androidx.work.WorkManager
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
@@ -17,7 +16,6 @@ import com.wealthfront.magellan.Navigator
 import com.wealthfront.magellan.support.SingleActivity
 import io.objectbox.BoxStore
 import io.objectbox.android.AndroidObjectBrowser
-import org.jetbrains.anko.ctx
 import org.jetbrains.anko.find
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
@@ -125,14 +123,14 @@ class MainActivity : SingleActivity(), KodeinAware {
     }
 
     private fun createActionBarIcon(icon: IIcon) =
-            IconicsDrawable(ctx).actionBar().icon(icon).colorRes(R.color.material_drawer_dark_primary_text)
+            IconicsDrawable(this).actionBar().icon(icon).colorRes(R.color.material_drawer_dark_primary_text)
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
-        menu.findItem(R.id.search).icon = createActionBarIcon(CommunityMaterial.Icon.cmd_magnify)
-        menu.findItem(R.id.add).icon = createActionBarIcon(CommunityMaterial.Icon.cmd_plus)
-        menu.findItem(R.id.refresh).icon = createActionBarIcon(CommunityMaterial.Icon.cmd_refresh)
-        menu.findItem(R.id.settings).icon = createActionBarIcon(CommunityMaterial.Icon.cmd_settings)
+        menu.findItem(R.id.search).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_magnify)
+        menu.findItem(R.id.add).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_plus)
+        menu.findItem(R.id.refresh).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_refresh)
+        menu.findItem(R.id.settings).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_settings)
         return super.onCreateOptionsMenu(menu)
     }
 }

@@ -1,10 +1,12 @@
 package ru.dyatel.inuyama.overseer
 
+import android.content.Context
 import android.util.Log
 import androidx.work.Worker
+import androidx.work.WorkerParameters
 import hirondelle.date4j.DateTime
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.allInstances
@@ -17,7 +19,7 @@ import java.util.TimeZone
 
 typealias OverseerListener = (Boolean) -> Unit
 
-class OverseerWorker : Worker(), KodeinAware {
+class OverseerWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KodeinAware {
 
     companion object {
 
@@ -27,7 +29,7 @@ class OverseerWorker : Worker(), KodeinAware {
             private set(value) {
                 field = value
 
-                runBlocking(UI) {
+                runBlocking(Dispatchers.Main) {
                     listeners.forEach { it(value) }
                 }
             }
@@ -63,10 +65,10 @@ class OverseerWorker : Worker(), KodeinAware {
 
             watchers.forEach { it.dispatchUpdates() }
 
-            return Result.SUCCESS
+            return Result.success()
         } catch (e: Exception) {
             Log.e("Overseer", "", e)
-            return Result.FAILURE
+            return Result.failure()
         } finally {
             preferenceHelper.lastCheck = DateTime.now(TimeZone.getDefault())
             isWorking = false

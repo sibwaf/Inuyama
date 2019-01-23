@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.mikepenz.fastadapter.FastAdapter
@@ -75,13 +76,13 @@ fun EditText.disableSuggestions() {
 fun RecyclerView.propagateTouchEvents() {
     val parent = parent as ViewGroup
 
-    setOnTouchListener { _, event -> parent.onTouchEvent(event)}
+    setOnTouchListener { _, event -> parent.onTouchEvent(event) }
     addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
-        override fun onTouchEvent(rv: RecyclerView?, e: MotionEvent) {
+        override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
             parent.onTouchEvent(e)
         }
 
-        override fun onInterceptTouchEvent(rv: RecyclerView?, e: MotionEvent?) = true
+        override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent) = true
         override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) = Unit
     })
 }

@@ -1,14 +1,14 @@
 package ru.dyatel.inuyama.screens
 
 import android.content.Context
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SearchView
-import android.support.v7.widget.SimpleItemAnimator
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import com.wealthfront.magellan.Screen
@@ -16,10 +16,11 @@ import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.android.AndroidScheduler
 import io.objectbox.reactive.DataSubscription
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jetbrains.anko.find
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.recyclerview.v7.recyclerView
@@ -187,17 +188,17 @@ class RuranobeScreen : Screen<RuranobeView>(), KodeinAware {
             return
         }
 
-        fetchTask = launch(UI) {
+        fetchTask = GlobalScope.launch(Dispatchers.Main) {
             try {
                 view.refreshing = true
 
-                async {
+                withContext(Dispatchers.Default) {
                     watcher.syncProjects()
 
                     for (project in projectBox.all) {
                         watcher.syncVolumes(project)
                     }
-                }.await()
+                }
             } finally {
                 view?.refreshing = false
                 fetchTask = null

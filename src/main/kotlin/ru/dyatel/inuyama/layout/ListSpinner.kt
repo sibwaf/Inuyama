@@ -1,11 +1,11 @@
 package ru.dyatel.inuyama.layout
 
 import android.content.Context
-import android.support.v7.widget.AppCompatSpinner
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.appcompat.widget.AppCompatSpinner
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.Proxy

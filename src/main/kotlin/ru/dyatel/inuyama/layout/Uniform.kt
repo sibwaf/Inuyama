@@ -2,12 +2,12 @@ package ru.dyatel.inuyama.layout
 
 import android.app.AlertDialog
 import android.content.Context
-import android.support.design.widget.TextInputEditText
-import android.support.design.widget.TextInputLayout
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import org.jetbrains.anko._LinearLayout
 import org.jetbrains.anko.appcompat.v7.tintedButton
 import org.jetbrains.anko.cardview.v7.cardView

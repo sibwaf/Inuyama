@@ -2,11 +2,11 @@ package ru.dyatel.inuyama.screens
 
 import android.app.AlertDialog
 import android.content.Context
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.Menu
 import android.widget.EditText
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import com.wealthfront.magellan.Screen
@@ -23,15 +23,15 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
+import ru.dyatel.inuyama.layout.DIM_LARGE
+import ru.dyatel.inuyama.layout.DirectoryItem
+import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.ctx
 import ru.dyatel.inuyama.utilities.disableSuggestions
 import ru.dyatel.inuyama.utilities.disableUiExtraction
 import ru.dyatel.inuyama.utilities.hideKeyboard
-import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
-import ru.dyatel.inuyama.layout.DIM_LARGE
-import ru.dyatel.inuyama.layout.DirectoryItem
-import ru.dyatel.inuyama.model.Directory
 
 class DirectoryView(context: Context) : BaseScreenView<DirectoryScreen>(context) {
 

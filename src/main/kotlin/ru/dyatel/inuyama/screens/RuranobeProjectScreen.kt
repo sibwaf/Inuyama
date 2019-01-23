@@ -1,13 +1,13 @@
 package ru.dyatel.inuyama.screens
 
 import android.content.Context
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
@@ -16,10 +16,11 @@ import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.android.AndroidScheduler
 import io.objectbox.reactive.DataSubscription
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jetbrains.anko.find
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
@@ -261,13 +262,13 @@ class RuranobeProjectScreen(private val project: RuranobeProject) : Screen<Ruran
             return
         }
 
-        fetchTask = launch(UI) {
+        fetchTask = GlobalScope.launch(Dispatchers.Main) {
             try {
                 view.refreshing = true
 
-                async {
+                withContext(Dispatchers.Default) {
                     watcher.syncVolumes(project)
-                }.await()
+                }
             } finally {
                 view?.refreshing = false
                 fetchTask = null

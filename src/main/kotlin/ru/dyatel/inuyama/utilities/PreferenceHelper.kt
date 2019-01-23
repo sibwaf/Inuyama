@@ -33,13 +33,13 @@ class PreferenceHelper(context: Context) : KodeinAware {
         }
 
     var transmission: TransmissionConfiguration
-        get() = gson.fromJson(preferences.getString(CONFIGURATION_TRANSMISSION, "{}"))
+        get() = gson.fromJson(preferences.getString(CONFIGURATION_TRANSMISSION, "{}")!!)
         set(value) {
             preferences.editAndApply { putString(CONFIGURATION_TRANSMISSION, gson.toJson(value)) }
         }
 
     var rutracker: RutrackerConfiguration
-        get() = gson.fromJson(preferences.getString(CONFIGURATION_RUTRACKER, "{}"))
+        get() = gson.fromJson(preferences.getString(CONFIGURATION_RUTRACKER, "{}")!!)
         set(value) {
             preferences.editAndApply { putString(CONFIGURATION_RUTRACKER, gson.toJson(value)) }
         }

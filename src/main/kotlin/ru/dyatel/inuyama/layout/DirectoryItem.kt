@@ -143,7 +143,7 @@ class DirectoryItem(
             linearLayout {
                 id = buttonContainerId
 
-                imageView(createIcon(ctx, CommunityMaterial.Icon.cmd_pencil)) {
+                imageView(createIcon(ctx, CommunityMaterial.Icon2.cmd_pencil)) {
                     id = editButtonId
                 }
 
