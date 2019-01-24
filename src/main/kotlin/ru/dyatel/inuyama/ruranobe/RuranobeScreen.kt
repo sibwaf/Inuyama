@@ -1,10 +1,8 @@
 package ru.dyatel.inuyama.ruranobe
 
 import android.content.Context
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.widget.SearchView
+import android.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
@@ -34,7 +32,9 @@ import ru.dyatel.inuyama.layout.RuranobeProjectItem
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.screens.NavigatableScreen
+import ru.dyatel.inuyama.utilities.act
 import ru.dyatel.inuyama.utilities.buildFastAdapter
+import ru.dyatel.inuyama.utilities.isVisible
 
 class RuranobeView(context: Context) : BaseScreenView<RuranobeScreen>(context) {
 
@@ -108,8 +108,6 @@ class RuranobeScreen : NavigatableScreen<RuranobeView>(), KodeinAware {
     private val adapter = ItemAdapter<RuranobeProjectItem>()
     private val fastAdapter = adapter.buildFastAdapter()
 
-    private lateinit var searchViewItem: MenuItem
-
     private var fetchTask: Job? = null
 
     init {
@@ -139,6 +137,19 @@ class RuranobeScreen : NavigatableScreen<RuranobeView>(), KodeinAware {
     override fun onShow(context: Context) {
         super.onShow(context)
 
+        act.searchView.isVisible = true
+        act.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                adapter.filter(query)
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                adapter.filter(newText)
+                return true
+            }
+        })
+
         boxObserver = boxStore
                 .subscribe()
                 .on(AndroidScheduler.mainThread())
@@ -162,8 +173,6 @@ class RuranobeScreen : NavigatableScreen<RuranobeView>(), KodeinAware {
 
         boxObserver?.cancel()
         boxObserver = null
-
-        searchViewItem.collapseActionView()
 
         super.onHide(context)
     }
@@ -206,25 +215,4 @@ class RuranobeScreen : NavigatableScreen<RuranobeView>(), KodeinAware {
     }
 
     override fun getTitle(context: Context) = context.getString(R.string.module_ruranobe)!!
-
-    override fun onUpdateMenu(menu: Menu) {
-        menu.findItem(R.id.search).apply {
-            isVisible = true
-
-            searchViewItem = this
-            val actionView = actionView as SearchView
-
-            actionView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    adapter.filter(query)
-                    return true
-                }
-
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    adapter.filter(newText)
-                    return true
-                }
-            })
-        }
-    }
 }

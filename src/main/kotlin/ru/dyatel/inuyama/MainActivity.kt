@@ -3,6 +3,7 @@ package ru.dyatel.inuyama
 import android.Manifest
 import android.os.Bundle
 import android.view.Menu
+import android.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.work.WorkManager
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
@@ -29,6 +30,7 @@ import ru.dyatel.inuyama.screens.NetworkScreen
 import ru.dyatel.inuyama.screens.ProxyScreen
 import ru.dyatel.inuyama.screens.TransmissionScreen
 import ru.dyatel.inuyama.utilities.grantPermissions
+import ru.dyatel.inuyama.utilities.isVisible
 import java.util.concurrent.atomic.AtomicLong
 
 class MainActivity : SingleActivity(), KodeinAware {
@@ -38,6 +40,9 @@ class MainActivity : SingleActivity(), KodeinAware {
     private val menuIdGenerator = AtomicLong(1)
     private val menuItemRegistry = mutableMapOf<Class<out Screen<*>>, Long>()
     private lateinit var drawer: Drawer
+
+    lateinit var searchView: SearchView
+        private set
 
     override fun createNavigator() =
             Navigator
@@ -50,6 +55,10 @@ class MainActivity : SingleActivity(), KodeinAware {
 
         val toolbar = find<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
+
+        searchView = find<SearchView>(R.id.search).apply {
+            queryHint = getString(R.string.action_search)
+        }
 
         drawer = DrawerBuilder(this)
                 .withToolbar(toolbar)
@@ -85,7 +94,24 @@ class MainActivity : SingleActivity(), KodeinAware {
         super.onStop()
     }
 
+    override fun onBackPressed() {
+        if (!searchView.isIconified) {
+            closeSearchView()
+            return
+        }
+
+        super.onBackPressed()
+    }
+
+    private fun closeSearchView() {
+        searchView.setQuery("", false)
+        searchView.isIconified = true
+    }
+
     fun syncNavigation() {
+        closeSearchView()
+        searchView.isVisible = false
+
         // TODO: find nearest existing screen
         val id = menuItemRegistry[getNavigator().currentScreen().javaClass] ?: return
         drawer.setSelection(id)
@@ -146,7 +172,6 @@ class MainActivity : SingleActivity(), KodeinAware {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
-        menu.findItem(R.id.search).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_magnify)
         menu.findItem(R.id.add).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_plus)
         menu.findItem(R.id.refresh).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_refresh)
         menu.findItem(R.id.settings).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_settings)
