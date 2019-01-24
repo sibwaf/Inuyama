@@ -24,7 +24,7 @@ import org.jetbrains.anko.textResource
 import org.jetbrains.anko.textView
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.utilities.hideIf
+import ru.dyatel.inuyama.utilities.isVisible
 import kotlin.properties.Delegates
 
 class StatusBar(context: Context) : _CardView(context) {
@@ -87,7 +87,7 @@ class StatusBar(context: Context) : _CardView(context) {
         }
 
         iconView.setImageDrawable(drawable)
-        iconView.hideIf(drawable == null)
+        iconView.isVisible = drawable != null
     }
 
     var textResource: Int
@@ -103,7 +103,7 @@ class StatusBar(context: Context) : _CardView(context) {
         }
 
     var switchEnabled by Delegates.observable(false) { _, _, value ->
-        switchView.hideIf(!value)
+        switchView.isVisible = value
     }
 
     var switchState: Boolean

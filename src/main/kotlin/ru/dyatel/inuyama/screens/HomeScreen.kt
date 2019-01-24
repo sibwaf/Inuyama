@@ -59,7 +59,7 @@ import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.asDate
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.ctx
-import ru.dyatel.inuyama.utilities.hideIf
+import ru.dyatel.inuyama.utilities.isVisible
 import ru.dyatel.inuyama.utilities.prettyTime
 
 class HomeScreenView(context: Context) : BaseScreenView<HomeScreen>(context) {
@@ -179,8 +179,8 @@ class HomeScreenView(context: Context) : BaseScreenView<HomeScreen>(context) {
     fun refreshUpdateList() {
         val hasUpdates = updateRecycler.adapter!!.itemCount > 0
 
-        noUpdatesMarker.hideIf(hasUpdates)
-        updateRecycler.hideIf(!hasUpdates)
+        noUpdatesMarker.isVisible = !hasUpdates
+        updateRecycler.isVisible = hasUpdates
     }
 
 }

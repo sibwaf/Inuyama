@@ -60,12 +60,14 @@ inline fun <reified T> BoxStore.subscribeFor(): SubscriptionBuilder<Class<T>> = 
 
 fun <I : IItem<*, *>> IAdapter<I>.buildFastAdapter(): FastAdapter<I> = FastAdapter.with(this)
 
-fun View.hideIf(condition: Boolean) {
-    visibility = if (condition) View.GONE else View.VISIBLE
-}
+var View.isVisible: Boolean
+    get() = visibility == View.VISIBLE
+    set(value) {
+        visibility = if (value) View.VISIBLE else View.GONE
+    }
 
 fun <T : View> T.hideIf(predicate: (T) -> Boolean) {
-    hideIf(predicate(this))
+    isVisible = !predicate(this)
 }
 
 fun EditText.disableUiExtraction() {

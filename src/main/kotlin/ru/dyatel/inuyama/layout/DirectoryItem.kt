@@ -29,7 +29,7 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.utilities.disableSuggestions
 import ru.dyatel.inuyama.utilities.disableUiExtraction
-import ru.dyatel.inuyama.utilities.hideIf
+import ru.dyatel.inuyama.utilities.isVisible
 
 class DirectoryItem(
         private val directory: Directory,
@@ -73,12 +73,12 @@ class DirectoryItem(
         }
 
         override fun bindView(item: DirectoryItem, payloads: MutableList<Any>?) {
-            pathView.hideIf(item.editMode)
-            editButton.hideIf(item.editMode)
-            removeButton.hideIf(item.editMode)
+            pathView.isVisible = !item.editMode
+            editButton.isVisible = !item.editMode
+            removeButton.isVisible = !item.editMode
 
-            editView.hideIf(!item.editMode)
-            saveButton.hideIf(!item.editMode)
+            editView.isVisible = item.editMode
+            saveButton.isVisible = item.editMode
 
             editButton.setOnClickListener {
                 item.editMode = !item.editMode
