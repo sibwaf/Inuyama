@@ -24,6 +24,7 @@ import ru.dyatel.inuyama.ITEM_TYPE_RURANOBE_PROJECT
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RURANOBE_COVER_ASPECT_RATIO
 import ru.dyatel.inuyama.RURANOBE_COVER_SIZE
+import ru.dyatel.inuyama.layout.components.uniformTextView
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.utilities.asDate
 import ru.dyatel.inuyama.utilities.hideIf

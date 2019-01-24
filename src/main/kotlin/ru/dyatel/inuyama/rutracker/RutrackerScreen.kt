@@ -24,11 +24,11 @@ import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
-import ru.dyatel.inuyama.layout.DirectorySelector
+import ru.dyatel.inuyama.layout.components.DirectorySelector
 import ru.dyatel.inuyama.layout.RutrackerWatchItem
-import ru.dyatel.inuyama.layout.directorySelector
-import ru.dyatel.inuyama.layout.showConfirmationDialog
-import ru.dyatel.inuyama.layout.uniformTextInput
+import ru.dyatel.inuyama.layout.components.directorySelector
+import ru.dyatel.inuyama.layout.components.showConfirmationDialog
+import ru.dyatel.inuyama.layout.components.uniformTextInput
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.screens.NavigatableScreen

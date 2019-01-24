@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.layout
+package ru.dyatel.inuyama.layout.components
 
 import android.content.Context
 import android.view.View

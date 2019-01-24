@@ -15,6 +15,7 @@ import org.jetbrains.anko.verticalMargin
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_PROXY
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.layout.components.uniformTextView
 import ru.dyatel.inuyama.model.Proxy
 
 class ProxyItem(private val proxy: Proxy) : AbstractItem<ProxyItem, ProxyItem.ViewHolder>() {

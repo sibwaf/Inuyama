@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.layout
+package ru.dyatel.inuyama.layout.components
 
 import android.content.Context
 import android.view.View
@@ -10,6 +10,8 @@ import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.view
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.layout.DIM_LARGE
+import ru.dyatel.inuyama.layout.DIM_MEDIUM
 import kotlin.properties.Delegates
 
 enum class State {

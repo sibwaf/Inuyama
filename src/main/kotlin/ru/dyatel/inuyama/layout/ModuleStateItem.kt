@@ -9,6 +9,9 @@ import org.jetbrains.anko.find
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_MODULE_STATE
+import ru.dyatel.inuyama.layout.components.Marker
+import ru.dyatel.inuyama.layout.components.State
+import ru.dyatel.inuyama.layout.components.marker
 
 class ModuleStateItem(
         private val name: String, var state: State

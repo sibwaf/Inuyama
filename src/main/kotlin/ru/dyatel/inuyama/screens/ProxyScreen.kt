@@ -30,7 +30,7 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.ProxyItem
-import ru.dyatel.inuyama.layout.uniformTextInput
+import ru.dyatel.inuyama.layout.components.uniformTextInput
 import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.ctx

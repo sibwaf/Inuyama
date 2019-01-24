@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.layout
+package ru.dyatel.inuyama.layout.components
 
 import android.content.Context
 import android.view.View
@@ -24,6 +24,8 @@ import org.jetbrains.anko.textResource
 import org.jetbrains.anko.textView
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
+import ru.dyatel.inuyama.layout.SP_MEDIUM
 import ru.dyatel.inuyama.utilities.isVisible
 import kotlin.properties.Delegates
 

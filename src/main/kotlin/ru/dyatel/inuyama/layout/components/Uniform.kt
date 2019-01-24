@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.layout
+package ru.dyatel.inuyama.layout.components
 
 import android.app.AlertDialog
 import android.content.Context
@@ -24,6 +24,9 @@ import org.jetbrains.anko.textView
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
+import ru.dyatel.inuyama.layout.DIM_LARGE
+import ru.dyatel.inuyama.layout.SP_MEDIUM
 import ru.dyatel.inuyama.utilities.disableSuggestions
 import ru.dyatel.inuyama.utilities.disableUiExtraction
 

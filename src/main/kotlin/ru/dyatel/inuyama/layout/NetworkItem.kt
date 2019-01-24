@@ -18,6 +18,7 @@ import org.jetbrains.anko.relativeLayout
 import org.jetbrains.anko.switch
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_NETWORK
+import ru.dyatel.inuyama.layout.components.uniformTextView
 import ru.dyatel.inuyama.model.Network
 
 class NetworkItem(

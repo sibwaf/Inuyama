@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.layout
+package ru.dyatel.inuyama.layout.components
 
 import android.app.DatePickerDialog
 import android.app.Dialog

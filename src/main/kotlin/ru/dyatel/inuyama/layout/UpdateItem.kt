@@ -12,6 +12,7 @@ import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_DASHBOARD_UPDATE
+import ru.dyatel.inuyama.layout.components.uniformTextView
 import ru.dyatel.inuyama.model.Update
 import java.util.TimeZone
 

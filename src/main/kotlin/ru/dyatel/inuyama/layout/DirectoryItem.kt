@@ -26,6 +26,7 @@ import org.jetbrains.anko.rightPadding
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_DIRECTORY
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.layout.components.uniformTextView
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.utilities.disableSuggestions
 import ru.dyatel.inuyama.utilities.disableUiExtraction

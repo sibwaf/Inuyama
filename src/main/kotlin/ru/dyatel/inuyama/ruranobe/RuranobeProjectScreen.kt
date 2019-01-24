@@ -37,12 +37,12 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
-import ru.dyatel.inuyama.layout.DirectorySelector
+import ru.dyatel.inuyama.layout.components.DirectorySelector
 import ru.dyatel.inuyama.layout.RuranobeVolumeItem
-import ru.dyatel.inuyama.layout.StatusBar
-import ru.dyatel.inuyama.layout.directorySelector
-import ru.dyatel.inuyama.layout.statusBar
-import ru.dyatel.inuyama.layout.uniformTextView
+import ru.dyatel.inuyama.layout.components.StatusBar
+import ru.dyatel.inuyama.layout.components.directorySelector
+import ru.dyatel.inuyama.layout.components.statusBar
+import ru.dyatel.inuyama.layout.components.uniformTextView
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
