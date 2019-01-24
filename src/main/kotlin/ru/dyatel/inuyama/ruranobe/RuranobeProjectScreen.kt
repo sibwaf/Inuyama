@@ -20,6 +20,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.anko.appcompat.v7.tintedButton
+import org.jetbrains.anko.browse
 import org.jetbrains.anko.find
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
@@ -47,6 +49,7 @@ import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.model.RuranobeVolume_
 import ru.dyatel.inuyama.screens.NavigatableScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
+import ru.dyatel.inuyama.utilities.ctx
 import ru.dyatel.inuyama.utilities.hideIf
 import ru.dyatel.inuyama.utilities.subscribeFor
 
@@ -114,6 +117,10 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
 
                     verticalLayout {
                         lparams(width = matchParent, height = wrapContent)
+
+                        tintedButton(R.string.ruranobe_button_browse_project) {
+                            setOnClickListener { screen.browseProject() }
+                        }
 
                         verticalLayout {
                             lparams(width = matchParent, height = wrapContent) {
@@ -204,6 +211,8 @@ class RuranobeProjectScreen(private val project: RuranobeProject) : NavigatableS
 
     private var boxObserver: DataSubscription? = null
 
+    private val ruranobeApi by instance<RuranobeApi>()
+
     private val watcher by instance<RuranobeWatcher>()
 
     private val adapter = ItemAdapter<RuranobeVolumeItem>()
@@ -216,6 +225,14 @@ class RuranobeProjectScreen(private val project: RuranobeProject) : NavigatableS
                 .equal(RuranobeVolume_.projectId, project.id)
                 .order(RuranobeVolume_.order)
                 .build()
+    }
+
+    init {
+        fastAdapter.withOnClickListener { _, _, item, _ ->
+            val url = ruranobeApi.getVolumePageUrl(item.volume)
+            ctx.browse(url)
+            true
+        }
     }
 
     override fun createView(context: Context): RuranobeProjectView {
@@ -291,6 +308,11 @@ class RuranobeProjectScreen(private val project: RuranobeProject) : NavigatableS
 
         project.directory.target = directory
         projectBox.put(project)
+    }
+
+    fun browseProject() {
+        val url = ruranobeApi.getProjectPageUrl(project)
+        ctx.browse(url)
     }
 
     override fun getTitle(context: Context?) = project.title

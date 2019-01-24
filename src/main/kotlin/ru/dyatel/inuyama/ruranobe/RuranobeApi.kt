@@ -71,7 +71,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
             val response = createConnection("$host/api/projects")
                     .ignoreContentType(true)
                     .ignoreHttpErrors(true)
-                    .data("fields", "projectId,title,nameRomaji,author,works,status,translationStatus,issueStatus")
+                    .data("fields", "projectId,url,title,nameRomaji,author,works,status,translationStatus,issueStatus")
                     .execute()
 
             if (handleResponseCode(response)) {
@@ -140,5 +140,8 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
             throw e
         }
     }
+
+    fun getProjectPageUrl(project: RuranobeProject) = "$host/r/${project.url}"
+    fun getVolumePageUrl(volume: RuranobeVolume) = "$host/r/${volume.url}"
 
 }

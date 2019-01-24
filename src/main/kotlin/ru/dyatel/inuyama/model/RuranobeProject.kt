@@ -11,6 +11,7 @@ import ru.dyatel.inuyama.utilities.NoJson
 @Entity
 data class RuranobeProject(
         @Id(assignable = true) @SerializedName("projectId") var id: Long = 0,
+        var url: String = "",
 
         var title: String = "",
         @SerializedName("nameRomaji") var titleRomaji: String? = null,

@@ -61,6 +61,8 @@
     <string name="ruranobe_status_external_done">Внешний, завершён</string>
     <string name="ruranobe_status_external_dropped">Внешний, заброшен</string>
 
+    <string name="ruranobe_button_browse_project">Открыть страницу</string>
+
     <string name="ruranobe_label_status">Статус: %s</string>
     <string name="ruranobe_label_status_issue">Выпуск: %s</string>
     <string name="ruranobe_label_status_translation">Перевод: %s</string>
