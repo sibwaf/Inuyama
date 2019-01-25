@@ -2,6 +2,7 @@ package ru.dyatel.inuyama.layout.components
 
 import android.app.AlertDialog
 import android.content.Context
+import android.text.InputType
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -11,8 +12,8 @@ import com.google.android.material.textfield.TextInputLayout
 import org.jetbrains.anko._LinearLayout
 import org.jetbrains.anko.appcompat.v7.tintedButton
 import org.jetbrains.anko.cardview.v7.cardView
+import org.jetbrains.anko.design._TextInputLayout
 import org.jetbrains.anko.design.textInputEditText
-import org.jetbrains.anko.design.textInputLayout
 import org.jetbrains.anko.leftPadding
 import org.jetbrains.anko.linearLayout
 import org.jetbrains.anko.margin
@@ -37,28 +38,72 @@ inline fun ViewGroup.uniformTextView(init: TextView.() -> Unit = {}): TextView {
     }
 }
 
-inline fun ViewGroup.uniformTextInput(init: TextInputEditText.() -> Unit): TextInputLayout {
-    return textInputLayout {
+inline fun TextInputLayout.uniformTextInputEditText(init: TextInputEditText.() -> Unit = {}): TextInputEditText {
+    return textInputEditText {
+        disableUiExtraction()
+        disableSuggestions()
+
+        leftPadding = DIM_LARGE
+        rightPadding = DIM_LARGE
+
+        init()
+    }
+}
+
+open class UniformTextInput(context: Context) : _TextInputLayout(context) {
+
+    var text: String
+        get() = editText!!.text.toString()
+        set(value) {
+            editText!!.setText(value)
+        }
+
+    init {
         lparams(width = matchParent, height = wrapContent) {
             bottomMargin = DIM_LARGE
         }
-
-        textInputEditText {
-            disableUiExtraction()
-            disableSuggestions()
-
-            leftPadding = DIM_LARGE
-            rightPadding = DIM_LARGE
-
-            init()
-        }
     }
+}
+
+inline fun ViewGroup.uniformTextInputLayout(init: _TextInputLayout.() -> Unit = {}): UniformTextInput {
+    val view = UniformTextInput(context)
+    view.init()
+    addView(view)
+    return view
+}
+
+inline fun ViewGroup.uniformTextInput(init: TextInputEditText.() -> Unit = {}): UniformTextInput {
+    return uniformTextInputLayout {
+        uniformTextInputEditText(init)
+    }
+}
+
+class UniformDoubleInput(context: Context) : UniformTextInput(context) {
+
+    var value: Double
+        get() = editText!!.text.toString()
+                .takeIf { it.isNotBlank() }
+                ?.let { it.toDouble() }
+                ?: 0.0
+        set(value) {
+            editText!!.setText(value.toString())
+        }
+}
+
+inline fun ViewGroup.uniformDoubleInput(init: TextInputEditText.() -> Unit = {}): UniformDoubleInput {
+    val view = UniformDoubleInput(context)
+    view.uniformTextInputEditText {
+        inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+        init()
+    }
+    addView(view)
+    return view
 }
 
 inline fun Context.uniformWatchView(
         descriptionViewId: Int,
         editButtonId: Int, removeButtonId: Int,
-        init: _LinearLayout.() -> Unit
+        init: _LinearLayout.() -> Unit = {}
 ): View {
     return cardView {
         lparams(width = matchParent, height = wrapContent) {
