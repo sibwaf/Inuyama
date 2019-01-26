@@ -173,7 +173,6 @@ class MainActivity : SingleActivity(), KodeinAware {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu, menu)
         menu.findItem(R.id.add).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_plus)
-        menu.findItem(R.id.refresh).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_refresh)
         menu.findItem(R.id.settings).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_settings)
         return super.onCreateOptionsMenu(menu)
     }

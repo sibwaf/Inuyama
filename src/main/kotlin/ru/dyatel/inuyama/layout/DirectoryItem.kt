@@ -3,7 +3,6 @@ package ru.dyatel.inuyama.layout
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.TextView
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.FastAdapter
@@ -13,7 +12,6 @@ import com.mikepenz.iconics.typeface.IIcon
 import org.jetbrains.anko.alignParentLeft
 import org.jetbrains.anko.alignParentRight
 import org.jetbrains.anko.centerVertically
-import org.jetbrains.anko.editText
 import org.jetbrains.anko.find
 import org.jetbrains.anko.imageView
 import org.jetbrains.anko.leftOf
@@ -26,10 +24,10 @@ import org.jetbrains.anko.rightPadding
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_DIRECTORY
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.layout.components.UniformTextInput
+import ru.dyatel.inuyama.layout.components.uniformTextInput
 import ru.dyatel.inuyama.layout.components.uniformTextView
 import ru.dyatel.inuyama.model.Directory
-import ru.dyatel.inuyama.utilities.disableSuggestions
-import ru.dyatel.inuyama.utilities.disableUiExtraction
 import ru.dyatel.inuyama.utilities.isVisible
 
 class DirectoryItem(
@@ -61,12 +59,12 @@ class DirectoryItem(
         private val editButton = view.find<View>(editButtonId)
         private val removeButton = view.find<View>(removeButtonId)
 
-        private val editView = view.find<EditText>(editViewId)
+        private val editView = view.find<UniformTextInput>(editViewId)
         private val saveButton = view.find<View>(saveButtonId)
 
         override fun unbindView(item: DirectoryItem) {
             pathView.text = null
-            editView.text = null
+            editView.text = ""
 
             editButton.setOnClickListener(null)
             removeButton.setOnClickListener(null)
@@ -87,10 +85,10 @@ class DirectoryItem(
             }
 
             if (item.editMode) {
-                editView.setText(item.directory.path)
+                editView.text = item.directory.path
                 saveButton.setOnClickListener {
                     item.editMode = false
-                    item.saveListener(editView.text.toString())
+                    item.saveListener(editView.text)
                 }
             } else {
                 pathView.text = item.directory.path
@@ -127,14 +125,8 @@ class DirectoryItem(
                 leftOf(buttonContainerId)
             }
 
-            editText {
+            uniformTextInput {
                 id = editViewId
-
-                disableUiExtraction()
-                disableSuggestions()
-
-                leftPadding = DIM_LARGE
-                rightPadding = DIM_LARGE
             }.lparams {
                 centerVertically()
                 alignParentLeft()

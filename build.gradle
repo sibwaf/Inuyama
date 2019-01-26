@@ -95,7 +95,6 @@ dependencies {
     implementation "org.jetbrains.anko:anko-recyclerview-v7:$ankoVersion"
     implementation "org.jetbrains.anko:anko-cardview-v7:$ankoVersion"
     implementation "org.jetbrains.anko:anko-design:$ankoVersion"
-    implementation "org.jetbrains.anko:anko-sqlite:$ankoVersion"
 
     implementation "io.objectbox:objectbox-kotlin:$objectboxVersion"
     releaseImplementation "io.objectbox:objectbox-android:$objectboxVersion"

@@ -70,7 +70,7 @@ class DirectorySelector(context: Context) : ListSpinner<Directory>(context) {
 
 }
 
-fun ViewGroup.directorySelector(init: DirectorySelector.() -> Unit): DirectorySelector {
+fun ViewGroup.directorySelector(init: DirectorySelector.() -> Unit = {}): DirectorySelector {
     val view = DirectorySelector(context)
     view.init()
     addView(view)
@@ -85,7 +85,7 @@ class ProxySelector(context: Context) : ListSpinner<Proxy>(context) {
 
 }
 
-fun ViewGroup.proxySelector(init: ProxySelector.() -> Unit): ProxySelector {
+fun ViewGroup.proxySelector(init: ProxySelector.() -> Unit = {}): ProxySelector {
     val view = ProxySelector(context)
     view.init()
     addView(view)

@@ -88,13 +88,14 @@ class NetworkScreen : NavigatableScreen<NetworkView>(), KodeinAware {
     }
 
     fun refresh() {
+        // TODO: causes unneeded updates
         networkManager.refreshNetworkList()
 
         val networks = networkBox.all
                 .sortedBy { it.name }
                 .map {
                     NetworkItem(it) {
-                        networkBox.put(it)
+                        networkBox.put(it) // ???
                     }
                 }
 
