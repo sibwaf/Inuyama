@@ -62,7 +62,7 @@ class RutrackerWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
     }
 
     override fun dispatchUpdates() {
-        if (!networkManager.isNetworkTrusted()) {
+        if (!networkManager.isNetworkTrusted) {
             return
         }
 

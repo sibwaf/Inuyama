@@ -40,7 +40,7 @@ interface RemoteService {
     fun checkConnection(): Boolean
 
     fun createConnection(url: String): Connection {
-        return networkManager.createConnection(url, serviceId)
+        return networkManager.createProxiedJsoupConnection(url, serviceId)
     }
 }
 

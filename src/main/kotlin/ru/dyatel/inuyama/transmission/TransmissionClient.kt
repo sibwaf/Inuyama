@@ -33,7 +33,7 @@ class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClie
     private var session: String? = null
 
     private fun connect(): Connection {
-        if (!networkManager.isNetworkTrusted()) {
+        if (!networkManager.isNetworkTrusted) {
             throw UntrustedNetworkException()
         }
 
