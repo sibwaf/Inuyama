@@ -3,17 +3,11 @@ package ru.dyatel.inuyama.nyaa
 import android.app.AlertDialog
 import android.content.Context
 import android.view.Menu
-import android.view.View
-import android.widget.EditText
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import io.objectbox.Box
-import io.objectbox.BoxStore
-import io.objectbox.android.AndroidScheduler
-import io.objectbox.reactive.DataSubscription
-import org.jetbrains.anko.find
 import org.jetbrains.anko.hintResource
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.padding
@@ -21,13 +15,13 @@ import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
-import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
+import ru.dyatel.inuyama.layout.NyaaWatchItem
 import ru.dyatel.inuyama.layout.components.DatePicker
 import ru.dyatel.inuyama.layout.components.DirectorySelector
-import ru.dyatel.inuyama.layout.NyaaWatchItem
+import ru.dyatel.inuyama.layout.components.UniformTextInput
 import ru.dyatel.inuyama.layout.components.directorySelector
 import ru.dyatel.inuyama.layout.components.showConfirmationDialog
 import ru.dyatel.inuyama.layout.components.uniformTextInput
@@ -35,10 +29,8 @@ import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.model.NyaaTorrent_
 import ru.dyatel.inuyama.model.NyaaWatch
-import ru.dyatel.inuyama.screens.NavigatableScreen
+import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
-import ru.dyatel.inuyama.utilities.ctx
-import ru.dyatel.inuyama.utilities.subscribeFor
 
 class NyaaView(context: Context) : BaseScreenView<NyaaScreen>(context) {
 
@@ -58,24 +50,13 @@ class NyaaView(context: Context) : BaseScreenView<NyaaScreen>(context) {
 
 }
 
-class NyaaScreen : NavigatableScreen<NyaaView>(), KodeinAware {
+class NyaaScreen : InuScreen<NyaaView>(), KodeinAware {
 
-    private companion object {
-        val queryEditorId = View.generateViewId()
-        val startDateSelectorId = View.generateViewId()
-        val descriptionEditorId = View.generateViewId()
-        val collectPathEditorId = View.generateViewId()
-        val directorySelectorId = View.generateViewId()
-    }
+    override val titleResource = R.string.module_nyaa
 
-    override val kodein by closestKodein { activity }
-
-    private val boxStore by instance<BoxStore>()
     private val directoryBox by instance<Box<Directory>>()
     private val watchBox by instance<Box<NyaaWatch>>()
     private val torrentBox by instance<Box<NyaaTorrent>>()
-
-    private var boxObserver: DataSubscription? = null
 
     private val adapter = ItemAdapter<NyaaWatchItem>()
     private val fastAdapter = adapter.buildFastAdapter()
@@ -86,27 +67,16 @@ class NyaaScreen : NavigatableScreen<NyaaView>(), KodeinAware {
         super.onShow(context)
 
         reload()
-        boxObserver = boxStore
-                .subscribeFor<NyaaWatch>()
-                .on(AndroidScheduler.mainThread())
-                .onlyChanges()
-                .observer { reload() }
-    }
-
-    override fun onHide(context: Context) {
-        boxObserver?.cancel()
-        boxObserver = null
-
-        super.onHide(context)
+        observeChanges<NyaaWatch>(::reload)
     }
 
     private fun reload() {
         val watches = watchBox.all.map {
             NyaaWatchItem(it, { showEditDialog(it) }, {
-                activity.showConfirmationDialog(
-                        activity.getString(R.string.dialog_remove_watch_title),
-                        activity.getString(R.string.dialog_remove_watch_message, it.description),
-                        activity.getString(R.string.action_remove)
+                activity!!.showConfirmationDialog(
+                        context!!.getString(R.string.dialog_remove_watch_title),
+                        context!!.getString(R.string.dialog_remove_watch_message, it.description),
+                        context!!.getString(R.string.action_remove)
                 ) {
                     boxStore.runInTx {
                         torrentBox.query()
@@ -122,66 +92,52 @@ class NyaaScreen : NavigatableScreen<NyaaView>(), KodeinAware {
         adapter.set(watches)
     }
 
-    override fun getTitle(context: Context) = context.getString(R.string.module_nyaa)!!
-
     private fun showEditDialog(watch: NyaaWatch) {
-        val view = ctx.verticalLayout {
+        lateinit var queryEditor: UniformTextInput
+        lateinit var startDateSelector: DatePicker
+        lateinit var descriptionEditor: UniformTextInput
+        lateinit var collectPathEditor: UniformTextInput
+        lateinit var directorySelector: DirectorySelector
+
+        val view = context!!.verticalLayout {
             lparams(width = matchParent, height = wrapContent) {
                 padding = DIM_EXTRA_LARGE
             }
 
-            uniformTextInput {
-                id = queryEditorId
+            queryEditor = uniformTextInput {
                 hintResource = R.string.hint_nyaa_watch_query
+            }.apply { text = watch.query }
 
-                setText(watch.query)
-            }
-
+            // TODO: uniform view
             uniformTextInput {
-                id = startDateSelectorId
                 hintResource = R.string.hint_nyaa_watch_start_date
+
+                startDateSelector = DatePicker(this, watch.startDatetime)
+                setOnClickListener { startDateSelector.showDialog(activity!!.supportFragmentManager) }
             }
 
-            uniformTextInput {
-                id = descriptionEditorId
+            descriptionEditor = uniformTextInput {
                 hintResource = R.string.hint_nyaa_watch_description
+            }.apply { text = watch.description }
 
-                setText(watch.description)
-            }
-
-            uniformTextInput {
-                id = collectPathEditorId
+            collectPathEditor = uniformTextInput {
                 hintResource = R.string.hint_nyaa_watch_collect_path
+            }.apply { text = watch.collectPath }
 
-                setText(watch.collectPath)
-            }
-
-            directorySelector {
-                id = directorySelectorId
-
+            directorySelector = directorySelector {
                 bindItems(directoryBox.all)
                 selected = watch.directory.target
             }
         }
 
-        val queryEditor = view.find<EditText>(queryEditorId)
-        val startDateSelector = view.find<EditText>(startDateSelectorId).let {
-            val picker = DatePicker(it, watch.startDatetime)
-            it.setOnClickListener { picker.showDialog(activity.fragmentManager) }
-            picker
-        }
-        val descriptionEditor = view.find<EditText>(descriptionEditorId)
-        val collectPathEditor = view.find<EditText>(collectPathEditorId)
-        val directorySelector = view.find<DirectorySelector>(directorySelectorId)
-
-        AlertDialog.Builder(activity)
+        AlertDialog.Builder(context!!)
                 .setTitle(R.string.dialog_add_watch)
                 .setView(view)
                 .setPositiveButton(R.string.action_save) { _, _ ->
-                    watch.query = queryEditor.text.toString()
+                    watch.query = queryEditor.text
                     watch.startDatetime = startDateSelector.date
-                    watch.description = descriptionEditor.text.toString()
-                    watch.collectPath = collectPathEditor.text.toString()
+                    watch.description = descriptionEditor.text
+                    watch.collectPath = collectPathEditor.text
                     watch.directory.target = directorySelector.selected
 
                     watchBox.put(watch)

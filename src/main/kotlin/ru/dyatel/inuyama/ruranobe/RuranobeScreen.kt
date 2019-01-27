@@ -10,13 +10,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import io.objectbox.Box
-import io.objectbox.BoxStore
-import io.objectbox.android.AndroidScheduler
-import io.objectbox.reactive.DataSubscription
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.anko.find
 import org.jetbrains.anko.matchParent
@@ -25,14 +19,12 @@ import org.jetbrains.anko.support.v4.onRefresh
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
-import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.RuranobeProjectItem
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
-import ru.dyatel.inuyama.screens.NavigatableScreen
-import ru.dyatel.inuyama.utilities.act
+import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.isVisible
 
@@ -74,7 +66,7 @@ class RuranobeView(context: Context) : BaseScreenView<RuranobeScreen>(context) {
 
 }
 
-class RuranobeScreen : NavigatableScreen<RuranobeView>(), KodeinAware {
+class RuranobeScreen : InuScreen<RuranobeView>(), KodeinAware {
 
     private companion object {
         val projectComparator = Comparator<RuranobeProject> { first, second ->
@@ -96,19 +88,16 @@ class RuranobeScreen : NavigatableScreen<RuranobeView>(), KodeinAware {
         }
     }
 
-    override val kodein by closestKodein { activity }
+    override val titleResource = R.string.module_ruranobe
 
-    private val boxStore by instance<BoxStore>()
     private val projectBox by instance<Box<RuranobeProject>>()
-
-    private var boxObserver: DataSubscription? = null
 
     private val watcher by instance<RuranobeWatcher>()
 
     private val adapter = ItemAdapter<RuranobeProjectItem>()
     private val fastAdapter = adapter.buildFastAdapter()
 
-    private var fetchTask: Job? = null
+    private var fetchJobId = generateJobId()
 
     init {
         adapter.itemFilter.withFilterPredicate { item, constraint ->
@@ -137,47 +126,32 @@ class RuranobeScreen : NavigatableScreen<RuranobeView>(), KodeinAware {
     override fun onShow(context: Context) {
         super.onShow(context)
 
-        act.searchView.isVisible = true
-        act.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                adapter.filter(query)
-                return true
-            }
+        activity!!.searchView.apply {
+            isVisible = true
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                adapter.filter(newText)
-                return true
-            }
-        })
-
-        boxObserver = boxStore
-                .subscribe()
-                .on(AndroidScheduler.mainThread())
-                .onlyChanges()
-                .observer {
-                    if (it != RuranobeVolume::class.java && it != RuranobeProject::class.java) {
-                        return@observer
-                    }
-
-                    reload()
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    adapter.filter(query)
+                    return true
                 }
 
-        reload()
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    adapter.filter(newText)
+                    return true
+                }
+            })
+        }
+
+        observeChanges<RuranobeProject>(::refresh)
+        observeChanges<RuranobeVolume>(::refresh)
+
+        refresh()
         if (adapter.adapterItemCount == 0) {
             fetch()
         }
     }
 
-    override fun onHide(context: Context) {
-        fetchTask?.cancel()
-
-        boxObserver?.cancel()
-        boxObserver = null
-
-        super.onHide(context)
-    }
-
-    private fun reload() {
+    private fun refresh() {
         val projects = projectBox.all
                 .sortedWith(projectComparator)
                 .map {
@@ -192,13 +166,9 @@ class RuranobeScreen : NavigatableScreen<RuranobeView>(), KodeinAware {
     }
 
     fun fetch() {
-        if (fetchTask != null) {
-            return
-        }
-
-        fetchTask = GlobalScope.launch(Dispatchers.Main) {
+        launchJob(id = fetchJobId) {
             try {
-                view.refreshing = true
+                view?.refreshing = true
 
                 withContext(Dispatchers.Default) {
                     watcher.syncProjects()
@@ -209,10 +179,8 @@ class RuranobeScreen : NavigatableScreen<RuranobeView>(), KodeinAware {
                 }
             } finally {
                 view?.refreshing = false
-                fetchTask = null
             }
         }
     }
 
-    override fun getTitle(context: Context) = context.getString(R.string.module_ruranobe)!!
 }

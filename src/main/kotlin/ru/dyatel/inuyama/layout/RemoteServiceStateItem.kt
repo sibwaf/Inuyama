@@ -9,29 +9,31 @@ import org.jetbrains.anko.find
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_MODULE_STATE
+import ru.dyatel.inuyama.RemoteService
 import ru.dyatel.inuyama.layout.components.Marker
 import ru.dyatel.inuyama.layout.components.State
 import ru.dyatel.inuyama.layout.components.marker
 
-class ModuleStateItem(
-        private val name: String, var state: State
-) : AbstractItem<ModuleStateItem, ModuleStateItem.ViewHolder>() {
+class RemoteServiceStateItem(
+        val service: RemoteService, var state: State
+) : AbstractItem<RemoteServiceStateItem, RemoteServiceStateItem.ViewHolder>() {
 
     private companion object {
         val markerViewId = View.generateViewId()
     }
 
-    class ViewHolder(view: View) : FastAdapter.ViewHolder<ModuleStateItem>(view) {
+    class ViewHolder(view: View) : FastAdapter.ViewHolder<RemoteServiceStateItem>(view) {
 
+        private val context = view.context
         private val markerView = view.find<Marker>(markerViewId)
 
-        override fun unbindView(item: ModuleStateItem) {
+        override fun unbindView(item: RemoteServiceStateItem) {
             markerView.text = ""
             markerView.state = State.PENDING
         }
 
-        override fun bindView(item: ModuleStateItem, payloads: MutableList<Any>?) {
-            markerView.text = item.name
+        override fun bindView(item: RemoteServiceStateItem, payloads: MutableList<Any>?) {
+            markerView.text = item.service.getName(context)
             markerView.state = item.state
         }
 

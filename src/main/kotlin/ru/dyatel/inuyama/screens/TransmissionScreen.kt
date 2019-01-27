@@ -16,7 +16,6 @@ import org.jetbrains.anko.textResource
 import org.jetbrains.anko.topPadding
 import org.jetbrains.anko.verticalLayout
 import org.kodein.di.KodeinAware
-import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
@@ -117,9 +116,9 @@ class TransmissionView(context: Context) : BaseScreenView<TransmissionScreen>(co
 
 }
 
-class TransmissionScreen : NavigatableScreen<TransmissionView>(), KodeinAware {
+class TransmissionScreen : InuScreen<TransmissionView>(), KodeinAware {
 
-    override val kodein by closestKodein { activity }
+    override val titleResource = R.string.screen_transmission
 
     private val preferenceHelper by instance<PreferenceHelper>()
 
@@ -133,7 +132,5 @@ class TransmissionScreen : NavigatableScreen<TransmissionView>(), KodeinAware {
     fun save(configuration: TransmissionConfiguration) {
         preferenceHelper.transmission = configuration
     }
-
-    override fun getTitle(context: Context) = context.getString(R.string.screen_transmission)!!
 
 }

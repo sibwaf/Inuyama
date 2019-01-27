@@ -78,6 +78,28 @@ inline fun ViewGroup.uniformTextInput(init: TextInputEditText.() -> Unit = {}): 
     }
 }
 
+class UniformIntegerInput(context: Context) : UniformTextInput(context) {
+
+    var value: Int
+        get() = editText!!.text.toString()
+                .takeIf { it.isNotBlank() }
+                ?.let { it.toInt() }
+                ?: 0
+        set(value) {
+            editText!!.setText(value.toString())
+        }
+}
+
+inline fun ViewGroup.uniformIntegerInput(init: TextInputEditText.() -> Unit = {}): UniformIntegerInput {
+    val view = UniformIntegerInput(context)
+    view.uniformTextInputEditText {
+        inputType = InputType.TYPE_CLASS_NUMBER
+        init()
+    }
+    addView(view)
+    return view
+}
+
 class UniformDoubleInput(context: Context) : UniformTextInput(context) {
 
     var value: Double

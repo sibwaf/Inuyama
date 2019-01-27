@@ -1,21 +1,15 @@
 package ru.dyatel.inuyama.screens
 
 import android.content.Context
-import android.text.InputType
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import io.objectbox.Box
-import io.objectbox.BoxStore
-import io.objectbox.android.AndroidScheduler
-import io.objectbox.reactive.DataSubscription
 import org.jetbrains.anko.appcompat.v7.tintedButton
-import org.jetbrains.anko.find
 import org.jetbrains.anko.hintResource
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.padding
@@ -24,17 +18,17 @@ import org.jetbrains.anko.support.v4.nestedScrollView
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
-import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.ProxyItem
+import ru.dyatel.inuyama.layout.components.UniformIntegerInput
+import ru.dyatel.inuyama.layout.components.UniformTextInput
+import ru.dyatel.inuyama.layout.components.uniformIntegerInput
 import ru.dyatel.inuyama.layout.components.uniformTextInput
 import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.utilities.buildFastAdapter
-import ru.dyatel.inuyama.utilities.ctx
-import ru.dyatel.inuyama.utilities.subscribeFor
 
 class ProxyScreenView(context: Context) : BaseScreenView<ProxyScreen>(context) {
 
@@ -42,7 +36,7 @@ class ProxyScreenView(context: Context) : BaseScreenView<ProxyScreen>(context) {
         val recyclerViewId = View.generateViewId()
     }
 
-    private val recyclerView: RecyclerView
+    private lateinit var recyclerView: RecyclerView
 
     init {
         nestedScrollView {
@@ -57,7 +51,7 @@ class ProxyScreenView(context: Context) : BaseScreenView<ProxyScreen>(context) {
                     setOnClickListener { screen.createProxy() }
                 }
 
-                recyclerView {
+                recyclerView = recyclerView {
                     lparams(width = matchParent, height = wrapContent)
 
                     id = recyclerViewId
@@ -67,8 +61,6 @@ class ProxyScreenView(context: Context) : BaseScreenView<ProxyScreen>(context) {
                 }
             }
         }
-
-        recyclerView = find(recyclerViewId)
     }
 
     fun bindAdapter(adapter: RecyclerView.Adapter<*>) {
@@ -77,19 +69,11 @@ class ProxyScreenView(context: Context) : BaseScreenView<ProxyScreen>(context) {
 
 }
 
-class ProxyScreen : NavigatableScreen<ProxyScreenView>(), KodeinAware {
+class ProxyScreen : InuScreen<ProxyScreenView>(), KodeinAware {
 
-    private companion object {
-        val hostEditId = View.generateViewId()
-        val portEditId = View.generateViewId()
-    }
+    override val titleResource = R.string.screen_proxy
 
-    override val kodein by closestKodein { activity }
-
-    private val boxStore by instance<BoxStore>()
     private val proxyBox by instance<Box<Proxy>>()
-
-    private var boxObserver: DataSubscription? = null
 
     private val adapter = ItemAdapter<ProxyItem>()
     private val fastAdapter = adapter.buildFastAdapter()
@@ -99,59 +83,41 @@ class ProxyScreen : NavigatableScreen<ProxyScreenView>(), KodeinAware {
     override fun onShow(context: Context) {
         super.onShow(context)
 
-        reload()
-        boxObserver = boxStore
-                .subscribeFor<Proxy>()
-                .on(AndroidScheduler.mainThread())
-                .onlyChanges()
-                .observer { reload() }
+        refresh()
+        observeChanges<Proxy>(::refresh)
     }
 
-    override fun onHide(context: Context?) {
-        boxObserver?.cancel()
-        boxObserver = null
-
-        super.onHide(context)
-    }
-
-    private fun reload() {
-        val proxies = proxyBox.all.map {
-            ProxyItem(it)
-        }
-
-        adapter.set(proxies)
+    private fun refresh() {
+        adapter.set(proxyBox.all.map { ProxyItem(it) })
     }
 
     fun createProxy() {
-        val view = ctx.verticalLayout {
+        lateinit var hostEdit: UniformTextInput
+        lateinit var portEdit: UniformIntegerInput
+
+        val view = context!!.verticalLayout {
             lparams(width = matchParent, height = wrapContent) {
                 padding = DIM_EXTRA_LARGE
             }
 
-            uniformTextInput {
-                id = hostEditId
+            hostEdit = uniformTextInput {
                 hintResource = R.string.hint_host
             }
-            uniformTextInput {
-                id = portEditId
+            portEdit = uniformIntegerInput {
                 hintResource = R.string.hint_port
-
-                inputType = InputType.TYPE_CLASS_NUMBER
             }
         }
 
-        AlertDialog.Builder(activity)
+        AlertDialog.Builder(context!!)
                 .setTitle(R.string.dialog_add_proxy)
                 .setView(view)
                 .setPositiveButton(R.string.action_save) { _, _ ->
-                    val host = view.find<EditText>(hostEditId).text.toString()
-                    val port = view.find<EditText>(portEditId).text.toString().toInt()
+                    val host = hostEdit.text
+                    val port = portEdit.value
                     proxyBox.put(Proxy(host = host, port = port))
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
                 .show()
     }
-
-    override fun getTitle(context: Context) = context.getString(R.string.screen_proxy)!!
 
 }

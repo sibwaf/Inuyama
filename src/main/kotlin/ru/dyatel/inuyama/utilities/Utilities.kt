@@ -1,7 +1,6 @@
 package ru.dyatel.inuyama.utilities
 
 import android.app.Activity
-import android.content.Context
 import android.content.pm.PackageManager
 import android.text.InputType
 import android.view.MotionEvent
@@ -15,7 +14,6 @@ import com.google.gson.JsonElement
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.IAdapter
 import com.mikepenz.fastadapter.IItem
-import com.wealthfront.magellan.Screen
 import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import io.objectbox.BoxStore
@@ -43,12 +41,6 @@ fun Activity.hideKeyboard() {
     inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     view.clearFocus()
 }
-
-val Screen<*>.ctx: Context
-    get() = getActivity()
-
-val Screen<*>.act: MainActivity
-    get() = getActivity() as MainActivity
 
 inline fun <reified T> Gson.fromJson(json: String): T = fromJson(json, T::class.java)
 

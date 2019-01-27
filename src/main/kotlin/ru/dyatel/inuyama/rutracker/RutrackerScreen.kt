@@ -3,16 +3,11 @@ package ru.dyatel.inuyama.rutracker
 import android.app.AlertDialog
 import android.content.Context
 import android.view.Menu
-import android.view.View
-import android.widget.EditText
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import io.objectbox.Box
-import io.objectbox.android.AndroidScheduler
-import io.objectbox.reactive.DataSubscription
-import org.jetbrains.anko.find
 import org.jetbrains.anko.hintResource
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.padding
@@ -20,22 +15,20 @@ import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
-import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
-import ru.dyatel.inuyama.layout.components.DirectorySelector
 import ru.dyatel.inuyama.layout.RutrackerWatchItem
+import ru.dyatel.inuyama.layout.components.DirectorySelector
+import ru.dyatel.inuyama.layout.components.UniformTextInput
 import ru.dyatel.inuyama.layout.components.directorySelector
 import ru.dyatel.inuyama.layout.components.showConfirmationDialog
 import ru.dyatel.inuyama.layout.components.uniformTextInput
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.RutrackerWatch
-import ru.dyatel.inuyama.screens.NavigatableScreen
+import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.buildFastAdapter
-import ru.dyatel.inuyama.utilities.ctx
-import ru.dyatel.inuyama.utilities.subscribeFor
 
 class RutrackerScreenView(context: Context) : BaseScreenView<RutrackerScreen>(context) {
 
@@ -55,26 +48,15 @@ class RutrackerScreenView(context: Context) : BaseScreenView<RutrackerScreen>(co
 
 }
 
-class RutrackerScreen : NavigatableScreen<RutrackerScreenView>(), KodeinAware {
+class RutrackerScreen : InuScreen<RutrackerScreenView>(), KodeinAware {
 
-    private companion object {
-        val linkEditorId = View.generateViewId()
-        val descriptionEditorId = View.generateViewId()
-        val directorySelectorId = View.generateViewId()
-
-        val hostEditorId = View.generateViewId()
-        val proxySelectorId = View.generateViewId()
-    }
-
-    override val kodein by closestKodein { activity }
+    override val titleResource = R.string.module_rutracker
 
     private val preferenceHelper by instance<PreferenceHelper>()
     private val rutrackerConfiguration by instance<RutrackerConfiguration>()
 
     private val watchBox by instance<Box<RutrackerWatch>>()
     private val directoryBox by instance<Box<Directory>>()
-
-    private var boxObserver: DataSubscription? = null
 
     private val adapter = ItemAdapter<RutrackerWatchItem>()
     private val fastAdapter = adapter.buildFastAdapter()
@@ -84,74 +66,55 @@ class RutrackerScreen : NavigatableScreen<RutrackerScreenView>(), KodeinAware {
     override fun onShow(context: Context) {
         super.onShow(context)
 
-        reload()
-        boxObserver = watchBox.store
-                .subscribeFor<RutrackerWatch>()
-                .on(AndroidScheduler.mainThread())
-                .onlyChanges()
-                .observer { reload() }
+        refresh()
+        observeChanges<RutrackerWatch>(::refresh)
     }
 
-    override fun onHide(context: Context?) {
-        boxObserver?.cancel()
-        boxObserver = null
-
-        super.onHide(context)
-    }
-
-    private fun reload() {
-        val watches = watchBox.all.map {
-            RutrackerWatchItem(it, { showEditDialog(it) }, {
-                activity.showConfirmationDialog(
-                        activity.getString(R.string.dialog_remove_watch_title),
-                        activity.getString(R.string.dialog_remove_watch_message, it.description),
-                        activity.getString(R.string.action_remove)
-                ) { watchBox.remove(it) }
-            })
-        }
-
-        adapter.set(watches)
+    private fun refresh() {
+        adapter.set(watchBox.all.map {
+            RutrackerWatchItem(
+                    it,
+                    { showEditDialog(it) },
+                    {
+                        activity!!.showConfirmationDialog(
+                                context!!.getString(R.string.dialog_remove_watch_title),
+                                context!!.getString(R.string.dialog_remove_watch_message, it.description),
+                                context!!.getString(R.string.action_remove)
+                        ) { watchBox.remove(it) }
+                    })
+        })
     }
 
     private fun showEditDialog(watch: RutrackerWatch) {
-        val view = ctx.verticalLayout {
+        lateinit var linkEditor: UniformTextInput
+        lateinit var descriptionEditor: UniformTextInput
+        lateinit var directorySelector: DirectorySelector
+
+        val view = context!!.verticalLayout {
             lparams(width = matchParent, height = wrapContent) {
                 padding = DIM_EXTRA_LARGE
             }
 
-            uniformTextInput {
-                id = linkEditorId
+            linkEditor = uniformTextInput {
                 hintResource = R.string.hint_rutracker_watch_link
+            }.apply { text = watch.topic.takeIf { it != 0L }?.toString() ?: "" }
 
-                setText(watch.topic.takeIf { it != 0L }?.toString())
-            }
-
-            uniformTextInput {
-                id = descriptionEditorId
+            descriptionEditor = uniformTextInput {
                 hintResource = R.string.hint_rutracker_watch_description
+            }.apply { text = watch.description }
 
-                setText(watch.description)
-            }
-
-            directorySelector {
-                id = directorySelectorId
-
+            directorySelector = directorySelector {
                 bindItems(directoryBox.all)
                 selected = watch.directory.target
             }
         }
 
-        val linkEditor = view.find<EditText>(linkEditorId)
-        val descriptionEditor = view.find<EditText>(descriptionEditorId)
-        val directorySelector = view.find<DirectorySelector>(directorySelectorId)
-
-        AlertDialog.Builder(activity)
+        AlertDialog.Builder(context!!)
                 .setTitle(R.string.dialog_add_watch)
                 .setView(view)
                 .setPositiveButton(R.string.action_save) { _, _ ->
-                    watch.topic = linkEditor.text.toString()
-                            .let { it.toLongOrNull() ?: RutrackerApi.extractTopic(it) }
-                    watch.description = descriptionEditor.text.toString()
+                    watch.topic = linkEditor.text.let { it.toLongOrNull() ?: RutrackerApi.extractTopic(it) }
+                    watch.description = descriptionEditor.text
                     watch.directory.target = directorySelector.selected
 
                     watchBox.put(watch)
@@ -161,31 +124,28 @@ class RutrackerScreen : NavigatableScreen<RutrackerScreenView>(), KodeinAware {
     }
 
     private fun showConfigurationDialog() {
-        val view = ctx.verticalLayout {
+        lateinit var hostEditor: UniformTextInput
+
+        val view = context!!.verticalLayout {
             lparams(width = matchParent, height = wrapContent) {
                 padding = DIM_EXTRA_LARGE
             }
 
-            uniformTextInput {
-                id = hostEditorId
+            hostEditor = uniformTextInput {
                 hintResource = R.string.hint_rutracker_host
-
-                setText(rutrackerConfiguration.host)
-            }
+            }.apply { text = rutrackerConfiguration.host }
         }
 
-        AlertDialog.Builder(activity)
+        AlertDialog.Builder(context!!)
                 .setTitle(R.string.dialog_settings)
                 .setView(view)
                 .setPositiveButton(R.string.action_save) { _, _ ->
-                    rutrackerConfiguration.host = view.find<EditText>(hostEditorId).text.toString()
+                    rutrackerConfiguration.host = hostEditor.text
                     preferenceHelper.rutracker = rutrackerConfiguration
                 }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
                 .show()
     }
-
-    override fun getTitle(context: Context) = context.getString(R.string.module_rutracker)!!
 
     override fun onUpdateMenu(menu: Menu) {
         menu.findItem(R.id.add).apply {

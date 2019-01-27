@@ -2,11 +2,11 @@ package ru.dyatel.inuyama.layout.components
 
 import android.app.DatePickerDialog
 import android.app.Dialog
-import android.app.DialogFragment
-import android.app.FragmentManager
 import android.os.Bundle
 import android.widget.DatePicker
 import android.widget.EditText
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
 import hirondelle.date4j.DateTime
 
 class DatePicker(private val editor: EditText, date: DateTime) {
@@ -37,7 +37,7 @@ class DatePickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener 
     lateinit var listener: (Int, Int, Int) -> Unit
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return DatePickerDialog(activity, this, date.year, date.month, date.day)
+        return DatePickerDialog(context!!, this, date.year, date.month, date.day)
     }
 
     override fun onDateSet(view: DatePicker, year: Int, month: Int, dayOfMonth: Int) {

@@ -2,7 +2,6 @@ package ru.dyatel.inuyama.ruranobe
 
 import android.content.Context
 import android.view.Gravity
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,17 +11,12 @@ import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import io.objectbox.Box
-import io.objectbox.BoxStore
-import io.objectbox.android.AndroidScheduler
-import io.objectbox.reactive.DataSubscription
+import io.objectbox.kotlin.query
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.anko.appcompat.v7.tintedButton
 import org.jetbrains.anko.browse
-import org.jetbrains.anko.find
+import org.jetbrains.anko.horizontalMargin
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.recyclerview.v7.recyclerView
@@ -30,15 +24,14 @@ import org.jetbrains.anko.support.v4.nestedScrollView
 import org.jetbrains.anko.support.v4.onRefresh
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
 import org.jetbrains.anko.verticalLayout
+import org.jetbrains.anko.verticalMargin
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
-import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
-import ru.dyatel.inuyama.layout.components.DirectorySelector
 import ru.dyatel.inuyama.layout.RuranobeVolumeItem
+import ru.dyatel.inuyama.layout.components.DirectorySelector
 import ru.dyatel.inuyama.layout.components.StatusBar
 import ru.dyatel.inuyama.layout.components.directorySelector
 import ru.dyatel.inuyama.layout.components.statusBar
@@ -47,39 +40,24 @@ import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.model.RuranobeVolume_
-import ru.dyatel.inuyama.screens.NavigatableScreen
+import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
-import ru.dyatel.inuyama.utilities.ctx
 import ru.dyatel.inuyama.utilities.hideIf
-import ru.dyatel.inuyama.utilities.subscribeFor
 
 class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScreen>(context) {
 
-    private companion object {
-        val statusBarId = View.generateViewId()
-
-        val romajiViewId = View.generateViewId()
-        val statusViewId = View.generateViewId()
-        val issueStatusViewId = View.generateViewId()
-        val translationStatusViewId = View.generateViewId()
-
-        val directorySelectorId = View.generateViewId()
-
-        val recyclerViewId = View.generateViewId()
-    }
-
     private val swipeRefresh: SwipeRefreshLayout
 
-    private val statusBar: StatusBar
+    private lateinit var statusBar: StatusBar
 
-    private val romajiView: TextView
-    private val statusView: TextView
-    private val issueStatusView: TextView
-    private val translationStatusView: TextView
+    private lateinit var romajiView: TextView
+    private lateinit var statusView: TextView
+    private lateinit var issueStatusView: TextView
+    private lateinit var translationStatusView: TextView
 
-    private val directorySelector: DirectorySelector
+    private lateinit var directorySelector: DirectorySelector
 
-    private val recyclerView: RecyclerView
+    private lateinit var recyclerView: RecyclerView
 
     var refreshing: Boolean
         get() = swipeRefresh.isRefreshing
@@ -100,9 +78,7 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
             verticalLayout {
                 lparams(width = matchParent, height = wrapContent)
 
-                statusBar {
-                    id = statusBarId
-
+                statusBar = statusBar {
                     icon = CommunityMaterial.Icon.cmd_glasses
                     textResource = R.string.label_watching
 
@@ -116,7 +92,9 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
                     descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
 
                     verticalLayout {
-                        lparams(width = matchParent, height = wrapContent)
+                        lparams(width = matchParent, height = wrapContent) {
+                            margin = DIM_LARGE
+                        }
 
                         tintedButton(R.string.ruranobe_button_browse_project) {
                             setOnClickListener { screen.browseProject() }
@@ -124,53 +102,38 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
 
                         verticalLayout {
                             lparams(width = matchParent, height = wrapContent) {
-                                margin = DIM_LARGE
-                                leftMargin = DIM_EXTRA_LARGE
-                                rightMargin = DIM_EXTRA_LARGE
+                                horizontalMargin = DIM_LARGE
                             }
 
-                            uniformTextView {
-                                id = romajiViewId
+                            romajiView = uniformTextView {
                                 gravity = Gravity.CENTER_HORIZONTAL
                             }.lparams(width = matchParent) {
-                                bottomMargin = DIM_LARGE
+                                verticalMargin = DIM_LARGE
                             }
 
-                            uniformTextView { id = statusViewId }
-                            uniformTextView { id = issueStatusViewId }
-                            uniformTextView { id = translationStatusViewId }
+                            statusView = uniformTextView()
+                            issueStatusView = uniformTextView()
+                            translationStatusView = uniformTextView()
 
-                            directorySelector {
-                                id = directorySelectorId
+                            directorySelector = directorySelector {
                                 onItemSelected { screen.changeDirectory(it) }
                             }.lparams(width = matchParent) {
                                 topMargin = DIM_LARGE
                             }
                         }
 
-                        recyclerView {
-                            lparams(width = matchParent, height = wrapContent)
+                        recyclerView = recyclerView {
+                            lparams(width = matchParent, height = wrapContent) {
+                                topMargin = DIM_LARGE
+                            }
 
-                            id = recyclerViewId
                             layoutManager = LinearLayoutManager(context)
-
                             isNestedScrollingEnabled = false
                         }
                     }
                 }
             }
         }
-
-        statusBar = find(statusBarId)
-
-        romajiView = find(romajiViewId)
-        statusView = find(statusViewId)
-        issueStatusView = find(issueStatusViewId)
-        translationStatusView = find(translationStatusViewId)
-
-        directorySelector = find(directorySelectorId)
-
-        recyclerView = find(recyclerViewId)
     }
 
     fun bindDirectories(directories: List<Directory>) {
@@ -187,8 +150,7 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
         issueStatusView.text = context.getString(R.string.ruranobe_label_status_issue, project.issueStatus)
         issueStatusView.hideIf { it.text.isNullOrBlank() }
 
-        translationStatusView.text =
-                context.getString(R.string.ruranobe_label_status_translation, project.translationStatus)
+        translationStatusView.text = context.getString(R.string.ruranobe_label_status_translation, project.translationStatus)
         translationStatusView.hideIf { it.text.isNullOrBlank() }
 
         directorySelector.selected = project.directory.target
@@ -200,16 +162,13 @@ class RuranobeProjectView(context: Context) : BaseScreenView<RuranobeProjectScre
 
 }
 
-class RuranobeProjectScreen(private val project: RuranobeProject) : NavigatableScreen<RuranobeProjectView>(), KodeinAware {
+class RuranobeProjectScreen(private val project: RuranobeProject) : InuScreen<RuranobeProjectView>(), KodeinAware {
 
-    override val kodein by closestKodein { activity }
+    override val titleText = project.title
 
-    private val boxStore by instance<BoxStore>()
     private val directoryBox by instance<Box<Directory>>()
     private val projectBox by instance<Box<RuranobeProject>>()
     private val volumeBox by instance<Box<RuranobeVolume>>()
-
-    private var boxObserver: DataSubscription? = null
 
     private val ruranobeApi by instance<RuranobeApi>()
 
@@ -218,19 +177,19 @@ class RuranobeProjectScreen(private val project: RuranobeProject) : NavigatableS
     private val adapter = ItemAdapter<RuranobeVolumeItem>()
     private val fastAdapter = adapter.buildFastAdapter()
 
-    private var fetchTask: Job? = null
+    private var fetchJobId = generateJobId()
 
     private val volumeQuery by lazy {
-        volumeBox.query()
-                .equal(RuranobeVolume_.projectId, project.id)
-                .order(RuranobeVolume_.order)
-                .build()
+        volumeBox.query {
+            equal(RuranobeVolume_.projectId, project.id)
+            order(RuranobeVolume_.order)
+        }
     }
 
     init {
         fastAdapter.withOnClickListener { _, _, item, _ ->
             val url = ruranobeApi.getVolumePageUrl(item.volume)
-            ctx.browse(url)
+            context!!.browse(url)
             true
         }
     }
@@ -249,20 +208,7 @@ class RuranobeProjectScreen(private val project: RuranobeProject) : NavigatableS
         view.watching = project.watching
 
         reload()
-        boxObserver = boxStore
-                .subscribeFor<RuranobeVolume>()
-                .on(AndroidScheduler.mainThread())
-                .onlyChanges()
-                .observer { reload() }
-    }
-
-    override fun onHide(context: Context?) {
-        fetchTask?.cancel()
-
-        boxObserver?.cancel()
-        boxObserver = null
-
-        super.onHide(context)
+        observeChanges<RuranobeVolume>(::reload)
     }
 
     private fun reload() {
@@ -274,20 +220,15 @@ class RuranobeProjectScreen(private val project: RuranobeProject) : NavigatableS
     }
 
     fun fetch() {
-        if (fetchTask != null) {
-            return
-        }
-
-        fetchTask = GlobalScope.launch(Dispatchers.Main) {
+        launchJob(id = fetchJobId) {
             try {
-                view.refreshing = true
+                view?.refreshing = true
 
                 withContext(Dispatchers.Default) {
                     watcher.syncVolumes(project)
                 }
             } finally {
                 view?.refreshing = false
-                fetchTask = null
             }
         }
     }
@@ -312,9 +253,7 @@ class RuranobeProjectScreen(private val project: RuranobeProject) : NavigatableS
 
     fun browseProject() {
         val url = ruranobeApi.getProjectPageUrl(project)
-        ctx.browse(url)
+        context!!.browse(url)
     }
-
-    override fun getTitle(context: Context?) = project.title
 
 }

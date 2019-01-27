@@ -16,7 +16,6 @@ import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
-import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
@@ -26,7 +25,6 @@ import ru.dyatel.inuyama.layout.components.UniformTextInput
 import ru.dyatel.inuyama.layout.components.uniformTextInput
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.utilities.buildFastAdapter
-import ru.dyatel.inuyama.utilities.ctx
 import ru.dyatel.inuyama.utilities.hideKeyboard
 
 class DirectoryView(context: Context) : BaseScreenView<DirectoryScreen>(context) {
@@ -58,9 +56,9 @@ class DirectoryView(context: Context) : BaseScreenView<DirectoryScreen>(context)
 
 }
 
-class DirectoryScreen : NavigatableScreen<DirectoryView>(), KodeinAware {
+class DirectoryScreen : InuScreen<DirectoryView>(), KodeinAware {
 
-    override val kodein by closestKodein { activity }
+    override val titleResource = R.string.screen_directories
 
     private val directoryBox by instance<Box<Directory>>()
 
@@ -72,35 +70,30 @@ class DirectoryScreen : NavigatableScreen<DirectoryView>(), KodeinAware {
     override fun onShow(context: Context) {
         super.onShow(context)
 
-        val directories = directoryBox.all.map { createItem(it) }
-        adapter.set(directories)
+        refresh()
+        observeChanges<Directory>(::refresh)
     }
 
-    private fun createItem(directory: Directory): DirectoryItem {
-        return DirectoryItem(
-                directory,
-                {
-                    fastAdapter.notifyAdapterItemChanged(findPosition(directory))
-                },
-                {
-                    activity.hideKeyboard()
+    private fun refresh() {
+        adapter.set(directoryBox.all.map { directory ->
+            DirectoryItem(
+                    directory,
+                    { fastAdapter.notifyAdapterItemChanged(adapter.getAdapterPosition(directory.id)) },
+                    {
+                        activity!!.hideKeyboard()
 
-                    directory.path = it
-                    directoryBox.put(directory)
-                    fastAdapter.notifyAdapterItemChanged(findPosition(directory))
-                },
-                {
-                    directoryBox.remove(directory)
-                    adapter.removeByIdentifier(directory.id)
-                }
-        )
+                        directory.path = it
+                        directoryBox.put(directory)
+                    },
+                    { directoryBox.remove(directory) }
+            )
+        })
     }
-
-    private fun findPosition(directory: Directory) = adapter.getAdapterPosition(directory.id)
 
     fun createDirectory() {
         lateinit var editor: UniformTextInput
-        val view = ctx.frameLayout {
+
+        val view = context!!.frameLayout {
             lparams(width = matchParent, height = wrapContent) {
                 padding = DIM_EXTRA_LARGE
             }
@@ -108,18 +101,12 @@ class DirectoryScreen : NavigatableScreen<DirectoryView>(), KodeinAware {
             editor = uniformTextInput()
         }
 
-        AlertDialog.Builder(ctx)
+        AlertDialog.Builder(context!!)
                 .setTitle(R.string.dialog_add_directory)
                 .setView(view)
-                .setPositiveButton(R.string.action_save) { _, _ ->
-                    val directory = Directory(path = editor.text)
-                    directoryBox.put(directory)
-                    adapter.add(createItem(directory))
-                }
+                .setPositiveButton(R.string.action_save) { _, _ -> directoryBox.put(Directory(path = editor.text)) }
                 .setNegativeButton(R.string.action_cancel) { _, _ -> }
                 .show()
     }
-
-    override fun getTitle(context: Context) = context.getString(R.string.screen_directories)!!
 
 }

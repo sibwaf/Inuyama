@@ -125,6 +125,7 @@ class DirectoryItem(
                 leftOf(buttonContainerId)
             }
 
+            // TODO: fail
             uniformTextInput {
                 id = editViewId
             }.lparams {
