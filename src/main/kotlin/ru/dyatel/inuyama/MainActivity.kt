@@ -123,7 +123,9 @@ class MainActivity : SingleActivity(), KodeinAware {
                 it.pop()
             }
 
-            it.addFirst(screen)
+            if (it.last.javaClass != screen.javaClass) {
+                it.addFirst(screen)
+            }
         }, NavigationType.GO)
     }
 
