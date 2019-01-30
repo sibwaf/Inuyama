@@ -82,6 +82,8 @@ abstract class InuScreen<V> : Screen<V>(), KodeinAware where V : ViewGroup, V : 
                 .also { attachJob(it, generateJobId()) }
     }
 
+    abstract override fun createView(context: Context): V
+
     override fun onShow(context: Context) {
         super.onShow(context)
         activity!!.syncNavigation()

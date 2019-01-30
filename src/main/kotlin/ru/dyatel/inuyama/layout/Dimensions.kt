@@ -28,4 +28,6 @@ val Context.DIM_EXTRA_LARGE
 val View.DIM_EXTRA_LARGE
     get() = context.DIM_EXTRA_LARGE
 
+const val SP_SMALL = 12f
+
 const val SP_MEDIUM = 16f

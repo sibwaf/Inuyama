@@ -40,7 +40,6 @@ import ru.dyatel.inuyama.layout.DIM_MEDIUM
 import ru.dyatel.inuyama.layout.RemoteServiceStateItem
 import ru.dyatel.inuyama.layout.UpdateItem
 import ru.dyatel.inuyama.layout.components.ProxySelector
-import ru.dyatel.inuyama.layout.components.State
 import ru.dyatel.inuyama.layout.components.StatusBar
 import ru.dyatel.inuyama.layout.components.proxySelector
 import ru.dyatel.inuyama.layout.components.statusBar
@@ -219,7 +218,7 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
 
         serviceAdapter.set(services
                 .sortedBy { it.getName(context) }
-                .map { RemoteServiceStateItem(it, State.PENDING) })
+                .map { RemoteServiceStateItem(it, R.color.color_pending) })
         requestServiceCheck()
 
         for (watcher in watchers) {
@@ -248,8 +247,11 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
                 .take(DASHBOARD_UPDATE_COUNT)
                 .map { UpdateItem(it) }
 
-        updateAdapter.set(updates)
-        view.refreshUpdateList()
+        // Updates can come from background threads
+        launchJob {
+            updateAdapter.set(updates)
+            view?.refreshUpdateList()
+        }
     }
 
     private fun editProxy(service: RemoteService) {
@@ -291,14 +293,14 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
             val service = item.service
 
             launchJob(id = serviceCheckerIds[service]!!, replacing = true) {
-                item.state = State.PENDING
+                item.markerColor = R.color.color_pending
                 serviceFastAdapter.notifyAdapterItemChanged(index)
 
-                val state = withContext(Dispatchers.Default) {
-                    if (service.checkConnection()) State.OK else State.FAIL
+                val color = withContext(Dispatchers.Default) {
+                    if (service.checkConnection()) R.color.color_ok else R.color.color_fail
                 }
 
-                item.state = state
+                item.markerColor = color
                 serviceFastAdapter.notifyAdapterItemChanged(index)
             }
         }

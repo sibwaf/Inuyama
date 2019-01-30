@@ -1,7 +1,7 @@
 package ru.dyatel.inuyama.screens
 
 import android.content.Context
-import androidx.recyclerview.widget.DividerItemDecoration
+import android.widget.Button
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
@@ -11,7 +11,9 @@ import org.jetbrains.anko.appcompat.v7.tintedButton
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.padding
 import org.jetbrains.anko.recyclerview.v7.recyclerView
+import org.jetbrains.anko.support.v4.nestedScrollView
 import org.jetbrains.anko.verticalLayout
+import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.NetworkManager
@@ -23,31 +25,28 @@ import ru.dyatel.inuyama.utilities.buildFastAdapter
 
 class NetworkView(context: Context) : BaseScreenView<NetworkScreen>(context) {
 
-    private lateinit var recyclerView: RecyclerView
+    lateinit var refreshButton: Button
+        private set
+
+    lateinit var recyclerView: RecyclerView
+        private set
 
     init {
-        verticalLayout {
-            lparams(width = matchParent, height = matchParent) {
-                padding = DIM_LARGE
-            }
+        nestedScrollView {
+            verticalLayout {
+                lparams(width = matchParent, height = wrapContent) {
+                    padding = DIM_LARGE
+                }
 
-            tintedButton(R.string.action_refresh) {
-                setOnClickListener { screen.refresh() }
-            }
+                refreshButton = tintedButton(R.string.action_refresh)
 
-            recyclerView = recyclerView {
-                lparams(width = matchParent, height = matchParent)
-
-                layoutManager = LinearLayoutManager(context)
-                addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+                recyclerView = recyclerView {
+                    lparams(width = matchParent, height = wrapContent)
+                    layoutManager = LinearLayoutManager(context)
+                }
             }
         }
     }
-
-    fun bindAdapter(adapter: RecyclerView.Adapter<*>) {
-        recyclerView.adapter = adapter
-    }
-
 }
 
 class NetworkScreen : InuScreen<NetworkView>(), KodeinAware {
@@ -61,28 +60,34 @@ class NetworkScreen : InuScreen<NetworkView>(), KodeinAware {
     private val adapter = ItemAdapter<NetworkItem>()
     private val fastAdapter = adapter.buildFastAdapter()
 
-    override fun createView(context: Context) = NetworkView(context).apply { bindAdapter(fastAdapter) }
+    override fun createView(context: Context): NetworkView {
+        return NetworkView(context).apply {
+            refreshButton.setOnClickListener {
+                networkManager.refreshNetworkList()
+            }
+
+            recyclerView.adapter = fastAdapter
+        }
+    }
 
     override fun onShow(context: Context) {
         super.onShow(context)
+
+        networkManager.refreshNetworkList()
 
         refresh()
         observeChanges<Network>(::refresh)
     }
 
-    fun refresh() {
-        // TODO: causes unneeded updates
-        networkManager.refreshNetworkList()
-
-        val networks = networkBox.all
+    private fun refresh() {
+        adapter.set(networkBox.all
                 .sortedBy { it.name }
-                .map {
-                    NetworkItem(it) {
-                        networkBox.put(it) // ???
+                .map { network ->
+                    NetworkItem(network) {
+                        network.trusted = it
+                        networkBox.put(network)
                     }
-                }
-
-        adapter.set(networks)
+                })
     }
 
 }
