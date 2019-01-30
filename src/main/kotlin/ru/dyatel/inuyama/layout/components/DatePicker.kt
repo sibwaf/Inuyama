@@ -37,10 +37,10 @@ class DatePickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener 
     lateinit var listener: (Int, Int, Int) -> Unit
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return DatePickerDialog(context!!, this, date.year, date.month, date.day)
+        return DatePickerDialog(context!!, this, date.year, date.month - 1, date.day)
     }
 
     override fun onDateSet(view: DatePicker, year: Int, month: Int, dayOfMonth: Int) {
-        listener.invoke(year, month, dayOfMonth)
+        listener.invoke(year, month + 1, dayOfMonth)
     }
 }
