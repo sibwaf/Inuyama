@@ -7,6 +7,9 @@
     <string name="screen_networks">Wi-Fi сети</string>
     <string name="screen_proxy">Прокси</string>
     <string name="screen_transmission">Transmission</string>
+    <string name="screen_finance_dashboard">Кошельки</string>
+    <string name="screen_finance_categories">Категории</string>
+    <string name="screen_finance_new_category">Новая категория</string>
 
     <string name="module_rutracker">Rutracker</string>
     <string name="module_nyaa">Nyaa</string>
@@ -21,8 +24,9 @@
     <string name="dialog_add_proxy">Добавление прокси</string>
     <string name="dialog_add_directory">Добавление пути</string>
     <string name="dialog_add_watch">Добавление отслеживания</string>
+    <string name="dialog_add_finance_account">Добавление кошелька</string>
     <string name="dialog_remove_watch_title">Удаление отслеживания</string>
-    <string name="dialog_remove_watch_message">Вы действительно хотите перестать отслеживать %s?</string>
+    <string name="dialog_remove_watch_message">Перестаём отслеживать %s?</string>
     <string name="dialog_select_proxy">Выбор прокси</string>
     <string name="dialog_settings">Настройки</string>
 
@@ -45,6 +49,7 @@
     <string name="label_waiting_for_task">Ждём запуска задачи…</string>
     <string name="label_no_updates">Обновлений не найдено</string>
     <string name="label_watching">Отслеживание обновлений</string>
+    <string name="label_finance_amount">%.2f ₽</string>
 
     <plurals name="ruranobe_volumes">
         <item quantity="one">%d том, %s</item>
@@ -67,11 +72,15 @@
     <string name="ruranobe_label_status_issue">Выпуск: %s</string>
     <string name="ruranobe_label_status_translation">Перевод: %s</string>
 
+    <string name="finance_button_add_account">Добавить кошелёк</string>
+    <string name="finance_button_categories">Категории</string>
+
     <string name="container_services">Сервисы</string>
     <string name="container_update_list">Обновления</string>
 
     <string name="hint_host">Сервер</string>
     <string name="hint_port">Порт</string>
+    <string name="hint_name">Название</string>
 
     <string name="hint_rutracker_watch_link">Ссылка или идентификатор</string>
     <string name="hint_rutracker_watch_description">Название</string>
@@ -85,4 +94,7 @@
     <string name="hint_transmission_path">Путь</string>
     <string name="hint_transmission_username">Имя пользователя</string>
     <string name="hint_transmission_password">Пароль</string>
+
+    <string name="hint_finance_account_balance">Начальный баланс</string>
+    <string name="hint_finance_amount">Сумма</string>
 </resources>

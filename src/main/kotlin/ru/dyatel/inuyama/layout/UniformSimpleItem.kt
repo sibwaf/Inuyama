@@ -27,18 +27,26 @@ import org.jetbrains.anko.verticalMargin
 import org.jetbrains.anko.verticalPadding
 import org.jetbrains.anko.view
 import org.jetbrains.anko.wrapContent
+import ru.dyatel.inuyama.ITEM_TYPE_FINANCE_ACCOUNT
+import ru.dyatel.inuyama.ITEM_TYPE_FINANCE_CATEGORY
+import ru.dyatel.inuyama.ITEM_TYPE_FINANCE_OPERATION
 import ru.dyatel.inuyama.ITEM_TYPE_HOME_UPDATE
 import ru.dyatel.inuyama.ITEM_TYPE_NETWORK
 import ru.dyatel.inuyama.ITEM_TYPE_PROXY
 import ru.dyatel.inuyama.ITEM_TYPE_SERVICE_STATE
+import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
 import ru.dyatel.inuyama.layout.components.uniformTextView
+import ru.dyatel.inuyama.model.FinanceAccount
+import ru.dyatel.inuyama.model.FinanceCategory
+import ru.dyatel.inuyama.model.FinanceOperation
 import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.Update
 import ru.dyatel.inuyama.utilities.hideIf
 import ru.dyatel.inuyama.utilities.isVisible
 import java.util.TimeZone
+import kotlin.math.abs
 
 abstract class UniformSimpleItem : AbstractItem<UniformSimpleItem, UniformSimpleItem.ViewHolder>() {
 
@@ -157,9 +165,8 @@ class UpdateItem(val update: Update) : UniformSimpleItem() {
     override fun getHorizontalPadding(context: Context) = 0
 
     override fun getTitle(context: Context) = update.description
-    override fun getSubtitle(context: Context): String? {
-        return DateTime.forInstant(update.timestamp, TimeZone.getDefault()).format("DD.MM.YYYY")
-    }
+    override fun getSubtitle(context: Context) =
+            DateTime.forInstant(update.timestamp, TimeZone.getDefault()).format("DD.MM.YYYY, hh:mm")!!
 
     override fun getType() = ITEM_TYPE_HOME_UPDATE
 }
@@ -179,4 +186,46 @@ class NetworkItem(private val network: Network, trustChangeListener: (Boolean) -
 
     override val switchState = network.trusted
     override val onSwitchStateChange = trustChangeListener
+}
+
+class FinanceAccountItem(val account: FinanceAccount) : UniformSimpleItem() {
+    override fun getTitle(context: Context) = account.name
+    override fun getSubtitle(context: Context) =
+            context.getString(R.string.label_finance_amount, account.initialBalance + account.balance)!!
+
+    override fun getType() = ITEM_TYPE_FINANCE_ACCOUNT
+}
+
+class FinanceCategoryItem(val category: FinanceCategory) : UniformSimpleItem() {
+    override fun getTitle(context: Context) = category.name
+    override fun getType() = ITEM_TYPE_FINANCE_CATEGORY
+}
+
+class FinanceOperationItem(val operation: FinanceOperation) : UniformSimpleItem() {
+    override val markerColorResource = if (operation.amount < 0) R.color.color_fail else R.color.color_ok
+
+    override fun getTitle(context: Context): String {
+        val builder = StringBuilder()
+
+        val account = operation.account.target
+        val category = operation.category.target
+
+        if (operation.amount > 0) {
+            builder.append(category.name, " > ")
+        }
+
+        builder.append(account.name)
+
+        if (operation.amount < 0) {
+            builder.append(" > ", category.name)
+        }
+
+        builder.append(", ", context.getString(R.string.label_finance_amount, abs(operation.amount)))
+
+        return builder.toString()
+    }
+
+    override fun getSubtitle(context: Context) = operation.datetime.format("DD.MM.YYYY, hh:mm")!!
+
+    override fun getType() = ITEM_TYPE_FINANCE_OPERATION
 }

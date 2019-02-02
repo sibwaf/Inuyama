@@ -70,6 +70,10 @@ fun EditText.disableSuggestions() {
     inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
 }
 
+fun EditText.capitalizeSentences() {
+    inputType = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+}
+
 fun RecyclerView.propagateTouchEvents() {
     val parent = parent as ViewGroup
 

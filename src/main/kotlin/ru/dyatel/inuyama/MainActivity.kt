@@ -29,6 +29,7 @@ import ru.dyatel.inuyama.screens.HomeScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
 import ru.dyatel.inuyama.screens.ProxyScreen
 import ru.dyatel.inuyama.screens.TransmissionScreen
+import ru.dyatel.inuyama.screens.finance.FinanceDashboardScreen
 import ru.dyatel.inuyama.utilities.grantPermissions
 import ru.dyatel.inuyama.utilities.isVisible
 import java.util.concurrent.atomic.AtomicLong
@@ -138,6 +139,10 @@ class MainActivity : SingleActivity(), KodeinAware {
         for (provider in moduleScreens.sortedBy { it.getTitle(this@MainActivity) }) {
             createMenuItem(provider.getIcon(), provider.getTitle(this@MainActivity), provider.getScreenClass())
         }
+
+        addDrawerItems(DividerDrawerItem())
+
+        createMenuItem<FinanceDashboardScreen>(CommunityMaterial.Icon2.cmd_wallet, getString(R.string.screen_finance_dashboard))
 
         addDrawerItems(DividerDrawerItem())
 

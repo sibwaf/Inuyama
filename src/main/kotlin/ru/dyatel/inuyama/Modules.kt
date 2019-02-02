@@ -12,6 +12,9 @@ import org.kodein.di.generic.bind
 import org.kodein.di.generic.inSet
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
+import ru.dyatel.inuyama.model.FinanceAccount
+import ru.dyatel.inuyama.model.FinanceCategory
+import ru.dyatel.inuyama.model.FinanceOperation
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.model.NyaaWatch
 import ru.dyatel.inuyama.model.RuranobeProject
@@ -19,15 +22,15 @@ import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.model.Update
 import ru.dyatel.inuyama.nyaa.NyaaApi
+import ru.dyatel.inuyama.nyaa.NyaaScreen
 import ru.dyatel.inuyama.nyaa.NyaaWatcher
 import ru.dyatel.inuyama.ruranobe.RuranobeApi
+import ru.dyatel.inuyama.ruranobe.RuranobeScreen
 import ru.dyatel.inuyama.ruranobe.RuranobeWatcher
 import ru.dyatel.inuyama.rutracker.RutrackerApi
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
-import ru.dyatel.inuyama.rutracker.RutrackerWatcher
-import ru.dyatel.inuyama.nyaa.NyaaScreen
-import ru.dyatel.inuyama.ruranobe.RuranobeScreen
 import ru.dyatel.inuyama.rutracker.RutrackerScreen
+import ru.dyatel.inuyama.rutracker.RutrackerWatcher
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
 
@@ -115,4 +118,10 @@ val ruranobeModule = Kodein.Module("ruranobe") {
             override fun getScreenClass() = RuranobeScreen::class.java
         }
     }
+}
+
+val financeModule = Kodein.Module("finance") {
+    bind<Box<FinanceAccount>>() with singleton { instance<BoxStore>().boxFor<FinanceAccount>() }
+    bind<Box<FinanceCategory>>() with singleton { instance<BoxStore>().boxFor<FinanceCategory>() }
+    bind<Box<FinanceOperation>>() with singleton { instance<BoxStore>().boxFor<FinanceOperation>() }
 }
