@@ -12,16 +12,29 @@ import ru.dyatel.inuyama.model.Proxy
 
 open class ListSpinner<T>(context: Context) : AppCompatSpinner(context) {
 
+    private var allowDefaultSelection = false
+
     private val listAdapter: ArrayAdapter<String>
 
     private var items = listOf<T>()
     var selected: T?
-        get() = selectedItemPosition.takeIf { it != 0 }?.let { items[it - 1] }
+        get() {
+            if (allowDefaultSelection) {
+                return selectedItemPosition.takeIf { it != 0 }?.let { items[it - 1] }
+            }
+
+            return items[selectedItemPosition]
+        }
         set(value) {
-            if (value == null) {
-                setSelection(0)
-            } else {
+            if (allowDefaultSelection) {
                 setSelection(items.indexOf(value) + 1)
+            } else {
+                val index = items.indexOf(value)
+                if (index == -1) {
+                    throw NoSuchElementException()
+                }
+
+                setSelection(index)
             }
         }
 
@@ -48,9 +61,20 @@ open class ListSpinner<T>(context: Context) : AppCompatSpinner(context) {
     }
 
     fun bindItems(items: List<T>, defaultText: String, labelMapper: (T) -> String) {
+        allowDefaultSelection = true
+
         listAdapter.clear()
 
         listAdapter.add(defaultText)
+        listAdapter.addAll(items.map(labelMapper))
+
+        this.items = items.toList()
+    }
+
+    fun bindItems(items: List<T>, labelMapper: (T) -> String) {
+        allowDefaultSelection = false
+
+        listAdapter.clear()
         listAdapter.addAll(items.map(labelMapper))
 
         this.items = items.toList()
