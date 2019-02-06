@@ -18,6 +18,7 @@ private const val CONFIGURATION_TRANSMISSION = "transmission_configuration"
 private const val CONFIGURATION_RUTRACKER = "rutracker_configuration"
 
 private const val DATA_LAST_CHECK = "overseer_last_check"
+private const val DATA_DEVICE_IDENTIFIER = "device_identifier"
 
 class PreferenceHelper(context: Context) : KodeinAware {
 
@@ -51,9 +52,13 @@ class PreferenceHelper(context: Context) : KodeinAware {
                     ?.let { DateTime.forInstant(it, TimeZone.getDefault()) }
         }
         set(value) {
-            preferences.editAndApply {
-                putLong(DATA_LAST_CHECK, value?.getMilliseconds(TimeZone.getDefault()) ?: -1)
-            }
+            preferences.editAndApply { putLong(DATA_LAST_CHECK, value?.getMilliseconds(TimeZone.getDefault()) ?: -1) }
+        }
+
+    var deviceIdentifier: String?
+        get() = preferences.getString(DATA_DEVICE_IDENTIFIER, null)
+        set(value) {
+            preferences.editAndApply { putString(DATA_DEVICE_IDENTIFIER, value) }
         }
 
 }

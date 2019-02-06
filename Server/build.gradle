@@ -1,0 +1,14 @@
+apply plugin: "kotlin"
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+
+    compile project(":Common")
+
+    implementation "org.slf4j:slf4j-simple:1.7.25"
+
+    implementation "org.kodein.di:kodein-di-generic-jvm:$kodeinVersion"
+
+    implementation "io.javalin:javalin:2.6.0"
+}
