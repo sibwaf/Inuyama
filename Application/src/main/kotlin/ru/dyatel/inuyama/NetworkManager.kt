@@ -34,7 +34,8 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
 
             val wifiEnabled = connectivityManager
                     .getNetworkCapabilities(connectivityManager.activeNetwork)
-                    .hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                    ?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                    ?: false
 
             if (!wifiEnabled || !networkInfo.isConnected) {
                 return null
