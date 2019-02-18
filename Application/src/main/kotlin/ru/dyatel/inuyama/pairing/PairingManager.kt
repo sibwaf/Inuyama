@@ -12,11 +12,6 @@ import kotlin.random.Random
 
 class PairingManager(override val kodein: Kodein) : KodeinAware {
 
-    private companion object {
-        val DEVICE_IDENTIFIER_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-        val DEVICE_IDENTIFIER_LENGTH = 32
-    }
-
     private val networkManager by instance<NetworkManager>()
     private val discoverResponseListener by instance<DiscoverResponseListener>()
 
@@ -26,15 +21,7 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
         get() = preferenceHelper.deviceIdentifier ?: regenerateDeviceIdentifier()
 
     fun regenerateDeviceIdentifier(): String {
-        val builder = StringBuilder(DEVICE_IDENTIFIER_LENGTH)
-
-        for (i in 0 until DEVICE_IDENTIFIER_LENGTH) {
-            val index = Random.nextInt(DEVICE_IDENTIFIER_ALPHABET.length)
-            val character = DEVICE_IDENTIFIER_ALPHABET[index]
-            builder.append(character)
-        }
-
-        val identifier = builder.toString()
+        val identifier = Pairing.generateDeviceIdentifier()
         preferenceHelper.deviceIdentifier = identifier
         return identifier
     }
