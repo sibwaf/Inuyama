@@ -24,6 +24,7 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.overseer.OverseerStarter
+import ru.dyatel.inuyama.pairing.PairingScreen
 import ru.dyatel.inuyama.screens.DirectoryScreen
 import ru.dyatel.inuyama.screens.HomeScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
@@ -147,6 +148,7 @@ class MainActivity : SingleActivity(), KodeinAware {
         addDrawerItems(DividerDrawerItem())
 
         createMenuItem<NetworkScreen>(CommunityMaterial.Icon2.cmd_wifi, getString(R.string.screen_networks))
+        createMenuItem<PairingScreen>(CommunityMaterial.Icon2.cmd_monitor_cellphone, getString(R.string.module_pairing))
         createMenuItem<ProxyScreen>(CommunityMaterial.Icon.cmd_cloud, getString(R.string.screen_proxy))
         createMenuItem<DirectoryScreen>(CommunityMaterial.Icon.cmd_folder, getString(R.string.screen_directories))
         createMenuItem<TransmissionScreen>(CommunityMaterial.Icon2.cmd_inbox_arrow_down, getString(R.string.screen_transmission))

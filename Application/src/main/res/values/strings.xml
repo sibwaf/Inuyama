@@ -14,6 +14,7 @@
     <string name="module_rutracker">Rutracker</string>
     <string name="module_nyaa">Nyaa</string>
     <string name="module_ruranobe">РуРанобэ</string>
+    <string name="module_pairing">Шибари</string>
 
     <string name="menu_add">Добавить</string>
     <string name="menu_settings">Настройки</string>
@@ -37,6 +38,7 @@
     <string name="action_cancel">Отмена</string>
     <string name="action_search">Поиск</string>
     <string name="action_refresh">Обновить</string>
+    <string name="action_unbind">Отвязать</string>
 
     <string name="const_directory_default">[по умолчанию]</string>
     <string name="const_proxy_default">[прямое подключение]</string>
@@ -49,6 +51,7 @@
     <string name="label_waiting_for_task">Ждём запуска задачи…</string>
     <string name="label_no_updates">Обновлений не найдено</string>
     <string name="label_watching">Отслеживание обновлений</string>
+    <string name="label_pairing_state">Связывать</string>
     <string name="label_finance_amount">%.2f ₽</string>
 
     <plurals name="ruranobe_volumes">

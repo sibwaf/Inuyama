@@ -54,3 +54,10 @@ object Cryptography {
         val bytes = BaseEncoding.base64().decode(encoded)
         return decodeRSAPublicKey(bytes)
     }
+
+}
+
+private val humanReadableCache = mutableMapOf<PublicKey, String>()
+
+val PublicKey.humanReadable: String
+    get() = humanReadableCache.getOrPut(this) { MD5.hash(encoded).takeLast(8) }

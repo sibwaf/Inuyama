@@ -32,6 +32,7 @@ import ru.dyatel.inuyama.ITEM_TYPE_FINANCE_CATEGORY
 import ru.dyatel.inuyama.ITEM_TYPE_FINANCE_OPERATION
 import ru.dyatel.inuyama.ITEM_TYPE_HOME_UPDATE
 import ru.dyatel.inuyama.ITEM_TYPE_NETWORK
+import ru.dyatel.inuyama.ITEM_TYPE_PAIRING_SERVER
 import ru.dyatel.inuyama.ITEM_TYPE_PROXY
 import ru.dyatel.inuyama.ITEM_TYPE_SERVICE_STATE
 import ru.dyatel.inuyama.R
@@ -43,8 +44,11 @@ import ru.dyatel.inuyama.model.FinanceOperation
 import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.Update
+import ru.dyatel.inuyama.pairing.DiscoveredServer
 import ru.dyatel.inuyama.utilities.hideIf
 import ru.dyatel.inuyama.utilities.isVisible
+import ru.sibwaf.inuyama.common.utilities.humanReadable
+import java.nio.ByteBuffer
 import java.util.TimeZone
 import kotlin.math.abs
 
@@ -176,7 +180,7 @@ class ProxyItem(val proxy: Proxy) : UniformSimpleItem() {
     override fun getType() = ITEM_TYPE_PROXY
 }
 
-class NetworkItem(private val network: Network, trustChangeListener: (Boolean) -> Unit) : UniformSimpleItem() {
+class NetworkItem(val network: Network, trustChangeListener: (Boolean) -> Unit) : UniformSimpleItem() {
     init {
         withIdentifier(network.id)
     }
@@ -186,6 +190,23 @@ class NetworkItem(private val network: Network, trustChangeListener: (Boolean) -
 
     override val switchState = network.trusted
     override val onSwitchStateChange = trustChangeListener
+}
+
+class PairingServerItem(val server: DiscoveredServer, paired: Boolean) : UniformSimpleItem() {
+    override val markerColorResource = if (paired) R.color.color_ok else R.color.color_pending
+
+    init {
+        val buffer = ByteBuffer.allocate(4 + 4)
+        buffer.put(server.address.address)
+        buffer.putInt(server.port)
+        buffer.rewind()
+        withIdentifier(buffer.long)
+    }
+
+    override fun getTitle(context: Context) = server.key.humanReadable
+    override fun getSubtitle(context: Context) = "${server.address}:${server.port}"
+
+    override fun getType() = ITEM_TYPE_PAIRING_SERVER
 }
 
 class FinanceAccountItem(val account: FinanceAccount) : UniformSimpleItem() {
