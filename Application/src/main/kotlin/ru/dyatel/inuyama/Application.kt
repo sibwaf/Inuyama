@@ -27,6 +27,7 @@ import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.ProxyBinding
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.pairing.DiscoverResponseListener
+import ru.dyatel.inuyama.pairing.PairedApi
 import ru.dyatel.inuyama.pairing.PairingManager
 import ru.dyatel.inuyama.transmission.TorrentClient
 import ru.dyatel.inuyama.transmission.TransmissionClient
@@ -89,6 +90,7 @@ class Application : Application(), KodeinAware {
 
         bind<DiscoverResponseListener>() with singleton { DiscoverResponseListener(kodein) }
         bind<PairingManager>() with singleton { PairingManager(kodein) }
+        bind<PairedApi>() with singleton { PairedApi(kodein) }
 
         bind<TorrentClient>() with singleton { TransmissionClient(kodein) }
 
