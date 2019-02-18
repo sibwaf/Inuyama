@@ -31,7 +31,7 @@ class NyaaApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     override fun checkConnection(): Boolean {
         return try {
-            createConnection(host).get()
+            createConnection(host, false).get()
             true
         } catch (e: Exception) {
             false
@@ -40,7 +40,7 @@ class NyaaApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     fun query(query: String): List<NyaaTorrent> {
         try {
-            return createConnection(host)
+            return createConnection(host, false)
                     .data("page", "rss").data("f", "2").data("c", "0_0").data("q", query)
                     .parser(Parser.xmlParser())
                     .get()

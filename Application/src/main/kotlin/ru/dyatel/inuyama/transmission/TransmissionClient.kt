@@ -12,7 +12,6 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.SERVICE_TRANSMISSION
-import ru.dyatel.inuyama.UntrustedNetworkException
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URI
@@ -33,13 +32,9 @@ class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClie
     private var session: String? = null
 
     private fun connect(): Connection {
-        if (!networkManager.isNetworkTrusted) {
-            throw UntrustedNetworkException()
-        }
-
         val url = with(configuration) { URI.create("http://$host:$port/$path").normalize().toString() }
 
-        val connection = createConnection(url)
+        val connection = createConnection(url, true)
                 .ignoreHttpErrors(true)
                 .ignoreContentType(true)
                 .method(Connection.Method.POST)

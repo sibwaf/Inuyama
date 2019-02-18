@@ -42,8 +42,8 @@ interface RemoteService {
     fun getName(context: Context): String
     fun checkConnection(): Boolean
 
-    fun createConnection(url: String): Connection {
-        return networkManager.createProxiedJsoupConnection(url, serviceId)
+    fun createConnection(url: String, trustedOnly: Boolean): Connection {
+        return networkManager.createProxiedJsoupConnection(url, serviceId, trustedOnly)
     }
 }
 

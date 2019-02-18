@@ -35,7 +35,7 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     override fun checkConnection(): Boolean {
         return try {
-            createConnection(configuration.host).get()
+            createConnection(configuration.host, false).get()
             true
         } catch (e: IOException) {
             false
@@ -44,7 +44,7 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     fun extractMagnet(topic: Long): String {
         try {
-            val links = createConnection(generateLink(topic)).get()
+            val links = createConnection(generateLink(topic), false).get()
                     .select("a[data-topic_id=$topic]")
             if (links.size == 1) {
                 return links[0].attr("href")

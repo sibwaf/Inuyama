@@ -43,7 +43,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     override fun checkConnection(): Boolean {
         return try {
-            createConnection(host).get()
+            createConnection(host, false).get()
             true
         } catch (e: IOException) {
             false
@@ -68,7 +68,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     fun fetchProjects(): List<RuranobeProject> {
         try {
-            val response = createConnection("$host/api/projects")
+            val response = createConnection("$host/api/projects", false)
                     .ignoreContentType(true)
                     .ignoreHttpErrors(true)
                     .data("fields", "projectId,url,title,nameRomaji,author,works,status,translationStatus,issueStatus")
@@ -90,7 +90,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     fun fetchVolumes(project: RuranobeProject): List<RuranobeVolume> {
         try {
-            val response = createConnection("$host/api/projects/${project.id}/volumes")
+            val response = createConnection("$host/api/projects/${project.id}/volumes", false)
                     .ignoreContentType(true)
                     .ignoreHttpErrors(true)
                     .data("fields", "volumeId,url,imageThumbnail,nameTitle,volumeStatus,lastUpdateDate,lastEditDate")
@@ -130,7 +130,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     fun getDownloadUrl(volume: RuranobeVolume, format: String): URL {
         try {
-            return createConnection("$host/d/$format/${volume.url}")
+            return createConnection("$host/d/$format/${volume.url}", false)
                     .ignoreContentType(true)
                     .followRedirects(true)
                     .header("Referer", "$host/r/${volume.url}")
