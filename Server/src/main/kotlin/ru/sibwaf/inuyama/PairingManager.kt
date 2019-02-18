@@ -2,9 +2,10 @@ package ru.sibwaf.inuyama
 
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
-import ru.sibwaf.inuyama.common.utilities.Cryptography
+import org.kodein.di.generic.instance
 import ru.sibwaf.inuyama.common.DiscoverResponse
 import ru.sibwaf.inuyama.common.Pairing
+import ru.sibwaf.inuyama.common.utilities.Cryptography
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import kotlin.concurrent.thread
@@ -18,7 +19,9 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
         }
     }
 
-    init {
+    private val apiPort by instance<Int>("api-port")
+
+    fun start() {
         thread(isDaemon = true, name = "Discover request listener") {
             val socket = DatagramSocket(Pairing.DEFAULT_DISCOVER_SERVER_PORT)
             val requestBuffer = Pairing.createDiscoverRequestBuffer()
@@ -29,7 +32,7 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
 
                 val request = Pairing.decodeDiscoverRequest(requestPacket) ?: continue
 
-                val response = DiscoverResponse(0, publicKey) // TODO: port
+                val response = DiscoverResponse(apiPort, publicKey)
 
                 val responsePacket = Pairing.encodeDiscoverResponse(response)
                 responsePacket.address = requestPacket.address

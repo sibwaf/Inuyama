@@ -6,6 +6,8 @@ buildscript {
 
     ext.kodeinVersion = "6.0.1"
 
+    ext.gsonVersion = "2.8.5"
+
     repositories {
         google()
         jcenter()

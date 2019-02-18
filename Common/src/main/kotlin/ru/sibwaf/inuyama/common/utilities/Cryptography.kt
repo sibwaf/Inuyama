@@ -1,5 +1,6 @@
 package ru.sibwaf.inuyama.common.utilities
 
+import com.google.common.io.BaseEncoding
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
@@ -44,4 +45,12 @@ object Cryptography {
         return KeyFactory.getInstance("RSA").generatePublic(X509EncodedKeySpec(encoded))
     }
 
-}
+    fun encodeRSAPublicKeyBase64(key: PublicKey): String {
+        val bytes = encodeRSAPublicKey(key)
+        return BaseEncoding.base64().encode(bytes)
+    }
+
+    fun decodeRSAPublicKeyBase64(encoded: String): PublicKey {
+        val bytes = BaseEncoding.base64().decode(encoded)
+        return decodeRSAPublicKey(bytes)
+    }

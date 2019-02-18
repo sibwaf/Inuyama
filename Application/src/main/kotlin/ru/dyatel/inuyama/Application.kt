@@ -7,6 +7,9 @@ import com.google.gson.FieldAttributes
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
+import com.google.gson.TypeAdapter
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import org.kodein.di.Kodein
@@ -31,6 +34,8 @@ import ru.dyatel.inuyama.transmission.TransmissionConfiguration
 import ru.dyatel.inuyama.utilities.NoJson
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
+import ru.sibwaf.inuyama.common.utilities.Cryptography
+import java.security.PublicKey
 
 class Application : Application(), KodeinAware {
 
@@ -53,6 +58,21 @@ class Application : Application(), KodeinAware {
                     .setExclusionStrategies(object : ExclusionStrategy {
                         override fun shouldSkipClass(clazz: Class<*>) = false
                         override fun shouldSkipField(f: FieldAttributes) = f.getAnnotation(NoJson::class.java) != null
+                    })
+                    .registerTypeAdapter(PublicKey::class.java, object : TypeAdapter<PublicKey>() {
+                        override fun write(writer: JsonWriter, value: PublicKey?) {
+                            if (value == null) {
+                                writer.nullValue()
+                                return
+                            }
+
+                            writer.value(Cryptography.encodeRSAPublicKeyBase64(value))
+                        }
+
+                        override fun read(reader: JsonReader): PublicKey? {
+                            val value = reader.nextString() ?: return null
+                            return Cryptography.decodeRSAPublicKeyBase64(value)
+                        }
                     })
                     .setPrettyPrinting()
                     .create()

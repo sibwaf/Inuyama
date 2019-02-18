@@ -9,6 +9,7 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
+import ru.dyatel.inuyama.pairing.PairedServer
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.dyatel.inuyama.transmission.TransmissionConfiguration
 import java.util.TimeZone
@@ -19,6 +20,7 @@ private const val CONFIGURATION_RUTRACKER = "rutracker_configuration"
 
 private const val DATA_LAST_CHECK = "overseer_last_check"
 private const val DATA_DEVICE_IDENTIFIER = "device_identifier"
+private const val DATA_PAIRED_SERVER = "paired_server"
 
 class PreferenceHelper(context: Context) : KodeinAware {
 
@@ -61,6 +63,11 @@ class PreferenceHelper(context: Context) : KodeinAware {
             preferences.editAndApply { putString(DATA_DEVICE_IDENTIFIER, value) }
         }
 
+    var pairedServer: PairedServer?
+        get() = preferences.getString(DATA_PAIRED_SERVER, null)?.let { gson.fromJson(it) }
+        set(value) {
+            preferences.editAndApply { putString(DATA_PAIRED_SERVER, value?.let { gson.toJson(it) }) }
+        }
 }
 
 fun SharedPreferences.editAndApply(edit: SharedPreferences.Editor.() -> Unit) {

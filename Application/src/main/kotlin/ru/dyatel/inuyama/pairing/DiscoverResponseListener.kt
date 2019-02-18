@@ -4,14 +4,16 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.NetworkManager
-import ru.sibwaf.inuyama.common.DiscoverResponse
 import ru.sibwaf.inuyama.common.Pairing
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
+import java.security.PublicKey
 import kotlin.concurrent.thread
 
-private typealias Listener = (DiscoverResponse, InetAddress) -> Unit
+private typealias Listener = (DiscoveredServer) -> Unit
+
+data class DiscoveredServer(val address: InetAddress, val port: Int, val key: PublicKey)
 
 class DiscoverResponseListener(override val kodein: Kodein) : KodeinAware {
 
@@ -42,8 +44,9 @@ class DiscoverResponseListener(override val kodein: Kodein) : KodeinAware {
 
                 val response = Pairing.decodeDiscoverResponse(packet) ?: continue
 
+                val server = DiscoveredServer(packet.address, response.port, response.key)
                 for (listener in listeners) {
-                    listener(response, packet.address)
+                    listener(server)
                 }
             }
         }
