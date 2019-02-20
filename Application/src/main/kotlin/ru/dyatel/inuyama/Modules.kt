@@ -60,7 +60,7 @@ abstract class Watcher {
     private val listeners = mutableListOf<() -> Unit>()
 
     abstract fun checkUpdates(): List<String>
-    abstract fun dispatchUpdates()
+    abstract fun dispatchUpdates(dispatcher: UpdateDispatcher)
     abstract fun listUpdates(): List<Update>
 
     fun addUpdateListener(listener: () -> Unit) {

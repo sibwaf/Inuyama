@@ -4,23 +4,18 @@ import io.objectbox.Box
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.NetworkManager
+import ru.dyatel.inuyama.UpdateDispatcher
 import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.model.RutrackerWatch_
 import ru.dyatel.inuyama.model.Update
-import ru.dyatel.inuyama.transmission.TorrentClient
-import ru.dyatel.inuyama.transmission.TransmissionException
 import ru.dyatel.inuyama.utilities.MagnetParser
 import ru.dyatel.inuyama.utilities.subscribeFor
 
 class RutrackerWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
 
     private val api by instance<RutrackerApi>()
-    private val torrentClient by instance<TorrentClient>()
     private val watchBox by instance<Box<RutrackerWatch>>()
-
-    private val networkManager by instance<NetworkManager>()
 
     private val undispatchedQuery by lazy {
         watchBox.query()
@@ -61,20 +56,14 @@ class RutrackerWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
                 .map { it.description }
     }
 
-    override fun dispatchUpdates() {
-        if (!networkManager.isNetworkTrusted) {
-            return
-        }
+    override fun dispatchUpdates(dispatcher: UpdateDispatcher) {
+        for (watch in undispatchedQuery.find()) {
+            dispatcher.transaction {
+                downloadTorrent(watch.magnet!!, watch.directory.target?.path ?: "")
 
-        watchBox.store.runInTx {
-            for (watch in undispatchedQuery.find()) {
-                try {
-                    torrentClient.download(watch.magnet!!, watch.directory.target?.path)
-
+                onSuccess {
                     watch.updateDispatched = true
                     watchBox.put(watch)
-                } catch (e: TransmissionException) {
-                    // TODO
                 }
             }
         }

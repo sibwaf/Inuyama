@@ -5,26 +5,21 @@ import io.objectbox.BoxStore
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.NetworkManager
+import ru.dyatel.inuyama.UpdateDispatcher
 import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.model.NyaaTorrent_
 import ru.dyatel.inuyama.model.NyaaWatch
 import ru.dyatel.inuyama.model.Update
-import ru.dyatel.inuyama.transmission.TorrentClient
-import ru.dyatel.inuyama.transmission.TransmissionException
 import ru.dyatel.inuyama.utilities.subscribeFor
 
 class NyaaWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
 
     private val api by instance<NyaaApi>()
-    private val torrentClient by instance<TorrentClient>()
 
     private val boxStore by instance<BoxStore>()
     private val torrentBox by instance<Box<NyaaTorrent>>()
     private val watchBox by instance<Box<NyaaWatch>>()
-
-    private val networkManager by instance<NetworkManager>()
 
     private val undispatchedQuery by lazy {
         torrentBox.query()
@@ -69,25 +64,19 @@ class NyaaWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
         return updates
     }
 
-    override fun dispatchUpdates() {
-        if (!networkManager.isNetworkTrusted) {
-            return
-        }
+    override fun dispatchUpdates(dispatcher: UpdateDispatcher) {
+        for (torrent in undispatchedQuery.find()) {
+            val watch = torrent.watch.target
+            val directory = watch.directory.target
+                    ?.let { "${it.path}/" }
+                    ?: ""
 
-        boxStore.runInTx {
-            for (torrent in undispatchedQuery.find()) {
-                try {
-                    val watch = torrent.watch.target
-                    val directory = watch.directory.target
-                            ?.let { "${it.path}/" }
-                            ?: ""
+            dispatcher.transaction {
+                downloadTorrent(torrent.link, directory + watch.collectPath)
 
-                    torrentClient.download(torrent.link, directory + watch.collectPath)
-
+                onSuccess {
                     torrent.dispatched = true
                     torrentBox.put(torrent)
-                } catch (e: TransmissionException) {
-                    // TODO
                 }
             }
         }

@@ -5,6 +5,7 @@ import io.objectbox.BoxStore
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.UpdateDispatcher
 import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeProject_
@@ -100,7 +101,7 @@ class RuranobeWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
         return updates
     }
 
-    override fun dispatchUpdates() {
+    override fun dispatchUpdates(dispatcher: UpdateDispatcher) {
         // TODO
     }
 

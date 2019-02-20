@@ -13,6 +13,7 @@ import org.kodein.di.generic.allInstances
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.Notifier
+import ru.dyatel.inuyama.UpdateDispatcher
 import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import java.util.TimeZone
@@ -63,7 +64,9 @@ class OverseerWorker(context: Context, workerParams: WorkerParameters) : Worker(
                     .takeUnless { it.isEmpty() }
                     ?.let { notifier.notifyUpdates(it) }
 
-            watchers.forEach { it.dispatchUpdates() }
+            val dispatcher = UpdateDispatcher(kodein)
+            watchers.forEach { it.dispatchUpdates(dispatcher) }
+            dispatcher.commit()
 
             return Result.success()
         } catch (e: Exception) {
