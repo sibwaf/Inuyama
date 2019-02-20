@@ -35,7 +35,6 @@ import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
 
 interface RemoteService {
-    val serviceId: Long
 
     val networkManager: NetworkManager
 
@@ -43,7 +42,16 @@ interface RemoteService {
     fun checkConnection(): Boolean
 
     fun createConnection(url: String, trustedOnly: Boolean): Connection {
-        return networkManager.createProxiedJsoupConnection(url, serviceId, trustedOnly)
+        return networkManager.createJsoupConnection(url, trustedOnly)
+    }
+}
+
+interface ProxyableRemoteService : RemoteService {
+
+    val serviceId: Long
+
+    override fun createConnection(url: String, trustedOnly: Boolean): Connection {
+        return networkManager.createProxiedJsoupConnection(url, trustedOnly, serviceId)
     }
 }
 

@@ -8,14 +8,14 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.RemoteService
+import ru.dyatel.inuyama.ProxyableRemoteService
 import ru.dyatel.inuyama.SERVICE_NYAA
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.utilities.asDateTime
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class NyaaApi(override val kodein: Kodein) : KodeinAware, RemoteService {
+class NyaaApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteService {
 
     private companion object {
         const val host = "https://nyaa.si"

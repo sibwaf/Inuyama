@@ -6,13 +6,13 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.RemoteService
+import ru.dyatel.inuyama.ProxyableRemoteService
 import ru.dyatel.inuyama.SERVICE_RUTRACKER
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.URI
 
-class RutrackerApi(override val kodein: Kodein) : KodeinAware, RemoteService {
+class RutrackerApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteService {
 
     companion object {
 

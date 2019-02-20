@@ -31,6 +31,7 @@ import org.kodein.di.generic.allInstances
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.BuildConfig
 import ru.dyatel.inuyama.DASHBOARD_UPDATE_COUNT
+import ru.dyatel.inuyama.ProxyableRemoteService
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
 import ru.dyatel.inuyama.Watcher
@@ -187,9 +188,13 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
                     requestServiceCheck()
                     true
                 }
-                .withOnLongClickListener { _, _, _, position ->
-                    editProxy(services[position])
-                    true
+                .withOnLongClickListener { _, _, item, _ ->
+                    if (item.service is ProxyableRemoteService) {
+                        editProxy(item.service)
+                        true
+                    } else {
+                        false
+                    }
                 }
     }
 
@@ -254,7 +259,7 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
         }
     }
 
-    private fun editProxy(service: RemoteService) {
+    private fun editProxy(service: ProxyableRemoteService) {
         val binding = proxyBindingBox[service.serviceId] ?: ProxyBinding(service.serviceId)
 
         lateinit var proxySelectorView: ProxySelector
@@ -292,7 +297,7 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
         for ((index, item) in serviceAdapter.adapterItems.withIndex()) {
             val service = item.service
 
-            launchJob(id = serviceCheckerIds[service]!!, replacing = true) {
+            launchJob(id = serviceCheckerIds.getValue(service), replacing = true) {
                 item.markerColor = R.color.color_pending
                 serviceFastAdapter.notifyAdapterItemChanged(index)
 

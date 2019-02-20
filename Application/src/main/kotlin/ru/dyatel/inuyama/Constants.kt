@@ -18,6 +18,7 @@ const val SERVICE_TRANSMISSION = 1L
 const val SERVICE_RUTRACKER = 2L
 const val SERVICE_NYAA = 3L
 const val SERVICE_RURANOBE = 4L
+@Deprecated("Not used anymore", level = DeprecationLevel.ERROR)
 const val SERVICE_PAIRING = 5L
 
 const val NOTIFICATION_CHANNEL_UPDATES = "updates"

@@ -9,7 +9,6 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
-import ru.dyatel.inuyama.SERVICE_PAIRING
 import ru.dyatel.inuyama.utilities.fromJson
 import ru.sibwaf.inuyama.common.ApiResponse
 import ru.sibwaf.inuyama.common.STATUS_OK
@@ -20,8 +19,6 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
     private val pairingManager by instance<PairingManager>()
 
     override val networkManager by instance<NetworkManager>()
-
-    override val serviceId = SERVICE_PAIRING
 
     private val address: String
         get() = pairingManager.findPairedServer()

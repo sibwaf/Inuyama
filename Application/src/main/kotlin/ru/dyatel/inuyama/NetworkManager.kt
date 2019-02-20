@@ -80,12 +80,16 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
         }
     }
 
-    fun createProxiedJsoupConnection(url: String, serviceId: Long, trustedOnly: Boolean): Connection {
+    fun createJsoupConnection(url: String, trustedOnly: Boolean): Connection {
         if (trustedOnly && !isNetworkTrusted) {
             throw UntrustedNetworkException()
         }
 
-        val connection = Jsoup.connect(url)
+        return Jsoup.connect(url)
+    }
+
+    fun createProxiedJsoupConnection(url: String, trustedOnly: Boolean, serviceId: Long): Connection {
+        val connection = createJsoupConnection(url, trustedOnly)
 
         proxyBindingBox[serviceId]
                 ?.proxy
