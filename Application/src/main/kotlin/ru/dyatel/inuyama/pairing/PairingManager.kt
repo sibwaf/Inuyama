@@ -63,6 +63,10 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
     }
 
     fun findPairedServer(): DiscoveredServer? {
+        if (pairedServer == null) {
+            return null
+        }
+
         var discovered: DiscoveredServer? = null
 
         lateinit var waiter: Job
