@@ -3,7 +3,7 @@ package ru.dyatel.inuyama
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.transmission.TorrentClient
+import ru.dyatel.inuyama.pairing.PairedApi
 
 class UpdateDispatcher(override val kodein: Kodein) : KodeinAware {
 
@@ -30,7 +30,7 @@ class UpdateDispatcher(override val kodein: Kodein) : KodeinAware {
 
     }
 
-    private val torrentClient by instance<TorrentClient>()
+    private val pairedApi by instance<PairedApi>()
 
     private val transactions = mutableListOf<TransactionImpl>()
 
@@ -42,7 +42,7 @@ class UpdateDispatcher(override val kodein: Kodein) : KodeinAware {
         for (transaction in transactions) {
             try {
                 for (torrent in transaction.torrents) {
-                    torrentClient.download(torrent.first, torrent.second)
+                    pairedApi.downloadTorrent(torrent.first, torrent.second)
                 }
 
                 transaction.commit()

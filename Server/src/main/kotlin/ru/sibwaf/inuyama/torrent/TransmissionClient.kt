@@ -1,40 +1,33 @@
-package ru.dyatel.inuyama.transmission
+package ru.sibwaf.inuyama.torrent
 
-import android.content.Context
-import android.util.Base64
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import org.jsoup.Connection
+import org.jsoup.Jsoup
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.NetworkManager
-import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.SERVICE_TRANSMISSION
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URI
+import java.util.Base64
 
 private const val SESSION_HEADER = "X-Transmission-Session-Id"
 
 class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClient {
-
-    override val serviceId = SERVICE_TRANSMISSION
 
     private val gson by instance<Gson>()
     private val parser by instance<JsonParser>()
 
     private val configuration by instance<TransmissionConfiguration>()
 
-    override val networkManager by instance<NetworkManager>()
-
     private var session: String? = null
 
     private fun connect(): Connection {
         val url = with(configuration) { URI.create("http://$host:$port/$path").normalize().toString() }
 
-        val connection = createConnection(url, true)
+        val connection = Jsoup.connect(url)
                 .ignoreHttpErrors(true)
                 .ignoreContentType(true)
                 .method(Connection.Method.POST)
@@ -42,7 +35,7 @@ class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClie
         val username = configuration.username
         val password = configuration.password
 
-        val credentials = Base64.encodeToString("$username:$password".toByteArray(), Base64.DEFAULT)
+        val credentials = Base64.getEncoder().encodeToString("$username:$password".toByteArray())
         connection.header("Authorization", "Basic $credentials")
 
         session?.let { connection.header(SESSION_HEADER, it) }
@@ -96,21 +89,10 @@ class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClie
         }
     }
 
-    override fun checkConnection(): Boolean {
-        return try {
-            executeRaw(TransmissionRequest("session-get"))
-            true
-        } catch (e: TransmissionException) {
-            false
-        }
-    }
-
     override fun download(magnet: String, directory: String?) {
         val arguments = mapOf("filename" to magnet, "download-dir" to directory)
         executeRaw(TransmissionRequest("torrent-add", arguments))
     }
-
-    override fun getName(context: Context) = context.getString(R.string.screen_transmission)!!
 
 }
 

@@ -29,9 +29,6 @@ import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.pairing.DiscoverResponseListener
 import ru.dyatel.inuyama.pairing.PairedApi
 import ru.dyatel.inuyama.pairing.PairingManager
-import ru.dyatel.inuyama.transmission.TorrentClient
-import ru.dyatel.inuyama.transmission.TransmissionClient
-import ru.dyatel.inuyama.transmission.TransmissionConfiguration
 import ru.dyatel.inuyama.utilities.NoJson
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
@@ -82,7 +79,6 @@ class Application : Application(), KodeinAware {
 
         bind<PreferenceHelper>() with singleton { PreferenceHelper(instance()) }
         bind<OverseerConfiguration>() with provider { instance<PreferenceHelper>().overseer }
-        bind<TransmissionConfiguration>() with singleton { instance<PreferenceHelper>().transmission }
 
         bind<Notifier>() with singleton { Notifier(kodein) }
 
@@ -91,8 +87,6 @@ class Application : Application(), KodeinAware {
         bind<DiscoverResponseListener>() with singleton { DiscoverResponseListener(kodein) }
         bind<PairingManager>() with singleton { PairingManager(kodein) }
         bind<PairedApi>() with singleton { PairedApi(kodein) }
-
-        bind<TorrentClient>() with singleton { TransmissionClient(kodein) }
 
         bind() from setBinding<ModuleScreenProvider>()
         import(rutrackerModule)

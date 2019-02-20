@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.transmission
+package ru.sibwaf.inuyama.torrent
 
 data class TransmissionConfiguration(
         var host: String = "localhost",

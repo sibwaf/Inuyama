@@ -3,7 +3,7 @@ apply plugin: "kotlin"
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
 
-    api "com.google.guava:guava:27.0.1-android"
+    implementation "com.google.guava:guava:27.0.1-android"
 
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
 }

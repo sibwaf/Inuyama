@@ -12,6 +12,7 @@ import ru.dyatel.inuyama.RemoteService
 import ru.dyatel.inuyama.utilities.fromJson
 import ru.sibwaf.inuyama.common.ApiResponse
 import ru.sibwaf.inuyama.common.STATUS_OK
+import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
 
 class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
@@ -41,6 +42,12 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
                 .apply(init)
                 .post()
                 .let { gson.fromJson(it.text()) }
+    }
+
+    fun downloadTorrent(magnet: String, path: String) {
+        post<ApiResponse>("$address/download-torrent") {
+            requestBody(gson.toJson(TorrentDownloadApiRequest(magnet, path)))
+        }
     }
 
     override fun checkConnection(): Boolean {

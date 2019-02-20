@@ -11,10 +11,10 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.pairing.PairedServer
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
-import ru.dyatel.inuyama.transmission.TransmissionConfiguration
 import java.util.TimeZone
 
 private const val CONFIGURATION_OVERSEER_PERIOD = "overseer_period"
+@Deprecated("Not used anymore", level = DeprecationLevel.ERROR)
 private const val CONFIGURATION_TRANSMISSION = "transmission_configuration"
 private const val CONFIGURATION_RUTRACKER = "rutracker_configuration"
 
@@ -33,12 +33,6 @@ class PreferenceHelper(context: Context) : KodeinAware {
         get() = OverseerConfiguration(preferences.getInt(CONFIGURATION_OVERSEER_PERIOD, 30))
         set(value) {
             preferences.editAndApply { putInt(CONFIGURATION_OVERSEER_PERIOD, value.period) }
-        }
-
-    var transmission: TransmissionConfiguration
-        get() = gson.fromJson(preferences.getString(CONFIGURATION_TRANSMISSION, "{}")!!)
-        set(value) {
-            preferences.editAndApply { putString(CONFIGURATION_TRANSMISSION, gson.toJson(value)) }
         }
 
     var rutracker: RutrackerConfiguration

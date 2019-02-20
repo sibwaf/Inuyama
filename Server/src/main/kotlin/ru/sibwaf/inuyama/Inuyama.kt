@@ -13,9 +13,15 @@ import org.kodein.di.generic.singleton
 import ru.sibwaf.inuyama.common.ApiResponse
 import ru.sibwaf.inuyama.common.STATUS_OK
 import ru.sibwaf.inuyama.common.STATUS_SERVER_ERROR
+import ru.sibwaf.inuyama.torrent.TorrentClient
+import ru.sibwaf.inuyama.torrent.TransmissionClient
+import ru.sibwaf.inuyama.torrent.TransmissionConfiguration
 
 val kodein = Kodein.lazy {
     bind<Gson>() with singleton { Gson() }
+
+    bind<TransmissionConfiguration>() with singleton { TransmissionConfiguration() }
+    bind<TorrentClient>() with singleton { TransmissionClient(kodein) }
 
     bind<Javalin>() with singleton { Javalin.create() }
     bind<Int>("api-port") with singleton { instance<Javalin>().port() }
@@ -36,6 +42,11 @@ fun main() {
     val javalin by kodein.instance<Javalin>()
     javalin.start().apply {
         get("/ping") {
+            it.json(ApiResponse(STATUS_OK))
+        }
+
+        post("/download-torrent") {
+            // TODO
             it.json(ApiResponse(STATUS_OK))
         }
 

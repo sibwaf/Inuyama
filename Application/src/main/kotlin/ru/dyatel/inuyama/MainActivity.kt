@@ -29,7 +29,6 @@ import ru.dyatel.inuyama.screens.DirectoryScreen
 import ru.dyatel.inuyama.screens.HomeScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
 import ru.dyatel.inuyama.screens.ProxyScreen
-import ru.dyatel.inuyama.screens.TransmissionScreen
 import ru.dyatel.inuyama.screens.finance.FinanceDashboardScreen
 import ru.dyatel.inuyama.utilities.grantPermissions
 import ru.dyatel.inuyama.utilities.isVisible
@@ -151,7 +150,6 @@ class MainActivity : SingleActivity(), KodeinAware {
         createMenuItem<PairingScreen>(CommunityMaterial.Icon2.cmd_monitor_cellphone, getString(R.string.module_pairing))
         createMenuItem<ProxyScreen>(CommunityMaterial.Icon.cmd_cloud, getString(R.string.screen_proxy))
         createMenuItem<DirectoryScreen>(CommunityMaterial.Icon.cmd_folder, getString(R.string.screen_directories))
-        createMenuItem<TransmissionScreen>(CommunityMaterial.Icon2.cmd_inbox_arrow_down, getString(R.string.screen_transmission))
     }
 
     @Suppress("UNCHECKED_CAST")
