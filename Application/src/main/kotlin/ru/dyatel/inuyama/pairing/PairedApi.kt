@@ -11,14 +11,13 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
 import ru.dyatel.inuyama.utilities.fromJson
 import ru.sibwaf.inuyama.common.ApiResponse
-import ru.sibwaf.inuyama.common.STATUS_OK
 import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
 
 class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     private val gson by instance<Gson>()
-    private val pairingManager by instance<PairingManager>()
 
+    private val pairingManager by instance<PairingManager>()
     override val networkManager by instance<NetworkManager>()
 
     private val address: String
@@ -26,41 +25,56 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
                 ?.let { "http://${it.address.hostAddress}:${it.port}" }
                 ?: throw IllegalStateException()
 
-    override fun getName(context: Context) = context.getString(R.string.module_pairing)!!
-
-    private fun createConnection(url: String) = createConnection(url, true).ignoreContentType(true)
-
-    private inline fun <reified T : ApiResponse> get(url: String, noinline init: Connection.() -> Unit = {}): T {
-        return createConnection(url)
+    private inline fun <reified T : ApiResponse> request(
+            url: String,
+            method: Connection.Method,
+            crossinline init: Connection.() -> Unit
+    ): T {
+        return createConnection("${address!!}$url", true)
+                .ignoreContentType(true)
                 .apply(init)
-                .get()
-                .let { gson.fromJson(it.text()) }
+                .method(method)
+                .execute()
+                .let { gson.fromJson(it.body()) }
     }
 
-    private inline fun <reified T : ApiResponse> post(url: String, noinline init: Connection.() -> Unit = {}): T {
-        return createConnection(url)
-                .apply(init)
-                .post()
-                .let { gson.fromJson(it.text()) }
+    private inline fun <reified T : ApiResponse> get(
+            url: String,
+            crossinline init: Connection.() -> Unit = {}
+    ): T {
+        return request(url, Connection.Method.GET, init)
+    }
+
+    private inline fun <reified T : ApiResponse> post(
+            url: String,
+            data: Any? = null,
+            crossinline init: Connection.() -> Unit = {}
+    ): T {
+        return request(url, Connection.Method.POST) {
+            init()
+
+            // TODO: encode
+
+            if (data != null) {
+                requestBody(gson.toJson(data))
+            }
+        }
+    }
+
+    fun ping() {
+        get<ApiResponse>("/ping")
     }
 
     fun downloadTorrent(magnet: String, path: String) {
-        post<ApiResponse>("$address/download-torrent") {
-            requestBody(gson.toJson(TorrentDownloadApiRequest(magnet, path)))
-        }
+        post<ApiResponse>("/download-torrent", TorrentDownloadApiRequest(magnet, path))
     }
+
+    override fun getName(context: Context) = context.getString(R.string.module_pairing)!!
 
     override fun checkConnection(): Boolean {
         return try {
-            checkConnection(address)
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    fun checkConnection(address: String): Boolean {
-        return try {
-            get<ApiResponse>("$address/ping").status == STATUS_OK
+            ping()
+            true
         } catch (e: Exception) {
             false
         }
