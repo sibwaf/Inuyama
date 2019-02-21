@@ -5,19 +5,13 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.sibwaf.inuyama.common.DiscoverResponse
 import ru.sibwaf.inuyama.common.Pairing
-import ru.sibwaf.inuyama.common.utilities.Cryptography
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import kotlin.concurrent.thread
 
 class PairingManager(override val kodein: Kodein) : KodeinAware {
 
-    private companion object {
-        val publicKey by lazy {
-            val keyPair = Cryptography.createRSAKeyPair(2048)
-            return@lazy keyPair.public!!
-        }
-    }
+    private val keyKeeper by instance<KeyKeeper>()
 
     private val apiPort by instance<Int>("api-port")
 
@@ -32,7 +26,7 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
 
                 val request = Pairing.decodeDiscoverRequest(requestPacket) ?: continue
 
-                val response = DiscoverResponse(apiPort, publicKey)
+                val response = DiscoverResponse(apiPort, keyKeeper.publicKey)
 
                 val responsePacket = Pairing.encodeDiscoverResponse(response)
                 responsePacket.address = requestPacket.address

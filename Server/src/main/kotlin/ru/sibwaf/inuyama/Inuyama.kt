@@ -17,8 +17,10 @@ import ru.sibwaf.inuyama.torrent.TorrentClient
 import ru.sibwaf.inuyama.torrent.TransmissionClient
 import ru.sibwaf.inuyama.torrent.TransmissionConfiguration
 
-val kodein = Kodein.lazy {
+private val kodein = Kodein.lazy {
     bind<Gson>() with singleton { Gson() }
+
+    bind<KeyKeeper>() with singleton { KeyKeeper() }
 
     bind<TransmissionConfiguration>() with singleton { TransmissionConfiguration() }
     bind<TorrentClient>() with singleton { TransmissionClient(kodein) }

@@ -13,7 +13,7 @@ import java.security.spec.X509EncodedKeySpec
 
 object Cryptography {
 
-    fun createRSAKeyPair(length: Int): KeyPair {
+    fun createRSAKeyPair(length: Int = 2048): KeyPair {
         val generator = KeyPairGenerator.getInstance("RSA")
         generator.initialize(length)
         return generator.genKeyPair()
