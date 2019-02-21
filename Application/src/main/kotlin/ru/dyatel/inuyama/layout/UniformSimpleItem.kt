@@ -48,7 +48,6 @@ import ru.dyatel.inuyama.pairing.DiscoveredServer
 import ru.dyatel.inuyama.utilities.hideIf
 import ru.dyatel.inuyama.utilities.isVisible
 import ru.sibwaf.inuyama.common.utilities.humanReadable
-import java.nio.ByteBuffer
 import java.util.TimeZone
 import kotlin.math.abs
 
@@ -194,14 +193,6 @@ class NetworkItem(val network: Network, trustChangeListener: (Boolean) -> Unit) 
 
 class PairingServerItem(val server: DiscoveredServer, paired: Boolean) : UniformSimpleItem() {
     override val markerColorResource = if (paired) R.color.color_ok else R.color.color_pending
-
-    init {
-        val buffer = ByteBuffer.allocate(4 + 4)
-        buffer.put(server.address.address)
-        buffer.putInt(server.port)
-        buffer.rewind()
-        withIdentifier(buffer.long)
-    }
 
     override fun getTitle(context: Context) = server.key.humanReadable
     override fun getSubtitle(context: Context) = "${server.address}:${server.port}"

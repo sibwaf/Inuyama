@@ -6,7 +6,6 @@
     <string name="screen_directories">Пути</string>
     <string name="screen_networks">Wi-Fi сети</string>
     <string name="screen_proxy">Прокси</string>
-    <string name="screen_transmission">Transmission</string>
     <string name="screen_finance_dashboard">Кошельки</string>
     <string name="screen_finance_categories">Категории</string>
     <string name="screen_finance_new_category">Новая категория</string>
@@ -53,6 +52,7 @@
     <string name="label_watching">Отслеживание обновлений</string>
     <string name="label_pairing_state">Связывать</string>
     <string name="label_finance_amount">%.2f ₽</string>
+    <string name="label_current_network_untrusted">Текущая сеть не является доверенной</string>
 
     <plurals name="ruranobe_volumes">
         <item quantity="one">%d том, %s</item>
@@ -93,10 +93,6 @@
     <string name="hint_nyaa_watch_start_date">Дата начала</string>
     <string name="hint_nyaa_watch_description">Название</string>
     <string name="hint_nyaa_watch_collect_path">Название папки</string>
-
-    <string name="hint_transmission_path">Путь</string>
-    <string name="hint_transmission_username">Имя пользователя</string>
-    <string name="hint_transmission_password">Пароль</string>
 
     <string name="hint_finance_account_balance">Начальный баланс</string>
     <string name="hint_finance_amount">Сумма</string>
