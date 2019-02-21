@@ -14,4 +14,5 @@ class BindSessionApiRequest
 
 class BindSessionApiResponse(val session: String) : ApiResponse(STATUS_OK)
 
+// TODO: replace directories with categories, map to directories on server
 class TorrentDownloadApiRequest(val magnet: String, val path: String) : StatefulApiRequest()
