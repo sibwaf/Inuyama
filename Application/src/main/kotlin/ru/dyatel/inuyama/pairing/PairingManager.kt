@@ -3,9 +3,9 @@ package ru.dyatel.inuyama.pairing
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
@@ -79,7 +79,7 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
             }
         }
 
-        waiter = GlobalScope.launch(Dispatchers.Default) {
+        waiter = GlobalScope.async(Dispatchers.Default) {
             discoverResponseListener.addListener(listener)
             sendDiscoverRequest()
             delay(10000) // TODO: magic constants
