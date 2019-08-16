@@ -44,6 +44,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -51,7 +55,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
 
     implementation "org.kodein.di:kodein-di-generic-jvm:$kodeinVersion"
-    implementation "org.kodein.di:kodein-di-framework-android-core:$kodeinVersion"
+    implementation "org.kodein.di:kodein-di-framework-android-x:$kodeinVersion"
 
     implementation "androidx.appcompat:appcompat:1.0.2"
     implementation "androidx.recyclerview:recyclerview:1.0.0"
@@ -59,7 +63,7 @@ dependencies {
 
     implementation "com.google.android.material:material:1.1.0-alpha02"
 
-    implementation "android.arch.work:work-runtime-ktx:1.0.0-beta02"
+    implementation "androidx.work:work-runtime-ktx:2.2.0"
 
     def ankoVersion = "0.10.8"
     implementation "org.jetbrains.anko:anko-commons:$ankoVersion"
@@ -86,7 +90,7 @@ dependencies {
     implementation "com.mikepenz:iconics-core:3.1.0"
     implementation "com.mikepenz:community-material-typeface:2.7.94.1@aar"
 
-    implementation "com.github.bumptech.glide:glide:4.8.0"
+    implementation "com.github.bumptech.glide:glide:4.9.0"
 
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation "com.google.code.gson:gson:$gsonVersion"

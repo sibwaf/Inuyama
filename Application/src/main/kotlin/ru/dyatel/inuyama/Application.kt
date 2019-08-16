@@ -14,7 +14,7 @@ import io.objectbox.Box
 import io.objectbox.BoxStore
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
-import org.kodein.di.android.androidModule
+import org.kodein.di.android.x.androidXModule
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.provider
@@ -38,7 +38,7 @@ import java.security.PublicKey
 class Application : Application(), KodeinAware {
 
     override val kodein = Kodein.lazy {
-        import(androidModule(this@Application))
+        import(androidXModule(this@Application))
 
         bind<BoxStore>() with singleton {
             MyObjectBox.builder()
