@@ -1,6 +1,8 @@
 package ru.sibwaf.inuyama
 
+import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import io.javalin.Context
 import io.javalin.Javalin
@@ -24,21 +26,32 @@ import ru.sibwaf.inuyama.common.StatefulApiRequest
 import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
 import ru.sibwaf.inuyama.torrent.QBittorrentClient
 import ru.sibwaf.inuyama.torrent.TorrentClient
+import java.nio.file.Files
+import java.nio.file.Paths
 
 private val kodein = Kodein.lazy {
     bind<Gson>() with singleton { Gson() }
     bind<JsonParser>() with singleton { JsonParser() }
 
-    bind<KeyKeeper>() with singleton { KeyKeeper() }
+    bind<InuyamaConfiguration>() with singleton {
+        val gson = GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES)
+                .create()
 
+        val configurationPath = Paths.get("configuration.json")
+        return@singleton if (Files.exists(configurationPath)) {
+            val configurationText = Files.readAllLines(configurationPath).joinToString("\n")
+            gson.fromJson(configurationText)
+        } else {
+            InuyamaConfiguration()
+        }
+    }
+
+    bind<KeyKeeper>() with singleton { KeyKeeper() }
     bind<SessionManager>() with singleton { SessionManager() }
+    bind<PairingManager>() with singleton { PairingManager(kodein) }
 
     bind<TorrentClient>() with singleton { QBittorrentClient(kodein) }
-
-    bind<Javalin>() with singleton { Javalin.create() }
-    bind<Int>("api-port") with singleton { instance<Javalin>().port() }
-
-    bind<PairingManager>() with singleton { PairingManager(kodein) }
 }
 
 private inline fun <reified T> Context.decryptedBody(): T {
@@ -66,50 +79,52 @@ fun main() {
 
     val logger = LoggerFactory.getLogger("Main")
 
+    val configuration by kodein.instance<InuyamaConfiguration>()
     val sessionManager by kodein.instance<SessionManager>()
-
     val torrentClient by kodein.instance<TorrentClient>()
 
-    val javalin by kodein.instance<Javalin>()
-    javalin.start().apply {
-        get("/ping") {
-            it.json(ApiResponse(STATUS_OK))
-        }
+    Javalin.create()
+            .port(configuration.serverPort)
+            .start()
+            .apply {
+                get("/ping") {
+                    it.json(ApiResponse(STATUS_OK))
+                }
 
-        post("/bind-session") {
-            val request = it.body<BindSessionApiRequest>()
+                post("/bind-session") {
+                    val request = it.body<BindSessionApiRequest>()
 
-            // TODO: encrypt session id with client's public key
-            val session = sessionManager.createSession()
-            it.json(BindSessionApiResponse(session))
-        }
+                    // TODO: encrypt session id with client's public key
+                    val session = sessionManager.createSession()
+                    it.json(BindSessionApiResponse(session))
+                }
 
-        post("/download-torrent") {
-            val request = it.decryptedBody<TorrentDownloadApiRequest>()
-            torrentClient.download(request.magnet, request.path)
-            it.json(ApiResponse(STATUS_OK))
-        }
+                post("/download-torrent") {
+                    val request = it.decryptedBody<TorrentDownloadApiRequest>()
+                    torrentClient.download(request.magnet, request.path)
+                    it.json(ApiResponse(STATUS_OK))
+                }
 
-        // TODO: make it more declarative
-        after { ctx ->
-            if (HttpMethod.POST.`is`(ctx.method())) {
-                return@after
+                // TODO: make it more declarative
+                after { ctx ->
+                    if (HttpMethod.POST.`is`(ctx.method())) {
+                        return@after // TODO: WTF
+                    }
+
+                    if (insecurePaths.none { ctx.path().startsWith(it) }) {
+                        // TODO: encrypt response
+                    }
+                }
+
+                exception<SessionException> { _, ctx ->
+                    ctx.json(ApiResponse(STATUS_SESSION_ERROR))
+                }
+
+                exception<Exception> { e, ctx ->
+                    logger.error("Caught an unhandled exception", e)
+                    ctx.json(ApiResponse(STATUS_SERVER_ERROR))
+                }
             }
-
-            if (insecurePaths.none { ctx.path().startsWith(it) }) {
-                // TODO: encrypt response
-            }
-        }
-
-        exception<SessionException> { _, ctx ->
-            ctx.json(ApiResponse(STATUS_SESSION_ERROR))
-        }
-
-        exception<Exception> { e, ctx ->
-            logger.error("Caught an unhandled exception", e)
-            ctx.json(ApiResponse(STATUS_SERVER_ERROR))
-        }
-    }
 
     kodein.direct.instance<PairingManager>().start()
 }

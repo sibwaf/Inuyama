@@ -12,12 +12,11 @@ import kotlin.concurrent.thread
 class PairingManager(override val kodein: Kodein) : KodeinAware {
 
     private val keyKeeper by instance<KeyKeeper>()
-
-    private val apiPort by instance<Int>("api-port")
+    private val configuration by instance<InuyamaConfiguration>()
 
     fun start() {
         thread(isDaemon = true, name = "Discover request listener") {
-            val socket = DatagramSocket(Pairing.DEFAULT_DISCOVER_SERVER_PORT)
+            val socket = DatagramSocket(configuration.discoveryPort)
             val requestBuffer = Pairing.createDiscoverRequestBuffer()
 
             while (true) {
@@ -26,7 +25,7 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
 
                 val request = Pairing.decodeDiscoverRequest(requestPacket) ?: continue
 
-                val response = DiscoverResponse(apiPort, keyKeeper.publicKey)
+                val response = DiscoverResponse(configuration.serverPort, keyKeeper.publicKey)
 
                 val responsePacket = Pairing.encodeDiscoverResponse(response)
                 responsePacket.address = requestPacket.address
