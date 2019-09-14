@@ -18,6 +18,8 @@ import ru.dyatel.inuyama.model.Network_
 import ru.dyatel.inuyama.model.ProxyBinding
 import java.io.IOException
 import java.net.InetAddress
+import java.net.NetworkInterface
+import java.nio.ByteBuffer
 
 class NetworkManager(override val kodein: Kodein) : KodeinAware {
 
@@ -48,13 +50,17 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
         get() {
             val dhcp = wifiManager.dhcpInfo ?: return null
 
-            val broadcast = (dhcp.ipAddress and dhcp.netmask) or dhcp.netmask.inv()
-            val parts = (0 until 4)
-                    .map { broadcast shr (it * 8) }
-                    .map { it.toByte() }
-                    .toByteArray()
+            val ipAddress = ByteBuffer.allocate(4)
+                    .putInt(dhcp.ipAddress)
+                    .array()
+                    .apply { reverse() }
+                    .let { InetAddress.getByAddress(it) }
 
-            return InetAddress.getByAddress(parts)
+            return NetworkInterface.getNetworkInterfaces().asSequence()
+                    .filter { it.inetAddresses.asSequence().contains(ipAddress) }
+                    .flatMap { it.interfaceAddresses.asSequence() }
+                    .mapNotNull { it.broadcast }
+                    .singleOrNull()
         }
 
     val isNetworkTrusted: Boolean
