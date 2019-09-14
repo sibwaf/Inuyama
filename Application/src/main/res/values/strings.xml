@@ -53,6 +53,7 @@
     <string name="label_pairing_state">Связывать</string>
     <string name="label_finance_amount">%.2f ₽</string>
     <string name="label_current_network_untrusted">Текущая сеть не является доверенной</string>
+    <string name="label_pairing_discovery_port">Порт связывания</string>
 
     <plurals name="ruranobe_volumes">
         <item quantity="one">%d том, %s</item>

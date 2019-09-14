@@ -50,7 +50,7 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
 
         val packet = Pairing.encodeDiscoverRequest(request)
         packet.address = networkManager.broadcastAddress!!
-        packet.port = Pairing.DEFAULT_DISCOVER_SERVER_PORT
+        packet.port = preferenceHelper.discoveryPort
 
         DatagramSocket().use {
             it.broadcast = true

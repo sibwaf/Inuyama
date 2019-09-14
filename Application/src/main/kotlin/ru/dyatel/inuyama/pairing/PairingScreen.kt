@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.jetbrains.anko.appcompat.v7.tintedButton
+import org.jetbrains.anko.hintResource
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.padding
@@ -25,15 +26,23 @@ import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.PairingServerItem
+import ru.dyatel.inuyama.layout.components.ElementPicker
+import ru.dyatel.inuyama.layout.components.UniformTextInput
+import ru.dyatel.inuyama.layout.components.uniformTextInput
 import ru.dyatel.inuyama.layout.components.uniformTextView
 import ru.dyatel.inuyama.screens.InuScreen
+import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.isVisible
+import ru.sibwaf.inuyama.common.Pairing
 import ru.sibwaf.inuyama.common.utilities.humanReadable
 
 class PairingView(context: Context) : BaseScreenView<PairingScreen>(context) {
 
     lateinit var unbindButton: Button
+        private set
+
+    lateinit var discoveryPortView: UniformTextInput
         private set
 
     lateinit var untrustedNetworkView: View
@@ -52,6 +61,12 @@ class PairingView(context: Context) : BaseScreenView<PairingScreen>(context) {
                 }
 
                 unbindButton = tintedButton(R.string.action_unbind)
+
+                discoveryPortView = uniformTextInput {
+                    hintResource = R.string.label_pairing_discovery_port
+                }.lparams(width = matchParent, height = wrapContent) {
+                    margin = DIM_LARGE
+                }
 
                 untrustedNetworkView = uniformTextView {
                     textResource = R.string.label_current_network_untrusted
@@ -77,6 +92,7 @@ class PairingScreen : InuScreen<PairingView>() {
 
     private val networkManager by instance<NetworkManager>()
 
+    private val preferenceHelper by instance<PreferenceHelper>()
     private val pairingManager by instance<PairingManager>()
     private val discoverResponseListener by instance<DiscoverResponseListener>()
     private lateinit var discoverListener: (DiscoveredServer) -> Unit
@@ -104,6 +120,14 @@ class PairingScreen : InuScreen<PairingView>() {
                 it.isVisible = false
             }
 
+            val portPicker = ElementPicker(
+                    discoveryPortView.editText!!,
+                    generateSequence(Pairing.DEFAULT_DISCOVER_SERVER_PORT) { it + 1 }.take(100).toList(),
+                    { preferenceHelper.discoveryPort = it }
+            )
+            portPicker.currentValue = preferenceHelper.discoveryPort
+            discoveryPortView.setOnClickListener { portPicker.showDialog(activity!!.supportFragmentManager) }
+
             recyclerView.adapter = serverFastAdapter
         }
     }
@@ -120,15 +144,18 @@ class PairingScreen : InuScreen<PairingView>() {
 
         launchJob(Dispatchers.Default) {
             while (true) {
+                val networkTrusted = networkManager.isNetworkTrusted
+
                 withContext(Dispatchers.Main) {
-                    view.untrustedNetworkView.isVisible = !networkManager.isNetworkTrusted
+                    view.discoveryPortView.isVisible = networkTrusted
+                    view.untrustedNetworkView.isVisible = !networkTrusted
                 }
 
                 servers.removeAll { it !in aliveServers }
                 aliveServers.clear()
                 withContext(Dispatchers.Main) { refresh() }
 
-                if (networkManager.isNetworkTrusted) {
+                if (networkTrusted) {
                     pairingManager.sendDiscoverRequest()
                 }
 

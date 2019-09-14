@@ -11,12 +11,14 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.pairing.PairedServer
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
+import ru.sibwaf.inuyama.common.Pairing
 import java.util.TimeZone
 
 private const val CONFIGURATION_OVERSEER_PERIOD = "overseer_period"
 @Deprecated("Not used anymore", level = DeprecationLevel.ERROR)
 private const val CONFIGURATION_TRANSMISSION = "transmission_configuration"
 private const val CONFIGURATION_RUTRACKER = "rutracker_configuration"
+private const val CONFIGURATION_DISCOVERY_PORT = "discovery_port"
 
 private const val DATA_LAST_CHECK = "overseer_last_check"
 private const val DATA_DEVICE_IDENTIFIER = "device_identifier"
@@ -39,6 +41,12 @@ class PreferenceHelper(context: Context) : KodeinAware {
         get() = gson.fromJson(preferences.getString(CONFIGURATION_RUTRACKER, "{}")!!)
         set(value) {
             preferences.editAndApply { putString(CONFIGURATION_RUTRACKER, gson.toJson(value)) }
+        }
+
+    var discoveryPort: Int
+        get() = preferences.getInt(CONFIGURATION_DISCOVERY_PORT, Pairing.DEFAULT_DISCOVER_SERVER_PORT)
+        set(value) {
+            preferences.editAndApply { putInt(CONFIGURATION_DISCOVERY_PORT, value) }
         }
 
     var lastCheck: DateTime?

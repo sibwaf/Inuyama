@@ -16,7 +16,7 @@ class DiscoverResponse(val port: Int, val key: PublicKey)
 
 object Pairing {
 
-    const val DEFAULT_DISCOVER_SERVER_PORT = 7001
+    const val DEFAULT_DISCOVER_SERVER_PORT = 50505
 
     private val CHARSET = Charsets.US_ASCII
 
