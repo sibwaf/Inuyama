@@ -23,13 +23,13 @@ import org.jetbrains.anko.find
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.finance.FinanceDashboardScreen
 import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.pairing.PairingScreen
 import ru.dyatel.inuyama.screens.DirectoryScreen
 import ru.dyatel.inuyama.screens.HomeScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
 import ru.dyatel.inuyama.screens.ProxyScreen
-import ru.dyatel.inuyama.screens.finance.FinanceDashboardScreen
 import ru.dyatel.inuyama.utilities.grantPermissions
 import ru.dyatel.inuyama.utilities.isVisible
 import java.util.concurrent.atomic.AtomicLong

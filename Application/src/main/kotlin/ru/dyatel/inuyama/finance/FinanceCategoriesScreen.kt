@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.screens.finance
+package ru.dyatel.inuyama.finance
 
 import android.content.Context
 import android.widget.Button

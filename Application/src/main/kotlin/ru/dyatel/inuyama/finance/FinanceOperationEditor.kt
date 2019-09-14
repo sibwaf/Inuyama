@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.layout.components
+package ru.dyatel.inuyama.finance
 
 import android.content.Context
 import android.view.Gravity
@@ -19,7 +19,6 @@ import org.jetbrains.anko.hintResource
 import org.jetbrains.anko.horizontalMargin
 import org.jetbrains.anko.imageView
 import org.jetbrains.anko.leftOf
-import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.padding
 import org.jetbrains.anko.relativeLayout
@@ -28,6 +27,12 @@ import org.jetbrains.anko.verticalMargin
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_LARGE
+import ru.dyatel.inuyama.layout.components.FinanceAccountSelector
+import ru.dyatel.inuyama.layout.components.FinanceCategorySelector
+import ru.dyatel.inuyama.layout.components.UniformDoubleInput
+import ru.dyatel.inuyama.layout.components.financeAccountSelector
+import ru.dyatel.inuyama.layout.components.financeCategorySelector
+import ru.dyatel.inuyama.layout.components.uniformDoubleInput
 import ru.dyatel.inuyama.utilities.isVisible
 
 class FinanceOperationEditor(context: Context) : _CardView(context) {
