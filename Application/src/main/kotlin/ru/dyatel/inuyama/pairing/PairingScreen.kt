@@ -127,7 +127,7 @@ class PairingScreen : InuScreen<PairingView>() {
                     { preferenceHelper.discoveryPort = it }
             )
             portPicker.currentValue = preferenceHelper.discoveryPort
-            discoveryPortView.setOnClickListener { portPicker.showDialog(activity!!.supportFragmentManager) }
+            discoveryPortView.editText!!.setOnClickListener { portPicker.showDialog(activity!!.supportFragmentManager) }
 
             recyclerView.adapter = serverFastAdapter
         }
