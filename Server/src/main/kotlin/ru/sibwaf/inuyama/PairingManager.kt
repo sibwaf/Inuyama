@@ -25,7 +25,7 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
 
                 val request = Pairing.decodeDiscoverRequest(requestPacket) ?: continue
 
-                val response = DiscoverResponse(configuration.serverPort, keyKeeper.publicKey)
+                val response = DiscoverResponse(configuration.serverPort, keyKeeper.keyPair.public)
 
                 val responsePacket = Pairing.encodeDiscoverResponse(response)
                 responsePacket.address = requestPacket.address
