@@ -79,6 +79,7 @@ class PairingView(context: Context) : BaseScreenView<PairingScreen>(context) {
                 recyclerView = recyclerView {
                     lparams(width = matchParent, height = wrapContent)
                     layoutManager = LinearLayoutManager(context)
+                    itemAnimator = null
                 }
             }
         }
@@ -167,7 +168,6 @@ class PairingScreen : InuScreen<PairingView>() {
     }
 
     private fun refresh() {
-        // TODO: stop this awful blinking
         val list = servers.sortedBy { it.key.humanReadable }
         serverAdapter.set(list.map {
             PairingServerItem(it, pairingManager.equalsToPaired(it)).apply {
