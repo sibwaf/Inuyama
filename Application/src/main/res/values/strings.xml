@@ -8,6 +8,7 @@
     <string name="screen_proxy">Прокси</string>
     <string name="screen_finance_dashboard">Кошельки</string>
     <string name="screen_finance_categories">Категории</string>
+    <string name="screen_finance_new_account">Новый кошелёк</string>
     <string name="screen_finance_new_category">Новая категория</string>
 
     <string name="module_rutracker">Rutracker</string>
@@ -24,7 +25,6 @@
     <string name="dialog_add_proxy">Добавление прокси</string>
     <string name="dialog_add_directory">Добавление пути</string>
     <string name="dialog_add_watch">Добавление отслеживания</string>
-    <string name="dialog_add_finance_account">Добавление кошелька</string>
     <string name="dialog_remove_watch_title">Удаление отслеживания</string>
     <string name="dialog_remove_watch_message">Перестаём отслеживать %s?</string>
     <string name="dialog_select_proxy">Выбор прокси</string>

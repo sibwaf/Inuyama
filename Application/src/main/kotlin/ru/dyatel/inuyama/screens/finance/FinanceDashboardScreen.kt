@@ -1,6 +1,5 @@
 package ru.dyatel.inuyama.screens.finance
 
-import android.app.AlertDialog
 import android.content.Context
 import android.view.ViewGroup
 import android.widget.Button
@@ -19,12 +18,9 @@ import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.FinanceAccountItem
 import ru.dyatel.inuyama.layout.FinanceOperationItem
-import ru.dyatel.inuyama.layout.components.FinanceAccountEditor
-import ru.dyatel.inuyama.layout.components.financeAccountEditor
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceOperation
 import ru.dyatel.inuyama.screens.InuScreen
@@ -53,12 +49,12 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                     padding = DIM_LARGE
                 }
 
+                addAccountButton = tintedButton(R.string.finance_button_add_account)
+
                 accountRecyclerView = recyclerView {
                     lparams(width = matchParent, height = wrapContent)
                     layoutManager = LinearLayoutManager(context)
                 }
-
-                addAccountButton = tintedButton(R.string.finance_button_add_account)
 
                 categoriesButton = tintedButton(R.string.finance_button_categories)
 
@@ -94,7 +90,9 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     override fun createView(context: Context): FinanceDashboardView {
         return FinanceDashboardView(context).apply {
             accountRecyclerView.adapter = accountFastAdapter
-            addAccountButton.setOnClickListener { addAccount() }
+            addAccountButton.setOnClickListener {
+                navigator.goTo(FinanceAccountScreen(FinanceAccount()))
+            }
 
             categoriesButton.setOnClickListener { navigator.goTo(FinanceCategoriesScreen()) }
 
@@ -123,27 +121,5 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
                 .sortedByDescending { it.datetime }
                 .map { FinanceOperationItem(it) }
                 .let { operationAdapter.set(it) }
-    }
-
-    private fun addAccount() {
-        lateinit var editor: FinanceAccountEditor
-
-        val view = context!!.verticalLayout {
-            lparams(width = matchParent, height = wrapContent) {
-                padding = DIM_EXTRA_LARGE
-            }
-
-            editor = financeAccountEditor()
-        }
-
-        AlertDialog.Builder(context!!)
-                .setTitle(R.string.dialog_add_finance_account)
-                .setView(view)
-                .setPositiveButton(R.string.action_save) { _, _ ->
-                    accountStore.put(FinanceAccount(name = editor.name, initialBalance = editor.initialBalance))
-                }
-                .setNegativeButton(R.string.action_cancel) { _, _ -> }
-                .show()
-
     }
 }

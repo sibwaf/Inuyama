@@ -6,6 +6,7 @@ import com.wealthfront.magellan.BaseScreenView
 import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import org.jetbrains.anko.appcompat.v7.tintedButton
+import org.jetbrains.anko.hintResource
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.support.v4.nestedScrollView
@@ -15,14 +16,18 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
-import ru.dyatel.inuyama.layout.components.FinanceAccountEditor
 import ru.dyatel.inuyama.layout.components.FinanceOperationEditor
-import ru.dyatel.inuyama.layout.components.financeAccountEditor
+import ru.dyatel.inuyama.layout.components.UniformDoubleInput
+import ru.dyatel.inuyama.layout.components.UniformTextInput
 import ru.dyatel.inuyama.layout.components.financeOperationEditor
+import ru.dyatel.inuyama.layout.components.uniformDoubleInput
+import ru.dyatel.inuyama.layout.components.uniformTextInput
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceOperation
 import ru.dyatel.inuyama.screens.InuScreen
+import ru.dyatel.inuyama.utilities.capitalizeSentences
+import ru.dyatel.inuyama.utilities.isVisible
 import java.util.TimeZone
 
 // TODO: support account creation
@@ -31,9 +36,11 @@ class FinanceAccountView(context: Context) : BaseScreenView<FinanceAccountScreen
     lateinit var financeOperationEditor: FinanceOperationEditor
         private set
 
-    lateinit var accountEditor: FinanceAccountEditor
+    lateinit var nameEditor: UniformTextInput
         private set
-    lateinit var accountSaveButton: Button
+    lateinit var initialBalanceEditor: UniformDoubleInput
+        private set
+    lateinit var saveButton: Button
         private set
 
     init {
@@ -44,16 +51,21 @@ class FinanceAccountView(context: Context) : BaseScreenView<FinanceAccountScreen
                 }
 
                 financeOperationEditor = financeOperationEditor {
-                    lparams(width = matchParent, height = wrapContent)
-                }
-
-                accountEditor = financeAccountEditor {
                     lparams(width = matchParent, height = wrapContent) {
-                        topMargin = DIM_EXTRA_LARGE
+                        bottomMargin = DIM_EXTRA_LARGE
                     }
                 }
 
-                accountSaveButton = tintedButton(R.string.action_save)
+                nameEditor = uniformTextInput {
+                    hintResource = R.string.hint_name
+                    capitalizeSentences()
+                }
+
+                initialBalanceEditor = uniformDoubleInput {
+                    hintResource = R.string.hint_finance_account_balance
+                }
+
+                saveButton = tintedButton(R.string.action_save)
             }
         }
     }
@@ -61,14 +73,21 @@ class FinanceAccountView(context: Context) : BaseScreenView<FinanceAccountScreen
 
 class FinanceAccountScreen(private val account: FinanceAccount) : InuScreen<FinanceAccountView>(), KodeinAware {
 
-    override val titleText = account.name
+    private val existingAccount = account.id != 0L
 
     private val accountBox by instance<Box<FinanceAccount>>()
     private val categoryBox by instance<Box<FinanceCategory>>()
     private val operationBox by instance<Box<FinanceOperation>>()
 
+    override fun getTitle(context: Context) = if (existingAccount) account.name else context.getString(R.string.screen_finance_new_account)!!
+
     override fun createView(context: Context) = FinanceAccountView(context).apply {
         with(financeOperationEditor) {
+            if (!existingAccount) {
+                isVisible = false
+                return@with
+            }
+
             currentAccountSelector.bindItems(listOf(account))
             currentAccountSelector.isEnabled = false
 
@@ -126,11 +145,16 @@ class FinanceAccountScreen(private val account: FinanceAccount) : InuScreen<Fina
             }
         }
 
-        accountEditor.bindAccountData(account)
-        accountSaveButton.setOnClickListener {
-            account.name = view.accountEditor.name
-            account.initialBalance = view.accountEditor.initialBalance
+        nameEditor.text = account.name
+        initialBalanceEditor.value = account.initialBalance
+        saveButton.setOnClickListener {
+            account.name = nameEditor.text
+            account.initialBalance = initialBalanceEditor.value
             accountBox.put(account)
+
+            if (!existingAccount) {
+                navigator.goBack()
+            }
         }
     }
 }
