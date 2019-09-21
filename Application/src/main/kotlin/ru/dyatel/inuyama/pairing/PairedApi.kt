@@ -13,9 +13,11 @@ import ru.dyatel.inuyama.utilities.fromJson
 import ru.sibwaf.inuyama.common.BindSessionApiRequest
 import ru.sibwaf.inuyama.common.BindSessionApiResponse
 import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
+import ru.sibwaf.inuyama.common.utilities.CommonUtilities
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
 import java.net.ConnectException
+import java.util.Arrays
 import javax.crypto.SecretKey
 
 class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
@@ -108,11 +110,15 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
     private fun bindSession() {
         try {
             val server = pairingManager.findPairedServer() ?: throw PairedSessionException("Paired device is not available")
-
             val address = "${server.address.hostAddress}:${server.port}"
 
             val deviceKeyPair = pairingManager.deviceKeyPair
-            val request = BindSessionApiRequest(Encoding.encodeBase64(Encoding.encodeRSAPublicKey(deviceKeyPair.public)))
+
+            val challenge = Encoding.stringToBytes(CommonUtilities.generateRandomString(64, CommonUtilities.ALPHABET_ALNUM))
+            val request = BindSessionApiRequest(
+                    key = Encoding.encodeBase64(Encoding.encodeRSAPublicKey(deviceKeyPair.public)),
+                    challenge = Encoding.encodeBase64(Cryptography.encryptRSA(challenge, server.key))
+            )
 
             val response = createConnection("http://$address/bind-session", true)
                     .ignoreContentType(true)
@@ -122,9 +128,16 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
                     .body()
                     .let { gson.fromJson<BindSessionApiResponse>(it) }
 
-            val token = Encoding.bytesToString(Cryptography.decryptRSA(Encoding.decodeBase64(response.token), deviceKeyPair.private))
-            val key = Encoding.decodeAESKey(Cryptography.decryptRSA(Encoding.decodeBase64(response.key), deviceKeyPair.private))
-            session = Session(address, token, key)
+            val solvedChallenge = Cryptography.decryptRSA(Encoding.decodeBase64(response.challenge), deviceKeyPair.private)
+            if (!Arrays.equals(challenge, solvedChallenge)) {
+                throw PairedSessionException("Server failed to solve challenge") // TODO: critical
+            }
+
+            session = Session(
+                    address = address,
+                    token = Encoding.bytesToString(Cryptography.decryptRSA(Encoding.decodeBase64(response.token), deviceKeyPair.private)),
+                    key = Encoding.decodeAESKey(Cryptography.decryptRSA(Encoding.decodeBase64(response.key), deviceKeyPair.private))
+            )
         } catch (e: Exception) {
             session = null
 

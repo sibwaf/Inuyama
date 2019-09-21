@@ -75,6 +75,7 @@ fun main() {
     val logger = LoggerFactory.getLogger("Main")
 
     val configuration by kodein.instance<InuyamaConfiguration>()
+    val keyKeeper by kodein.instance<KeyKeeper>()
     val sessionManager by kodein.instance<SessionManager>()
     val torrentClient by kodein.instance<TorrentClient>()
 
@@ -85,15 +86,16 @@ fun main() {
                 get("/ping") {}
 
                 post("/bind-session") { ctx ->
-                    // TODO: add challenge to prove server identity
                     val request = ctx.body<BindSessionApiRequest>()
                     val clientKey = Encoding.decodeRSAPublicKey(Encoding.decodeBase64(request.key))
+                    val challenge = Cryptography.decryptRSA(Encoding.decodeBase64(request.challenge), keyKeeper.keyPair.private)
 
                     val session = sessionManager.createSession()
 
                     val response = BindSessionApiResponse(
-                            Encoding.encodeBase64(Cryptography.encryptRSA(Encoding.stringToBytes(session.token), clientKey)),
-                            Encoding.encodeBase64(Cryptography.encryptRSA(Encoding.encodeAESKey(session.key), clientKey))
+                            challenge = Encoding.encodeBase64(Cryptography.encryptRSA(challenge, clientKey)),
+                            token = Encoding.encodeBase64(Cryptography.encryptRSA(Encoding.stringToBytes(session.token), clientKey)),
+                            key = Encoding.encodeBase64(Cryptography.encryptRSA(Encoding.encodeAESKey(session.key), clientKey))
                     )
 
                     ctx.json(response)
