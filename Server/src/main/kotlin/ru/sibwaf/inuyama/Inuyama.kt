@@ -9,21 +9,17 @@ import io.javalin.Javalin
 import io.javalin.json.FromJsonMapper
 import io.javalin.json.JavalinJson
 import io.javalin.json.ToJsonMapper
-import org.eclipse.jetty.http.HttpMethod
 import org.kodein.di.Kodein
 import org.kodein.di.direct
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
 import org.slf4j.LoggerFactory
-import ru.sibwaf.inuyama.common.ApiResponse
 import ru.sibwaf.inuyama.common.BindSessionApiRequest
 import ru.sibwaf.inuyama.common.BindSessionApiResponse
-import ru.sibwaf.inuyama.common.STATUS_OK
-import ru.sibwaf.inuyama.common.STATUS_SERVER_ERROR
-import ru.sibwaf.inuyama.common.STATUS_SESSION_ERROR
-import ru.sibwaf.inuyama.common.StatefulApiRequest
 import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
+import ru.sibwaf.inuyama.common.utilities.Cryptography
+import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.torrent.QBittorrentClient
 import ru.sibwaf.inuyama.torrent.TorrentClient
 import java.nio.file.Files
@@ -54,14 +50,13 @@ private val kodein = Kodein.lazy {
     bind<TorrentClient>() with singleton { QBittorrentClient(kodein) }
 }
 
+private const val ATTRIBUTE_SESSION = "sibwaf.inuyama.session"
+
 private inline fun <reified T> Context.decryptedBody(): T {
-    val request = body<StatefulApiRequest>()
+    val session = attribute<Session>(ATTRIBUTE_SESSION)
 
     val gson by kodein.instance<Gson>()
-    val sessionManager by kodein.instance<SessionManager>()
-
-    sessionManager.findSession(request.session) ?: throw SessionException()
-
+    // TODO: decrypt
     return gson.fromJson(body())
 }
 
@@ -87,42 +82,54 @@ fun main() {
             .port(configuration.serverPort)
             .start()
             .apply {
-                get("/ping") {
-                    it.json(ApiResponse(STATUS_OK))
-                }
+                get("/ping") {}
 
-                post("/bind-session") {
-                    val request = it.body<BindSessionApiRequest>()
+                post("/bind-session") { ctx ->
+                    // TODO: add challenge to prove server identity
+                    val request = ctx.body<BindSessionApiRequest>()
+                    val clientKey = Encoding.decodeRSAPublicKey(Encoding.decodeBase64(request.key))
 
-                    // TODO: encrypt session id with client's public key
                     val session = sessionManager.createSession()
-                    it.json(BindSessionApiResponse(session))
+
+                    val response = BindSessionApiResponse(
+                            Encoding.encodeBase64(Cryptography.encryptRSA(Encoding.stringToBytes(session.token), clientKey)),
+                            Encoding.encodeBase64(Cryptography.encryptRSA(Encoding.encodeAESKey(session.key), clientKey))
+                    )
+
+                    ctx.json(response)
                 }
 
-                post("/download-torrent") {
-                    val request = it.decryptedBody<TorrentDownloadApiRequest>()
+                post("/download-torrent") { ctx ->
+                    val request = ctx.decryptedBody<TorrentDownloadApiRequest>()
                     torrentClient.download(request.magnet, request.path)
-                    it.json(ApiResponse(STATUS_OK))
                 }
 
-                // TODO: make it more declarative
-                after { ctx ->
-                    if (HttpMethod.POST.`is`(ctx.method())) {
-                        return@after // TODO: WTF
+                before { ctx ->
+                    if (insecurePaths.any { ctx.path().startsWith(it) }) {
+                        return@before
                     }
 
-                    if (insecurePaths.none { ctx.path().startsWith(it) }) {
-                        // TODO: encrypt response
-                    }
+                    val session = ctx.header("Authorization")
+                            ?.takeIf { it.startsWith("Bearer ") }
+                            ?.removePrefix("Bearer ")
+                            ?.let { sessionManager.findSession(it) }
+                            ?: throw SessionException()
+
+                    ctx.attribute(ATTRIBUTE_SESSION, session)
+                }
+
+                after { ctx ->
+                    val session = ctx.attribute<Session>(ATTRIBUTE_SESSION) ?: return@after
+                    // TODO: encrypt response body
                 }
 
                 exception<SessionException> { _, ctx ->
-                    ctx.json(ApiResponse(STATUS_SESSION_ERROR))
+                    ctx.status(401)
                 }
 
                 exception<Exception> { e, ctx ->
                     logger.error("Caught an unhandled exception", e)
-                    ctx.json(ApiResponse(STATUS_SERVER_ERROR))
+                    ctx.status(500)
                 }
             }
 

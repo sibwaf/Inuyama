@@ -12,6 +12,8 @@ import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.pairing.PairedServer
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.sibwaf.inuyama.common.Pairing
+import ru.sibwaf.inuyama.common.utilities.Encoding
+import java.security.KeyPair
 import java.util.TimeZone
 
 private const val CONFIGURATION_OVERSEER_PERIOD = "overseer_period"
@@ -21,6 +23,7 @@ private const val CONFIGURATION_RUTRACKER = "rutracker_configuration"
 private const val CONFIGURATION_DISCOVERY_PORT = "discovery_port"
 
 private const val DATA_LAST_CHECK = "overseer_last_check"
+private const val DATA_DEVICE_KEYPAIR = "rsa_keypair"
 private const val DATA_DEVICE_IDENTIFIER = "device_identifier"
 private const val DATA_PAIRED_SERVER = "paired_server"
 
@@ -43,12 +46,6 @@ class PreferenceHelper(context: Context) : KodeinAware {
             preferences.editAndApply { putString(CONFIGURATION_RUTRACKER, gson.toJson(value)) }
         }
 
-    var discoveryPort: Int
-        get() = preferences.getInt(CONFIGURATION_DISCOVERY_PORT, Pairing.DEFAULT_DISCOVER_SERVER_PORT)
-        set(value) {
-            preferences.editAndApply { putInt(CONFIGURATION_DISCOVERY_PORT, value) }
-        }
-
     var lastCheck: DateTime?
         get() {
             return preferences.getLong(DATA_LAST_CHECK, -1)
@@ -57,6 +54,18 @@ class PreferenceHelper(context: Context) : KodeinAware {
         }
         set(value) {
             preferences.editAndApply { putLong(DATA_LAST_CHECK, value?.getMilliseconds(TimeZone.getDefault()) ?: -1) }
+        }
+
+    var discoveryPort: Int
+        get() = preferences.getInt(CONFIGURATION_DISCOVERY_PORT, Pairing.DEFAULT_DISCOVER_SERVER_PORT)
+        set(value) {
+            preferences.editAndApply { putInt(CONFIGURATION_DISCOVERY_PORT, value) }
+        }
+
+    var keyPair: KeyPair?
+        get() = preferences.getString(DATA_DEVICE_KEYPAIR, null)?.let { Encoding.decodeRSAKeyPair(Encoding.decodeBase64(it)) }
+        set(value) {
+            preferences.editAndApply { putString(DATA_DEVICE_KEYPAIR, value?.let { Encoding.encodeBase64(Encoding.encodeRSAKeyPair(it)) })}
         }
 
     var deviceIdentifier: String?

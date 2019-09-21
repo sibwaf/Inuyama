@@ -10,18 +10,17 @@ import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
 import ru.dyatel.inuyama.utilities.fromJson
-import ru.sibwaf.inuyama.common.ApiResponse
 import ru.sibwaf.inuyama.common.BindSessionApiRequest
 import ru.sibwaf.inuyama.common.BindSessionApiResponse
-import ru.sibwaf.inuyama.common.STATUS_OK
-import ru.sibwaf.inuyama.common.STATUS_SESSION_ERROR
-import ru.sibwaf.inuyama.common.StatefulApiRequest
 import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
+import ru.sibwaf.inuyama.common.utilities.Cryptography
+import ru.sibwaf.inuyama.common.utilities.Encoding
 import java.net.ConnectException
+import javax.crypto.SecretKey
 
 class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
-    private data class Session(val address: String, val id: String) // TODO: key
+    private data class Session(val address: String, val token: String, val key: SecretKey)
 
     private val gson by instance<Gson>()
 
@@ -30,7 +29,7 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     private var session: Session? = null
 
-    private inline fun <reified T : ApiResponse> request(
+    private inline fun <reified T> request(
             url: String,
             method: Connection.Method,
             allowNewSession: Boolean,
@@ -52,15 +51,16 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
             val response = createConnection("http://${session.address}$url", true)
                     .ignoreContentType(true)
+                    .ignoreHttpErrors(true)
+                    .header("Authorization", "Bearer ${session.token}")
                     .apply(init)
                     .method(method)
                     .execute()
-                    .let { gson.fromJson<T>(it.body()) }
 
-            when (response.status) {
-                STATUS_OK -> return@requester response
-                STATUS_SESSION_ERROR -> throw PairedSessionException()
-                else -> throw PairedApiException("Bad status code: ${response.status}")
+            when (response.statusCode()) {
+                200 -> return@requester gson.fromJson<T>(response.body()) // TODO: decrypt
+                401 -> throw PairedSessionException("Token was rejected")
+                else -> throw PairedApiException("Bad HTTP status ${response.statusCode()}")
             }
         }
 
@@ -80,7 +80,7 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
         }
     }
 
-    private inline fun <reified T : ApiResponse> get(
+    private inline fun <reified T> get(
             url: String,
             allowNewSession: Boolean = true,
             crossinline init: Connection.() -> Unit = {}
@@ -88,43 +88,43 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
         return request(url, Connection.Method.GET, allowNewSession, init)
     }
 
-    private inline fun <reified T : ApiResponse> post(
+    private inline fun <reified T> post(
             url: String,
             data: Any? = null,
             allowNewSession: Boolean = true,
             crossinline init: Connection.() -> Unit = {}
     ): T {
         return request(url, Connection.Method.POST, allowNewSession) {
-            init()
-
             if (data != null) {
-                if (data is StatefulApiRequest) {
-                    val session = session ?: throw PairedSessionException("No session is bound")
-
-                    data.session = session.id
-                    // TODO: encode
-                }
-
-                requestBody(gson.toJson(data))
+                val body = gson.toJson(data)
+                // TODO: encrypt body
+                requestBody(body)
             }
+
+            init()
         }
     }
 
-    fun ping() {
-        // TODO: is session necessary?
-        get<ApiResponse>("/ping")
-    }
-
-    fun bindSession() {
+    private fun bindSession() {
         try {
             val server = pairingManager.findPairedServer() ?: throw PairedSessionException("Paired device is not available")
 
             val address = "${server.address.hostAddress}:${server.port}"
-            session = Session(address, "")
 
-            // TODO: create a key, attach device id
-            val response = post<BindSessionApiResponse>("/bind-session", BindSessionApiRequest(), false)
-            session = Session(address, response.session)
+            val deviceKeyPair = pairingManager.deviceKeyPair
+            val request = BindSessionApiRequest(Encoding.encodeBase64(Encoding.encodeRSAPublicKey(deviceKeyPair.public)))
+
+            val response = createConnection("http://$address/bind-session", true)
+                    .ignoreContentType(true)
+                    .requestBody(gson.toJson(request))
+                    .method(Connection.Method.POST)
+                    .execute()
+                    .body()
+                    .let { gson.fromJson<BindSessionApiResponse>(it) }
+
+            val token = Encoding.bytesToString(Cryptography.decryptRSA(Encoding.decodeBase64(response.token), deviceKeyPair.private))
+            val key = Encoding.decodeAESKey(Cryptography.decryptRSA(Encoding.decodeBase64(response.key), deviceKeyPair.private))
+            session = Session(address, token, key)
         } catch (e: Exception) {
             session = null
 
@@ -137,14 +137,14 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
     }
 
     fun downloadTorrent(magnet: String, path: String) {
-        post<ApiResponse>("/download-torrent", TorrentDownloadApiRequest(magnet, path))
+        post<Unit>("/download-torrent", TorrentDownloadApiRequest(magnet, path))
     }
 
-    override fun getName(context: Context) = context.getString(R.string.module_pairing)!!
+    override fun getName(context: Context): String = context.getString(R.string.module_pairing)
 
     override fun checkConnection(): Boolean {
         return try {
-            ping()
+            get<Unit>("/ping")
             true
         } catch (e: Exception) {
             false

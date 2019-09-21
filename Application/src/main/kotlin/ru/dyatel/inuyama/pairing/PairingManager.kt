@@ -14,7 +14,9 @@ import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.sibwaf.inuyama.common.DiscoverRequest
 import ru.sibwaf.inuyama.common.Pairing
+import ru.sibwaf.inuyama.common.utilities.Cryptography
 import java.net.DatagramSocket
+import java.security.KeyPair
 import java.security.PublicKey
 
 data class PairedServer(val key: PublicKey)
@@ -26,6 +28,9 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
 
     private val preferenceHelper by instance<PreferenceHelper>()
 
+    val deviceKeyPair: KeyPair
+        get() = preferenceHelper.keyPair ?: regenerateDeviceKeyPair()
+
     val deviceIdentifier: String
         get() = preferenceHelper.deviceIdentifier ?: regenerateDeviceIdentifier()
 
@@ -34,6 +39,12 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
         set(value) {
             preferenceHelper.pairedServer = value
         }
+
+    fun regenerateDeviceKeyPair(): KeyPair {
+        val keyPair = Cryptography.createRSAKeyPair()
+        preferenceHelper.keyPair = keyPair
+        return keyPair
+    }
 
     fun regenerateDeviceIdentifier(): String {
         val identifier = Pairing.generateDeviceIdentifier()

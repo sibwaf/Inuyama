@@ -1,34 +1,33 @@
 package ru.sibwaf.inuyama
 
+import ru.sibwaf.inuyama.common.utilities.Cryptography
 import java.security.SecureRandom
+import javax.crypto.SecretKey
 import kotlin.streams.toList
 
-// TODO: key, TTL
-class Session
+data class Session(val token: String, val key: SecretKey)
 
 class SessionManager {
 
     private companion object {
-        const val SESSION_ID_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-        const val SESSION_ID_LENGTH = 64
+        const val TOKEN_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        const val TOKEN_LENGTH = 64
     }
 
     private val random = SecureRandom()
 
     private val sessions = mutableMapOf<String, Session>()
 
-    fun findSession(id: String): Session? = sessions[id]
+    fun findSession(token: String): Session? = sessions[token]
 
-    fun createSession(): String {
-        val id = random.ints(SESSION_ID_LENGTH.toLong(), 0, SESSION_ID_ALPHABET.length)
+    fun createSession(): Session {
+        val token = random.ints(TOKEN_LENGTH.toLong(), 0, TOKEN_ALPHABET.length)
                 .toList()
-                .map { SESSION_ID_ALPHABET[it] }
-                .toCharArray()
-                .let { String(it) }
+                .map { TOKEN_ALPHABET[it] }
+                .joinToString("")
 
-        sessions[id] = Session()
-
-        return id
+        val session = Session(token, Cryptography.createAESKey())
+        return session.also { sessions[token] = it }
     }
 
 }
