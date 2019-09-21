@@ -32,7 +32,7 @@ import ru.dyatel.inuyama.pairing.PairingManager
 import ru.dyatel.inuyama.utilities.NoJson
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
-import ru.sibwaf.inuyama.common.utilities.Cryptography
+import ru.sibwaf.inuyama.common.utilities.Encoding
 import java.security.PublicKey
 
 class Application : Application(), KodeinAware {
@@ -64,12 +64,12 @@ class Application : Application(), KodeinAware {
                                 return
                             }
 
-                            writer.value(Cryptography.encodeRSAPublicKeyBase64(value))
+                            writer.value(Encoding.encodeBase64(Encoding.encodeRSAPublicKey(value)))
                         }
 
                         override fun read(reader: JsonReader): PublicKey? {
                             val value = reader.nextString() ?: return null
-                            return Cryptography.decodeRSAPublicKeyBase64(value)
+                            return Encoding.decodeRSAPublicKey(Encoding.decodeBase64(value))
                         }
                     })
                     .setPrettyPrinting()

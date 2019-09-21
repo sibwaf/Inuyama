@@ -1,6 +1,7 @@
 package ru.sibwaf.inuyama
 
 import ru.sibwaf.inuyama.common.utilities.Cryptography
+import ru.sibwaf.inuyama.common.utilities.Encoding
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -11,10 +12,10 @@ class KeyKeeper {
 
         if (Files.exists(file)) {
             val bytes = Files.readAllBytes(file)
-            return@lazy Cryptography.decodeRSAKeyPair(bytes)
+            return@lazy Encoding.decodeRSAKeyPair(bytes)
         } else {
             val pair = Cryptography.createRSAKeyPair()
-            Files.write(file, Cryptography.encodeRSAKeyPair(pair))
+            Files.write(file, Encoding.encodeRSAKeyPair(pair))
             return@lazy pair
         }
     }

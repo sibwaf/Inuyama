@@ -1,6 +1,6 @@
 package ru.sibwaf.inuyama.common
 
-import ru.sibwaf.inuyama.common.utilities.Cryptography
+import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.common.utilities.readInt
 import ru.sibwaf.inuyama.common.utilities.writeInt
 import java.io.ByteArrayInputStream
@@ -57,7 +57,7 @@ mEpkLHxO2BxXRg88OkWuBtMRCXbL3jZFwXlyEv0zHobRFr5xWH1GZkaYwDjh4aRS
     }
 
     private fun ByteArrayOutputStream.writePublicKey(key: PublicKey) {
-        val encoded = Cryptography.encodeRSAPublicKey(key)
+        val encoded = Encoding.encodeRSAPublicKey(key)
         if (encoded.size > DISCOVER_RESPONSE_MAX_KEY_LENGTH) {
             throw IllegalArgumentException("Key is too long: ${encoded.size}")
         }
@@ -71,7 +71,7 @@ mEpkLHxO2BxXRg88OkWuBtMRCXbL3jZFwXlyEv0zHobRFr5xWH1GZkaYwDjh4aRS
 
         val buffer = ByteArray(length)
         read(buffer, 0, buffer.size)
-        return Cryptography.decodeRSAPublicKey(buffer)
+        return Encoding.decodeRSAPublicKey(buffer)
     }
 
     fun createDiscoverRequestBuffer() = ByteArray(DISCOVER_REQUEST_LENGTH)
