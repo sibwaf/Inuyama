@@ -7,8 +7,8 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.NetworkManager
-import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.ProxyableRemoteService
+import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.SERVICE_NYAA
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.utilities.asDateTime
@@ -61,7 +61,7 @@ class NyaaApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteService
             return NyaaTorrent(
                     id,
                     element.getElementsByTag("title").single().text(),
-                    element.getElementsByTag("link").single().text(),
+                    extractMagnet(element.getElementsByTag("guid").single().text()),
                     element.getElementsByTag("nyaa:infoHash").single().text(),
                     parseDatetime(element.getElementsByTag("pubDate").single().text()),
                     false
@@ -69,6 +69,12 @@ class NyaaApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteService
         } catch (e: Exception) {
             throw e // TODO: wrap into another exception
         }
+    }
+
+    private fun extractMagnet(viewLink: String): String {
+        val document = createConnection(viewLink, false).get()
+        document.getElementById("comments").remove()
+        return document.select("[href^='magnet:']").single().attr("href")
     }
 
     private fun parseDatetime(text: String) = datetimeFormat.parse(text).asDateTime
