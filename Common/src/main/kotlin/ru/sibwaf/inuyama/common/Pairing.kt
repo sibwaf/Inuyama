@@ -1,5 +1,6 @@
 package ru.sibwaf.inuyama.common
 
+import ru.sibwaf.inuyama.common.utilities.CommonUtilities
 import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.common.utilities.readInt
 import ru.sibwaf.inuyama.common.utilities.writeInt
@@ -8,7 +9,6 @@ import java.io.ByteArrayOutputStream
 import java.net.DatagramPacket
 import java.security.PublicKey
 import java.util.Arrays
-import kotlin.random.Random
 
 class DiscoverRequest(val port: Int)
 
@@ -33,20 +33,9 @@ mEpkLHxO2BxXRg88OkWuBtMRCXbL3jZFwXlyEv0zHobRFr5xWH1GZkaYwDjh4aRS
     private val DISCOVER_REQUEST_LENGTH = DISCOVER_PREFIX_LENGTH + 2 * 4
     private val DISCOVER_RESPONSE_LENGTH = DISCOVER_PREFIX_LENGTH + 2 * 4 + DISCOVER_RESPONSE_MAX_KEY_LENGTH
 
-    private const val DEVICE_IDENTIFIER_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     private const val DEVICE_IDENTIFIER_LENGTH = 32
 
-    fun generateDeviceIdentifier(): String {
-        val builder = StringBuilder(DEVICE_IDENTIFIER_LENGTH)
-
-        for (i in 0 until DEVICE_IDENTIFIER_LENGTH) {
-            val index = Random.nextInt(DEVICE_IDENTIFIER_ALPHABET.length)
-            val character = DEVICE_IDENTIFIER_ALPHABET[index]
-            builder.append(character)
-        }
-
-        return builder.toString()
-    }
+    fun generateDeviceIdentifier(): String = CommonUtilities.generateRandomString(DEVICE_IDENTIFIER_LENGTH, CommonUtilities.ALPHABET_ALNUM)
 
     private fun ByteArrayOutputStream.writePrefix() = write(DISCOVER_PREFIX)
 
