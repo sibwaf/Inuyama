@@ -53,11 +53,13 @@ private val kodein = Kodein.lazy {
 private const val ATTRIBUTE_SESSION = "sibwaf.inuyama.session"
 
 private inline fun <reified T> Context.decryptedBody(): T {
-    val session = attribute<Session>(ATTRIBUTE_SESSION)
-
+    val session = attribute<Session>(ATTRIBUTE_SESSION)!!
     val gson by kodein.instance<Gson>()
-    // TODO: decrypt
-    return gson.fromJson(body())
+    return body()
+            .let { Encoding.decodeBase64(it) }
+            .let { Cryptography.decryptAES(it, session.key) }
+            .let { Encoding.bytesToString(it) }
+            .let { gson.fromJson(it) }
 }
 
 private val insecurePaths = listOf("/ping", "/bind-session")
@@ -101,6 +103,11 @@ fun main() {
                     ctx.json(response)
                 }
 
+                post("/echo") { ctx ->
+                    val request = ctx.decryptedBody<Any>()
+                    ctx.json(request)
+                }
+
                 post("/download-torrent") { ctx ->
                     val request = ctx.decryptedBody<TorrentDownloadApiRequest>()
                     torrentClient.download(request.magnet, request.path)
@@ -122,7 +129,12 @@ fun main() {
 
                 after { ctx ->
                     val session = ctx.attribute<Session>(ATTRIBUTE_SESSION) ?: return@after
-                    // TODO: encrypt response body
+                    val response = ctx.resultString() ?: return@after
+                    response.let { Encoding.stringToBytes(it) }
+                            .let { Cryptography.encryptAES(it, session.key) }
+                            .let { Encoding.encodeBase64(it) }
+                            .let { ctx.result(it) }
+                            .let { ctx.contentType("text/plain") }
                 }
 
                 exception<SessionException> { _, ctx ->

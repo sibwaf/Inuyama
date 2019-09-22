@@ -22,9 +22,9 @@ import javax.crypto.SecretKey
 
 private data class Session(val token: String, val key: SecretKey)
 
-private data class ServerConnection(val address: String, val key: PublicKey, var session: Session?)
-
 private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware {
+
+    private data class ServerConnection(val address: String, val key: PublicKey, var session: Session?)
 
     private val gson by instance<Gson>()
 
@@ -56,6 +56,7 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
 
         val response = baseRequest("/bind-session", Connection.Method.POST, false, BindSessionApiResponse::class.java) {
             requestBody(gson.toJson(request))
+            header("Content-Type", "application/json")
         }
 
         val solvedChallenge = Cryptography.decryptRSA(Encoding.decodeBase64(response.challenge), deviceKeyPair.private)
@@ -98,7 +99,17 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
         }
 
         when (response.statusCode()) {
-            200 -> return gson.fromJson(response.body(), responseType)
+            200 -> {
+                var body = response.body()
+                if (requiresSession) {
+                    body = body
+                            .let { Encoding.decodeBase64(it) }
+                            .let { Cryptography.decryptAES(it, session!!.key) }
+                            .let { Encoding.bytesToString(it) }
+                }
+
+                return gson.fromJson(body, responseType)
+            }
             401 -> throw PairedSessionException("Token was rejected")
             else -> throw PairedApiException("Bad HTTP status ${response.statusCode()}")
         }
@@ -158,10 +169,14 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
     }
 
     private inline fun <reified T> post(url: String, data: Any? = null, crossinline init: Connection.() -> Unit = {}): T {
-        return pairedApiRequestManager.request(url, Connection.Method.POST, T::class.java) {
+        return pairedApiRequestManager.request(url, Connection.Method.POST, T::class.java) { session ->
             data?.let { gson.toJson(data) }
-                    // TODO: encrypt
+                    ?.let { Encoding.stringToBytes(it) }
+                    ?.let { Cryptography.encryptAES(it, session!!.key) }
+                    ?.let { Encoding.encodeBase64(it) }
                     ?.let { requestBody(it) }
+
+            header("Content-Type", "text/plain")
 
             init()
         }
@@ -173,10 +188,13 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     override fun getName(context: Context): String = context.getString(R.string.module_pairing)
 
+    private data class EchoRequest(val data: String)
+
     override fun checkConnection(): Boolean {
         return try {
-            get<Unit>("/ping")
-            true
+            val request = EchoRequest(CommonUtilities.generateRandomString(16, CommonUtilities.ALPHABET_ALNUM))
+            val response = post<EchoRequest>("/echo", request)
+            return request == response
         } catch (e: Exception) {
             false
         }
