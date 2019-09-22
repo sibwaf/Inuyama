@@ -9,7 +9,6 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RemoteService
-import ru.dyatel.inuyama.utilities.fromJson
 import ru.sibwaf.inuyama.common.BindSessionApiRequest
 import ru.sibwaf.inuyama.common.BindSessionApiResponse
 import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
@@ -17,135 +16,154 @@ import ru.sibwaf.inuyama.common.utilities.CommonUtilities
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
 import java.net.ConnectException
+import java.security.PublicKey
 import java.util.Arrays
 import javax.crypto.SecretKey
 
-class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
+private data class Session(val token: String, val key: SecretKey)
 
-    private data class Session(val address: String, val token: String, val key: SecretKey)
+private data class ServerConnection(val address: String, val key: PublicKey, var session: Session?)
+
+private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware {
 
     private val gson by instance<Gson>()
 
+    private val networkManager by instance<NetworkManager>()
     private val pairingManager by instance<PairingManager>()
-    override val networkManager by instance<NetworkManager>()
 
-    private var session: Session? = null
+    private var serverConnection: ServerConnection? = null
 
-    private inline fun <reified T> request(
+    private val lock = Any()
+
+    private fun discoverServer(): ServerConnection {
+        val server = pairingManager.findPairedServer() ?: throw PairedServerNotAvailableException()
+        return ServerConnection(
+                address = "http://${server.address.hostAddress}:${server.port}",
+                key = server.key,
+                session = null
+        )
+    }
+
+    private fun createSession(): Session {
+        val serverConnection = serverConnection ?: throw PairedServerNotAvailableException("Can't create a session without a connection")
+        val deviceKeyPair = pairingManager.deviceKeyPair
+
+        val challenge = Encoding.stringToBytes(CommonUtilities.generateRandomString(64, CommonUtilities.ALPHABET_ALNUM))
+        val request = BindSessionApiRequest(
+                key = Encoding.encodeBase64(Encoding.encodeRSAPublicKey(deviceKeyPair.public)),
+                challenge = Encoding.encodeBase64(Cryptography.encryptRSA(challenge, serverConnection.key))
+        )
+
+        val response = baseRequest("/bind-session", Connection.Method.POST, false, BindSessionApiResponse::class.java) {
+            requestBody(gson.toJson(request))
+        }
+
+        val solvedChallenge = Cryptography.decryptRSA(Encoding.decodeBase64(response.challenge), deviceKeyPair.private)
+        if (!Arrays.equals(challenge, solvedChallenge)) {
+            throw PairedSessionException("Server failed to solve challenge") // TODO: critical
+        }
+
+        return Session(
+                token = Encoding.bytesToString(Cryptography.decryptRSA(Encoding.decodeBase64(response.token), deviceKeyPair.private)),
+                key = Encoding.decodeAESKey(Cryptography.decryptRSA(Encoding.decodeBase64(response.key), deviceKeyPair.private))
+        )
+    }
+
+    private fun <T> baseRequest(
             url: String,
             method: Connection.Method,
-            allowNewSession: Boolean,
-            crossinline init: Connection.() -> Unit
+            requiresSession: Boolean,
+            responseType: Class<T>,
+            init: Connection.(Session?) -> Unit
     ): T {
-        if (pairingManager.pairedServer == null) {
-            session = null
-            throw PairedSessionException("No device is paired")
+        val serverConnection = serverConnection ?: throw PairedServerNotAvailableException("No cached server connections")
+        val session = serverConnection.session
+        if (requiresSession && session == null) {
+            throw PairedSessionException("Session is required, but not bound")
         }
 
-        var allowNewSession0 = allowNewSession
-        if (session == null) {
-            bindSession()
-            allowNewSession0 = false
+        val request = networkManager.createJsoupConnection("${serverConnection.address}$url", true)
+                .ignoreContentType(true)
+                .ignoreHttpErrors(true)
+                .method(method)
+
+        if (requiresSession) {
+            request.header("Authorization", "Bearer ${session!!.token}")
         }
 
-        val requester: () -> T = requester@{
-            val session = session ?: throw PairedSessionException("No session is bound")
-
-            val response = createConnection("http://${session.address}$url", true)
-                    .ignoreContentType(true)
-                    .ignoreHttpErrors(true)
-                    .header("Authorization", "Bearer ${session.token}")
-                    .apply(init)
-                    .method(method)
-                    .execute()
-
-            when (response.statusCode()) {
-                200 -> return@requester gson.fromJson<T>(response.body()) // TODO: decrypt
-                401 -> throw PairedSessionException("Token was rejected")
-                else -> throw PairedApiException("Bad HTTP status ${response.statusCode()}")
-            }
+        val response = try {
+            request.apply { init(session) }.execute()
+        } catch (e: ConnectException) {
+            throw PairedServerNotAvailableException("Failed to connect to server")
         }
 
-        return try {
-            requester()
-        } catch (e: Exception) {
-            if (!allowNewSession0) {
-                throw e
-            }
-
-            if (e !is ConnectException && e !is PairedSessionException) {
-                throw e
-            }
-
-            bindSession()
-            requester()
+        when (response.statusCode()) {
+            200 -> return gson.fromJson(response.body(), responseType)
+            401 -> throw PairedSessionException("Token was rejected")
+            else -> throw PairedApiException("Bad HTTP status ${response.statusCode()}")
         }
     }
 
-    private inline fun <reified T> get(
-            url: String,
-            allowNewSession: Boolean = true,
-            crossinline init: Connection.() -> Unit = {}
-    ): T {
-        return request(url, Connection.Method.GET, allowNewSession, init)
-    }
+    fun <T> request(url: String, method: Connection.Method, responseType: Class<T>, init: Connection.(Session?) -> Unit): T {
+        synchronized(lock) {
+            var allowServerDiscovery = true
+            var allowSessionCreation = true
 
-    private inline fun <reified T> post(
-            url: String,
-            data: Any? = null,
-            allowNewSession: Boolean = true,
-            crossinline init: Connection.() -> Unit = {}
-    ): T {
-        return request(url, Connection.Method.POST, allowNewSession) {
-            if (data != null) {
-                val body = gson.toJson(data)
-                // TODO: encrypt body
-                requestBody(body)
+            var requester: () -> T = { baseRequest(url, method, true, responseType, init) }
+
+            while (true) {
+                try {
+                    return requester()
+                } catch (e: Exception) {
+                    if (e is PairedServerNotAvailableException && allowServerDiscovery) {
+                        allowServerDiscovery = false
+
+                        val oldSession = serverConnection?.session
+                        serverConnection = discoverServer().apply { session = oldSession }
+
+                        continue
+                    }
+
+                    if (e is PairedSessionException && allowSessionCreation) {
+                        allowServerDiscovery = false
+                        allowSessionCreation = false
+
+                        val oldRequester = requester
+                        requester = {
+                            serverConnection!!.session = createSession()
+                            oldRequester()
+                        }
+
+                        continue
+                    }
+
+                    throw e
+                }
             }
+        }
+    }
+}
 
+class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
+
+    private val gson by instance<Gson>()
+
+    override val networkManager by instance<NetworkManager>()
+    private val pairedApiRequestManager by lazy { PairedApiRequestManager(kodein) }
+
+    private inline fun <reified T> get(url: String, crossinline init: Connection.() -> Unit = {}): T {
+        return pairedApiRequestManager.request(url, Connection.Method.GET, T::class.java) {
             init()
         }
     }
 
-    private fun bindSession() {
-        try {
-            val server = pairingManager.findPairedServer() ?: throw PairedSessionException("Paired device is not available")
-            val address = "${server.address.hostAddress}:${server.port}"
+    private inline fun <reified T> post(url: String, data: Any? = null, crossinline init: Connection.() -> Unit = {}): T {
+        return pairedApiRequestManager.request(url, Connection.Method.POST, T::class.java) {
+            data?.let { gson.toJson(data) }
+                    // TODO: encrypt
+                    ?.let { requestBody(it) }
 
-            val deviceKeyPair = pairingManager.deviceKeyPair
-
-            val challenge = Encoding.stringToBytes(CommonUtilities.generateRandomString(64, CommonUtilities.ALPHABET_ALNUM))
-            val request = BindSessionApiRequest(
-                    key = Encoding.encodeBase64(Encoding.encodeRSAPublicKey(deviceKeyPair.public)),
-                    challenge = Encoding.encodeBase64(Cryptography.encryptRSA(challenge, server.key))
-            )
-
-            val response = createConnection("http://$address/bind-session", true)
-                    .ignoreContentType(true)
-                    .requestBody(gson.toJson(request))
-                    .method(Connection.Method.POST)
-                    .execute()
-                    .body()
-                    .let { gson.fromJson<BindSessionApiResponse>(it) }
-
-            val solvedChallenge = Cryptography.decryptRSA(Encoding.decodeBase64(response.challenge), deviceKeyPair.private)
-            if (!Arrays.equals(challenge, solvedChallenge)) {
-                throw PairedSessionException("Server failed to solve challenge") // TODO: critical
-            }
-
-            session = Session(
-                    address = address,
-                    token = Encoding.bytesToString(Cryptography.decryptRSA(Encoding.decodeBase64(response.token), deviceKeyPair.private)),
-                    key = Encoding.decodeAESKey(Cryptography.decryptRSA(Encoding.decodeBase64(response.key), deviceKeyPair.private))
-            )
-        } catch (e: Exception) {
-            session = null
-
-            if (e is PairedSessionException) {
-                throw e
-            }
-
-            throw PairedSessionException("Failed to create a session", e)
+            init()
         }
     }
 

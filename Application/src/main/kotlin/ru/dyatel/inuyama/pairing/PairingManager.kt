@@ -80,13 +80,19 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
 
         var discovered: DiscoveredServer? = null
 
+        val lock = Any()
         lateinit var waiter: Job
 
-        val listener: (DiscoveredServer) -> Unit = { server ->
-            discovered = server.takeIf { equalsToPaired(it) }
+        val listener: (DiscoveredServer) -> Unit = listener@{ server ->
+            if (discovered != null || !equalsToPaired(server)) {
+                return@listener
+            }
 
-            if (discovered != null) {
-                runBlocking { waiter.cancelAndJoin() }
+            synchronized(lock) {
+                if (discovered == null) {
+                    discovered = server
+                    waiter.cancel()
+                }
             }
         }
 
