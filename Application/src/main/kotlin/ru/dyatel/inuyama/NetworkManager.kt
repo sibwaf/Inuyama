@@ -1,8 +1,7 @@
 package ru.dyatel.inuyama
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
+import android.net.wifi.SupplicantState
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import io.objectbox.Box
@@ -25,25 +24,14 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
 
     private val context by instance<Context>()
     private val wifiManager by on(context).instance<WifiManager>()
-    private val connectivityManager by on(context).instance<ConnectivityManager>()
 
     private val networkBox by instance<Box<Network>>()
     private val proxyBindingBox by instance<Box<ProxyBinding>>()
 
     private val currentWifiConnection: WifiInfo?
         get() {
-            val networkInfo = connectivityManager.activeNetworkInfo ?: return null
-
-            val wifiEnabled = connectivityManager
-                    .getNetworkCapabilities(connectivityManager.activeNetwork)
-                    ?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-                    ?: false
-
-            if (!wifiEnabled || !networkInfo.isConnected) {
-                return null
-            }
-
             return wifiManager.connectionInfo
+                    ?.takeIf { it.bssid != null && it.supplicantState == SupplicantState.COMPLETED }
         }
 
     val broadcastAddress: InetAddress?
