@@ -1,9 +1,14 @@
 apply plugin: "kotlin"
 
+test {
+    useJUnitPlatform()
+}
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
 
     implementation "com.google.guava:guava:27.0.1-android"
 
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.5.2"
+    testImplementation "io.strikt:strikt-core:0.22.2"
 }
