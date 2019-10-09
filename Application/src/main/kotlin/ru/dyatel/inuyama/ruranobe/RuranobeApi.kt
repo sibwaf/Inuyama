@@ -10,13 +10,13 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.NetworkManager
-import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.ProxyableRemoteService
+import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.SERVICE_RURANOBE
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
-import ru.dyatel.inuyama.utilities.asDateTime
 import ru.dyatel.inuyama.utilities.fromJson
+import ru.sibwaf.inuyama.common.utilities.asDateTime
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL

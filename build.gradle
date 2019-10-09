@@ -9,6 +9,8 @@ buildscript {
     ext.jsoupVersion = "1.11.3"
     ext.gsonVersion = "2.8.5"
 
+    ext.date4jVersion = "1.5.1"
+
     repositories {
         google()
         jcenter()

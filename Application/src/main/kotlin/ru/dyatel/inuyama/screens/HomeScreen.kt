@@ -51,10 +51,10 @@ import ru.dyatel.inuyama.overseer.OverseerListener
 import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.overseer.OverseerWorker
 import ru.dyatel.inuyama.utilities.PreferenceHelper
-import ru.dyatel.inuyama.utilities.asDate
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.isVisible
 import ru.dyatel.inuyama.utilities.prettyTime
+import ru.sibwaf.inuyama.common.utilities.asDate
 
 class HomeScreenView(context: Context) : BaseScreenView<HomeScreen>(context) {
 

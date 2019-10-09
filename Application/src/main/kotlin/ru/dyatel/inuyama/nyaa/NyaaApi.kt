@@ -11,7 +11,7 @@ import ru.dyatel.inuyama.ProxyableRemoteService
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.SERVICE_NYAA
 import ru.dyatel.inuyama.model.NyaaTorrent
-import ru.dyatel.inuyama.utilities.asDateTime
+import ru.sibwaf.inuyama.common.utilities.asDateTime
 import java.text.SimpleDateFormat
 import java.util.Locale
 

@@ -21,10 +21,7 @@ import io.objectbox.converter.PropertyConverter
 import io.objectbox.reactive.SubscriptionBuilder
 import org.jetbrains.anko.inputMethodManager
 import org.ocpsoft.prettytime.PrettyTime
-import ru.dyatel.inuyama.MainActivity
-import java.util.Date
 import java.util.Locale
-import java.util.TimeZone
 
 fun Activity.grantPermissions(vararg permissions: String) {
     val required = permissions
@@ -87,12 +84,6 @@ fun RecyclerView.propagateTouchEvents() {
         override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) = Unit
     })
 }
-
-val Date.asDateTime
-    get() = DateTime.forInstant(time, TimeZone.getDefault())!!
-
-val DateTime.asDate
-    get() = Date(getMilliseconds(TimeZone.getDefault()))
 
 class DateTimeConverter : PropertyConverter<DateTime?, String?> {
     override fun convertToDatabaseValue(entityProperty: DateTime?) = entityProperty?.toString()

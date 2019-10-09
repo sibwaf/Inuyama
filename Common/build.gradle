@@ -9,6 +9,8 @@ dependencies {
 
     implementation "com.google.guava:guava:27.0.1-android"
 
+    implementation "com.darwinsys:hirondelle-date4j:$date4jVersionv"
+
     testImplementation "org.junit.jupiter:junit-jupiter:5.5.2"
     testImplementation "io.strikt:strikt-core:0.22.2"
 }
