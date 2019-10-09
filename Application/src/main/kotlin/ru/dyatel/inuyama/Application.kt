@@ -91,7 +91,7 @@ class Application : Application(), KodeinAware {
         bind() from setBinding<ModuleScreenProvider>()
         import(rutrackerModule)
         import(nyaaModule)
-        import(ruranobeModule)
+//        import(ruranobeModule)
         import(financeModule)
     }
 
