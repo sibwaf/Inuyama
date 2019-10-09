@@ -78,8 +78,7 @@ abstract class InuScreen<V> : Screen<V>(), KodeinAware where V : ViewGroup, V : 
             }
         }
 
-        return GlobalScope.launch(dispatcher, block = block)
-                .also { attachJob(it, generateJobId()) }
+        return GlobalScope.launch(dispatcher, block = block).also { attachJob(it, id) }
     }
 
     abstract override fun createView(context: Context): V
@@ -95,7 +94,7 @@ abstract class InuScreen<V> : Screen<V>(), KodeinAware where V : ViewGroup, V : 
         }
         boxStoreObservers.clear()
 
-        for ((_, job) in jobs) {
+        for (job in jobs.values) {
             job.cancel()
         }
         jobs.clear()
