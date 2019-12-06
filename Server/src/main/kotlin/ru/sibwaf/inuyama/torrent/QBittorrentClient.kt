@@ -1,5 +1,6 @@
 package ru.sibwaf.inuyama.torrent
 
+import org.jsoup.Connection
 import org.jsoup.Jsoup
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
@@ -9,7 +10,8 @@ class QBittorrentClient(override val kodein: Kodein) : TorrentClient, KodeinAwar
 
     // TODO: configuration
     override fun download(magnet: String, directory: String?) {
-        Jsoup.connect("http://localhost:9091/command/download")
+        Jsoup.connect("http://localhost:9091/api/v2/torrents/add")
+                .method(Connection.Method.POST)
                 .apply {
                     val charset = request().postDataCharset()
 
@@ -21,6 +23,6 @@ class QBittorrentClient(override val kodein: Kodein) : TorrentClient, KodeinAwar
 
                     requestBody(body)
                 }
-                .post()
+                .execute()
     }
 }
