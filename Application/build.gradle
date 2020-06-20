@@ -2,6 +2,16 @@ apply plugin: "com.android.application"
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-kapt"
 
+def localProperties = null
+def localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.newInputStream().withCloseable {
+        def properties = new Properties()
+        properties.load(it)
+        localProperties = properties
+    }
+}
+
 android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
@@ -14,12 +24,14 @@ android {
         versionName "1.2"
     }
 
-    signingConfigs {
-        release {
-            storeFile file("xxxxxx")
-            storePassword "xxxxxx"
-            keyAlias "xxxxxx"
-            keyPassword "xxxxxx"
+    if (localProperties != null) {
+        signingConfigs {
+            release {
+                storeFile file(localProperties.getProperty("signing.store.file"))
+                storePassword localProperties.getProperty("signing.store.password")
+                keyAlias localProperties.getProperty("signing.key.name")
+                keyPassword localProperties.getProperty("signing.key.password")
+            }
         }
     }
 
