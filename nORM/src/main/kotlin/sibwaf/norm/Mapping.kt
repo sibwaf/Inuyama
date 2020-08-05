@@ -26,6 +26,15 @@ internal class Mappers<T : Any> private constructor(
 
             return { row ->
                 val constructorValues = constructorPropertyIndices.map { row[it] }.toTypedArray()
+
+                // TODO: generic implementation
+                // TODO: custom converters in table
+                for ((index, parameter) in constructor.parameters.withIndex()) {
+                    if (parameter.type.classifier == Boolean::class && constructorValues[index] is Number) {
+                        constructorValues[index] = (constructorValues[index] as Number).toLong() != 0L
+                    }
+                }
+
                 val instance = constructor.call(*constructorValues)
 
                 for (property in nonConstructorProperties) {
