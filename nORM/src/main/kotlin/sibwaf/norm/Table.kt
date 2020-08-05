@@ -58,6 +58,8 @@ abstract class Table<TEntity : Any>(val name: String, internal val type: KClass<
     open internal val readableColumns by lazy { orderedColumns.map { columns[it]!! } }
     open internal val writeableColumns by lazy { orderedColumns.map { columns[it]!! }.filter { !it.generated } }
 
+    // TODO: updatable columns
+
     val selColumns by lazy { readableColumns.joinToString(", ") }
     val insColumns by lazy { writeableColumns.joinToString(", ") }
 

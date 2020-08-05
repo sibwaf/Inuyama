@@ -11,6 +11,13 @@ abstract class Repository<TEntity : Any>(protected val context: NormContext) {
         // TODO: check for table registration?
     }
 
+    open fun findAll(): Iterable<TEntity> {
+        return with(table) {
+            context.createQueryTemplate("SELECT $selColumns FROM $this")
+                    .execute(type)
+        }
+    }
+
     open fun insert(entity: TEntity) {
         return with(table) {
             context.createQueryTemplate("INSERT INTO $this ($insColumns) VALUES (#{!EXPLODE entity})")
@@ -28,8 +35,24 @@ abstract class KeyedRepository<TKey : Any, TEntity : Any>(context: NormContext) 
         return with(table) {
             context.createQueryTemplate("SELECT $selColumns FROM $this WHERE $key = #{key} LIMIT 1")
                     .withParameter("key", keyValue)
-                    .execute(table.type)
+                    .execute(type)
                     .singleOrNull()
+        }
+    }
+
+    open fun update(entity: TEntity): TEntity? {
+        return with(table) {
+            val columns = writeableColumns
+                    .mapIndexed { index, column -> "$column = #{param$index}" }
+                    .joinToString(", ")
+
+            val query = context.createQueryTemplate("UPDATE $this SET $columns")
+            for ((index, column) in writeableColumns.withIndex()) {
+                query.withParameter("param$index", column.getter.call(entity))
+            }
+            query.executeUpdate()
+
+            entity
         }
     }
 
