@@ -5,7 +5,7 @@ import kotlin.reflect.KClass
 class QueryTemplate(private val context: NormContext, query: String) {
 
     private companion object {
-        val TEMPLATE_PATTERN = Regex("""#\{\s*(.*?)\s*}""")
+        val TEMPLATE_PATTERN = Regex("""#\{\s*(.*?)\s*\}""")
 
         fun replaceTemplates(text: String, replacer: (String) -> String?): String {
             var result = text
