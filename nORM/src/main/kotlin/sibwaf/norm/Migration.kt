@@ -35,7 +35,7 @@ object MigrationExecutor {
 
         val appliedMigrations = queryRunner
                 .executeQuery("SELECT $VERSION_COLUMN FROM $TABLE_NAME")
-                .map { it.data.single() as Int }
+                .map { (it.data.single() as Number).toInt() }
                 .toSet()
 
         val pendingMigrations = migrations
