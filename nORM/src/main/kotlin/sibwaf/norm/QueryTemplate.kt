@@ -28,8 +28,12 @@ class QueryTemplate(private val context: NormContext, query: String) {
         }
     }
 
+    private enum class ParameterType {
+        REGULAR, EXPLODED, EQUALITY_CHECK, INEQUALITY_CHECK
+    }
+
     private val query: String
-    private val parameters = mutableMapOf<String, Any>()
+    private val parameters = mutableMapOf<String, Any?>()
 
     init {
         // TODO: table aliases
@@ -52,39 +56,68 @@ class QueryTemplate(private val context: NormContext, query: String) {
         }
     }
 
-    fun withParameter(name: String, value: Any): QueryTemplate {
+    fun withParameter(name: String, value: Any?): QueryTemplate {
         parameters[name] = value
         return this
     }
 
+    private fun getParameter(template: String): Pair<ParameterType, String> {
+        return when {
+            template.startsWith("!EXPLODE") -> {
+                ParameterType.EXPLODED to template.removePrefix("!EXPLODE").trimStart()
+            }
+            template.startsWith("=") -> {
+                ParameterType.EQUALITY_CHECK to template.removePrefix("=").trimStart()
+            }
+            template.startsWith("!=") -> {
+                ParameterType.INEQUALITY_CHECK to template.removePrefix("!=").trimStart()
+            }
+            else -> {
+                ParameterType.REGULAR to template
+            }
+        }
+    }
+
     private fun toRawQuery(): RawQuery {
         val orderedParameters = mutableListOf<Any?>()
-        val query = replaceTemplates(query) {
-            val (shouldExplode, name) = if (it.startsWith("!EXPLODE")) {
-                true to it.removePrefix("!EXPLODE").trimStart()
-            } else {
-                false to it
-            }
+        val query = replaceTemplates(query) { template ->
+            val (parameterType, parameterName) = getParameter(template)
 
-            check(name in parameters) { "No value for parameter $name" }
-            val value = parameters[name]!!
+            check(parameterName in parameters) { "No value for parameter $parameterName" }
+            val value = parameters[parameterName]
+            check(value != null || parameterType == ParameterType.EQUALITY_CHECK || parameterType == ParameterType.INEQUALITY_CHECK)
 
-            // TODO: handle nulls
-            if (shouldExplode) {
+            val valueType = if (value != null) value::class else null
+
+            if (parameterType == ParameterType.EXPLODED) {
+                require(value != null && valueType != null) { "Can't explode null-parameter $parameterName" }
+
                 @Suppress("UNCHECKED_CAST")
-                val mappers = context.getMappers(value::class) as Mappers<Any>
+                val mappers = context.getMappers(valueType) as Mappers<Any>
                 orderedParameters.addAll(mappers.fromObject(value))
                 (0 until mappers.fromObjectSize).joinToString(", ") { "?" }
             } else {
-                val table = context.findTable(value::class)
+                val table = valueType?.let { context.findTable(it) }
 
-                orderedParameters += when (table) {
-                    is KeyedTable<*, *> -> table.key.getter.call(value)
-                    is Table<*> -> throw IllegalArgumentException("Parameter $name")
-                    else -> value
+                if (table is KeyedTable<*, *>) {
+                    if (value != null) {
+                        orderedParameters += table.key.getter.call(value)
+                        return@replaceTemplates "?"
+                    }
+                } else if (table != null) {
+                    throw IllegalArgumentException("Parameter $parameterName can only be exploded")
                 }
 
-                "?"
+                if (value == null) {
+                    if (parameterType == ParameterType.EQUALITY_CHECK) {
+                        "IS NULL"
+                    } else {
+                        "IS NOT NULL"
+                    }
+                } else {
+                    orderedParameters += value
+                    "?"
+                }
             }
         }.let { RawQuery(it) }
 
@@ -107,4 +140,6 @@ class QueryTemplate(private val context: NormContext, query: String) {
 
         return result.map { mapper(it.data.toTypedArray()) }
     }
+
+    inline fun <reified T : Any> execute() = execute(T::class)
 }
