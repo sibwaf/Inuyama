@@ -4,6 +4,8 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.NetworkManager
+import ru.dyatel.inuyama.utilities.PreferenceHelper
+import ru.sibwaf.inuyama.common.DiscoverRequest
 import ru.sibwaf.inuyama.common.Pairing
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -15,9 +17,10 @@ private typealias Listener = (DiscoveredServer) -> Unit
 
 data class DiscoveredServer(val address: InetAddress, val port: Int, val key: PublicKey)
 
-class DiscoverResponseListener(override val kodein: Kodein) : KodeinAware {
+class DiscoveryService(override val kodein: Kodein) : KodeinAware {
 
     private val networkManager by instance<NetworkManager>()
+    private val preferenceHelper by instance<PreferenceHelper>()
 
     private val listeners = mutableListOf<Listener>()
 
@@ -59,6 +62,21 @@ class DiscoverResponseListener(override val kodein: Kodein) : KodeinAware {
 
     fun removeListener(listener: Listener) {
         synchronized(listeners) { listeners.remove(listener) }
+    }
+
+    fun sendDiscoverRequest() {
+        check(networkManager.isNetworkTrusted) { "Network is not trusted" }
+
+        val request = DiscoverRequest(port)
+
+        val packet = Pairing.encodeDiscoverRequest(request)
+        packet.address = networkManager.broadcastAddress!!
+        packet.port = preferenceHelper.discoveryPort
+
+        DatagramSocket().use {
+            it.broadcast = true
+            it.send(packet)
+        }
     }
 
 }

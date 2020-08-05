@@ -2,6 +2,7 @@ package ru.dyatel.inuyama.pairing
 
 import android.content.Context
 import com.google.gson.Gson
+import kotlinx.coroutines.runBlocking
 import org.jsoup.Connection
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
@@ -36,7 +37,7 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
     private val lock = Any()
 
     private fun discoverServer(): ServerConnection {
-        val server = pairingManager.findPairedServer() ?: throw PairedServerNotAvailableException()
+        val server = runBlocking { pairingManager.findPairedServer() } ?: throw PairedServerNotAvailableException()
         return ServerConnection(
                 address = "http://${server.address.hostAddress}:${server.port}",
                 key = server.key,

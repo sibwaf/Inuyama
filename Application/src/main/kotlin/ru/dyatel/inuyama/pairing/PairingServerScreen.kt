@@ -55,7 +55,7 @@ class PairingServerScreen(private val server: DiscoveredServer) : InuScreen<Pair
 
     override fun createView(context: Context): PairingServerView {
         return PairingServerView(context).apply {
-            statusBar.switchState = pairingManager.equalsToPaired(server)
+            statusBar.switchState = pairingManager.compareWithPaired(server)
 
             statusBar.onSwitchChange { state ->
                 if (state) {

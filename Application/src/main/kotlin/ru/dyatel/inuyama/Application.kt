@@ -26,7 +26,7 @@ import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.ProxyBinding
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
-import ru.dyatel.inuyama.pairing.DiscoverResponseListener
+import ru.dyatel.inuyama.pairing.DiscoveryService
 import ru.dyatel.inuyama.pairing.PairedApi
 import ru.dyatel.inuyama.pairing.PairingManager
 import ru.dyatel.inuyama.utilities.NoJson
@@ -84,7 +84,7 @@ class Application : Application(), KodeinAware {
 
         bind<NetworkManager>() with singleton { NetworkManager(kodein) }
 
-        bind<DiscoverResponseListener>() with singleton { DiscoverResponseListener(kodein) }
+        bind<DiscoveryService>() with singleton { DiscoveryService(kodein) }
         bind<PairingManager>() with singleton { PairingManager(kodein) }
         bind<PairedApi>() with singleton { PairedApi(kodein) }
 

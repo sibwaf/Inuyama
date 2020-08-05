@@ -95,7 +95,7 @@ class PairingScreen : InuScreen<PairingView>() {
 
     private val preferenceHelper by instance<PreferenceHelper>()
     private val pairingManager by instance<PairingManager>()
-    private val discoverResponseListener by instance<DiscoverResponseListener>()
+    private val discoveryService by instance<DiscoveryService>()
     private lateinit var discoverListener: (DiscoveredServer) -> Unit
 
     private val serverAdapter = ItemAdapter<PairingServerItem>()
@@ -136,7 +136,7 @@ class PairingScreen : InuScreen<PairingView>() {
     override fun onShow(context: Context) {
         super.onShow(context)
 
-        discoverListener = discoverResponseListener.addListener { server ->
+        discoverListener = discoveryService.addListener { server ->
             servers.add(server)
             aliveServers.add(server)
 
@@ -157,7 +157,7 @@ class PairingScreen : InuScreen<PairingView>() {
                 withContext(Dispatchers.Main) { refresh() }
 
                 if (networkTrusted) {
-                    pairingManager.sendDiscoverRequest()
+                    discoveryService.sendDiscoverRequest()
                 }
 
                 delay(4000) // TODO: magic constants
@@ -170,7 +170,7 @@ class PairingScreen : InuScreen<PairingView>() {
     private fun refresh() {
         val list = servers.sortedBy { it.key.humanReadable }
         serverAdapter.set(list.map {
-            PairingServerItem(it, pairingManager.equalsToPaired(it)).apply {
+            PairingServerItem(it, pairingManager.compareWithPaired(it)).apply {
                 val id = serverItemIds.getOrPut(it) { (serverItemIds.values.max() ?: 0) + 1L }
                 withIdentifier(id)
             }
@@ -178,7 +178,7 @@ class PairingScreen : InuScreen<PairingView>() {
     }
 
     override fun onHide(context: Context) {
-        discoverResponseListener.removeListener(discoverListener)
+        discoveryService.removeListener(discoverListener)
         super.onHide(context)
     }
 }

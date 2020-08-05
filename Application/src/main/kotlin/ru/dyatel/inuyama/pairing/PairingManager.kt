@@ -1,30 +1,26 @@
 package ru.dyatel.inuyama.pairing
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.utilities.PreferenceHelper
-import ru.sibwaf.inuyama.common.DiscoverRequest
 import ru.sibwaf.inuyama.common.Pairing
 import ru.sibwaf.inuyama.common.utilities.Cryptography
-import java.net.DatagramSocket
 import java.security.KeyPair
 import java.security.PublicKey
+import kotlin.coroutines.resume
 
 data class PairedServer(val key: PublicKey)
 
 class PairingManager(override val kodein: Kodein) : KodeinAware {
 
     private val networkManager by instance<NetworkManager>()
-    private val discoverResponseListener by instance<DiscoverResponseListener>()
+    private val discoveryService by instance<DiscoveryService>()
 
     private val preferenceHelper by instance<PreferenceHelper>()
 
@@ -52,61 +48,37 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
         return identifier
     }
 
-    fun sendDiscoverRequest() {
-        if (!networkManager.isNetworkTrusted) {
-            throw IllegalStateException("Network is not trusted")
-        }
-
-        val request = DiscoverRequest(discoverResponseListener.port)
-
-        val packet = Pairing.encodeDiscoverRequest(request)
-        packet.address = networkManager.broadcastAddress!!
-        packet.port = preferenceHelper.discoveryPort
-
-        DatagramSocket().use {
-            it.broadcast = true
-            it.send(packet)
-        }
-    }
-
-    fun equalsToPaired(server: DiscoveredServer): Boolean {
+    fun compareWithPaired(server: DiscoveredServer): Boolean {
         return server.key == pairedServer?.key
     }
 
-    fun findPairedServer(): DiscoveredServer? {
+    suspend fun findPairedServer(): DiscoveredServer? {
         if (pairedServer == null) {
             return null
         }
 
-        var discovered: DiscoveredServer? = null
+        // TODO: magic constants
+        var listener: ((DiscoveredServer) -> Unit)? = null
+        return try {
+            withTimeoutOrNull(10000) {
+                suspendCancellableCoroutine<DiscoveredServer> { continuation ->
+                    listener = { server: DiscoveredServer ->
+                        if (compareWithPaired(server)) {
+                            continuation.resume(server)
+                        }
+                    }.also { discoveryService.addListener(it) }
 
-        val lock = Any()
-        lateinit var waiter: Job
-
-        val listener: (DiscoveredServer) -> Unit = listener@{ server ->
-            if (discovered != null || !equalsToPaired(server)) {
-                return@listener
-            }
-
-            synchronized(lock) {
-                if (discovered == null) {
-                    discovered = server
-                    waiter.cancel()
+                    launch {
+                        while (continuation.isActive) {
+                            discoveryService.sendDiscoverRequest()
+                            delay(1000)
+                        }
+                    }
                 }
             }
+        } finally {
+            listener?.let { discoveryService.removeListener(it) }
         }
-
-        waiter = GlobalScope.async(Dispatchers.Default) {
-            discoverResponseListener.addListener(listener)
-            sendDiscoverRequest()
-            delay(10000) // TODO: magic constants
-        }
-        waiter.invokeOnCompletion {
-            discoverResponseListener.removeListener(listener)
-        }
-
-        runBlocking { waiter.join() }
-        return discovered
     }
 
     fun unbind() {
