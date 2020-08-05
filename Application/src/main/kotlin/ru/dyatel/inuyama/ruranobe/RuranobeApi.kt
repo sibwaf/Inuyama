@@ -26,7 +26,7 @@ import java.util.Locale
 class RuranobeApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteService {
 
     private companion object {
-        const val host = "http://ruranobe.ru"
+        const val host = "https://ruranobe.ru"
         const val tooManyRequestsDelay = 2500L
 
         val datetimeFormat = SimpleDateFormat("dd.MM.yyyy HH:mm:ss Z", Locale.US)
