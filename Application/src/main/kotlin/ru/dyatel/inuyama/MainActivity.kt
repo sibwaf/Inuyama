@@ -51,6 +51,7 @@ class MainActivity : SingleActivity(), KodeinAware {
                     .build()!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity)
 
