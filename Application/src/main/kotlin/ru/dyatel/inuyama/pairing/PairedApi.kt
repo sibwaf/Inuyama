@@ -191,7 +191,7 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     private data class EchoRequest(val data: String)
 
-    override fun checkConnection(): Boolean {
+    override suspend fun checkConnection(): Boolean {
         return try {
             val request = EchoRequest(CommonUtilities.generateRandomString(16, CommonUtilities.ALPHABET_ALNUM))
             val response = post<EchoRequest>("/echo", request)

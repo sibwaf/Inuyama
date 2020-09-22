@@ -40,7 +40,7 @@ interface RemoteService {
     val networkManager: NetworkManager
 
     fun getName(context: Context): String
-    fun checkConnection(): Boolean
+    suspend fun checkConnection(): Boolean
 
     fun getHttpClient(trustedOnly: Boolean) = networkManager.getHttpClient(trustedOnly)
 

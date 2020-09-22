@@ -1,6 +1,7 @@
 package ru.dyatel.inuyama.rutracker
 
 import android.content.Context
+import okhttp3.Request
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
@@ -8,6 +9,7 @@ import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.ProxyableRemoteService
 import ru.dyatel.inuyama.SERVICE_RUTRACKER
+import ru.sibwaf.inuyama.common.utilities.await
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.URI
@@ -33,10 +35,11 @@ class RutrackerApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteSe
 
     override fun getName(context: Context) = context.getString(R.string.module_rutracker)!!
 
-    override fun checkConnection(): Boolean {
+    override suspend fun checkConnection(): Boolean {
         return try {
-            createConnection(configuration.host, false).get()
-            true
+            val request = Request.Builder().url(configuration.host).build()
+            val response = getHttpClient(false).newCall(request).await()
+            return response.use { it.isSuccessful }
         } catch (e: IOException) {
             false
         }

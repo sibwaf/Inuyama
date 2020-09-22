@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
+import okhttp3.Request
 import org.jsoup.Connection
 import org.jsoup.HttpStatusException
 import org.kodein.di.Kodein
@@ -17,6 +18,7 @@ import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.utilities.fromJson
 import ru.sibwaf.inuyama.common.utilities.asDateTime
+import ru.sibwaf.inuyama.common.utilities.await
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -41,10 +43,11 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteSer
 
     override fun getName(context: Context) = context.getString(R.string.module_ruranobe)!!
 
-    override fun checkConnection(): Boolean {
+    override suspend fun checkConnection(): Boolean {
         return try {
-            createConnection(host, false).get()
-            true
+            val request = Request.Builder().url(host).build()
+            val response = getHttpClient(false).newCall(request).await()
+            return response.use { it.isSuccessful }
         } catch (e: IOException) {
             false
         }

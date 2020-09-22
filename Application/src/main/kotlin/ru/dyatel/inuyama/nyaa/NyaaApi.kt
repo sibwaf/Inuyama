@@ -1,6 +1,7 @@
 package ru.dyatel.inuyama.nyaa
 
 import android.content.Context
+import okhttp3.Request
 import org.jsoup.nodes.Element
 import org.jsoup.parser.Parser
 import org.kodein.di.Kodein
@@ -12,6 +13,7 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.SERVICE_NYAA
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.sibwaf.inuyama.common.utilities.asDateTime
+import ru.sibwaf.inuyama.common.utilities.await
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -29,10 +31,11 @@ class NyaaApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteService
 
     override fun getName(context: Context) = context.getString(R.string.module_nyaa)!!
 
-    override fun checkConnection(): Boolean {
+    override suspend fun checkConnection(): Boolean {
         return try {
-            createConnection(host, false).get()
-            true
+            val request = Request.Builder().url(host).build()
+            val response = getHttpClient(false).newCall(request).await()
+            return response.use { it.isSuccessful }
         } catch (e: Exception) {
             false
         }
