@@ -12,7 +12,6 @@ import java.util.TimeZone
 data class NyaaTorrent(
         @Id(assignable = true) var id: Long = 0,
         var title: String = "",
-        var link: String = "",
         var hash: String = "",
 
         @Convert(converter = DateTimeConverter::class, dbType = String::class)
