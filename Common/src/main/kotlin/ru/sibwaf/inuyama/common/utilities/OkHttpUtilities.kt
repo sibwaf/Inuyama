@@ -3,10 +3,16 @@ package ru.sibwaf.inuyama.common.utilities
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Response
 import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+
+object MediaTypes {
+    val TEXT_PLAIN = "text/plain".toMediaType()
+    val APPLICATION_JSON = "application/json".toMediaType()
+}
 
 suspend fun Call.await(): Response {
     return suspendCancellableCoroutine { continuation ->

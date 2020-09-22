@@ -3,7 +3,10 @@ package ru.dyatel.inuyama.pairing
 import android.content.Context
 import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
-import org.jsoup.Connection
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
@@ -16,9 +19,10 @@ import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
 import ru.sibwaf.inuyama.common.utilities.CommonUtilities
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
+import ru.sibwaf.inuyama.common.utilities.MediaTypes
+import ru.sibwaf.inuyama.common.utilities.await
 import java.net.ConnectException
 import java.security.PublicKey
-import java.util.Arrays
 import javax.crypto.SecretKey
 
 private data class Session(val token: String, val key: SecretKey)
@@ -34,10 +38,10 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
 
     private var serverConnection: ServerConnection? = null
 
-    private val lock = Any()
+    private val lock = Mutex()
 
-    private fun discoverServer(): ServerConnection {
-        val server = runBlocking { pairingManager.findPairedServer() } ?: throw PairedServerNotAvailableException()
+    private suspend fun discoverServer(): ServerConnection {
+        val server = pairingManager.findPairedServer() ?: throw PairedServerNotAvailableException()
         return ServerConnection(
                 address = "http://${server.address.hostAddress}:${server.port}",
                 key = server.key,
@@ -45,7 +49,7 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
         )
     }
 
-    private fun createSession(): Session {
+    private suspend fun createSession(): Session {
         val serverConnection = serverConnection ?: throw PairedServerNotAvailableException("Can't create a session without a connection")
         val deviceKeyPair = pairingManager.deviceKeyPair
 
@@ -55,13 +59,12 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
                 challenge = Encoding.encodeBase64(Cryptography.encryptRSA(challenge, serverConnection.key))
         )
 
-        val response = baseRequest("/bind-session", Connection.Method.POST, false, BindSessionApiResponse::class.java) {
-            requestBody(gson.toJson(request))
-            header("Content-Type", "application/json")
+        val response = baseRequest("/bind-session", false, BindSessionApiResponse::class.java) {
+            post(gson.toJson(request).toRequestBody(MediaTypes.APPLICATION_JSON))
         }
 
         val solvedChallenge = Cryptography.decryptRSA(Encoding.decodeBase64(response.challenge), deviceKeyPair.private)
-        if (!Arrays.equals(challenge, solvedChallenge)) {
+        if (!challenge.contentEquals(solvedChallenge)) {
             throw PairedSessionException("Server failed to solve challenge") // TODO: critical
         }
 
@@ -71,12 +74,11 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
         )
     }
 
-    private fun <T> baseRequest(
+    private suspend fun <T> baseRequest(
             url: String,
-            method: Connection.Method,
             requiresSession: Boolean,
             responseType: Class<T>,
-            init: Connection.(Session?) -> Unit
+            init: Request.Builder.(Session?) -> Unit
     ): T {
         val serverConnection = serverConnection ?: throw PairedServerNotAvailableException("No cached server connections")
         val session = serverConnection.session
@@ -84,44 +86,49 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
             throw PairedSessionException("Session is required, but not bound")
         }
 
-        val request = networkManager.createJsoupConnection("${serverConnection.address}$url", true)
-                .ignoreContentType(true)
-                .ignoreHttpErrors(true)
-                .method(method)
+        val requestBuilder = Request.Builder()
+                .url("${serverConnection.address}$url")
 
         if (requiresSession) {
-            request.header("Authorization", "Bearer ${session!!.token}")
+            requestBuilder.header("Authorization", "Bearer ${session!!.token}")
         }
 
-        val response = try {
-            request.apply { init(session) }.execute()
+        requestBuilder.init(session)
+
+        val request = networkManager.getHttpClient(true)
+                .newCall(requestBuilder.build())
+
+        val awaitedResponse = try {
+            request.await()
         } catch (e: ConnectException) {
             throw PairedServerNotAvailableException("Failed to connect to server")
         }
 
-        when (response.statusCode()) {
-            200 -> {
-                var body = response.body()
-                if (requiresSession) {
-                    body = body
-                            .let { Encoding.decodeBase64(it) }
-                            .let { Cryptography.decryptAES(it, session!!.key) }
-                            .let { Encoding.bytesToString(it) }
-                }
+        return awaitedResponse.use { response ->
+            when (response.code) {
+                200 -> {
+                    var body = response.body!!.string()
+                    if (requiresSession) {
+                        body = body
+                                .let { Encoding.decodeBase64(it) }
+                                .let { Cryptography.decryptAES(it, session!!.key) }
+                                .let { Encoding.bytesToString(it) }
+                    }
 
-                return gson.fromJson(body, responseType)
+                    gson.fromJson(body, responseType)
+                }
+                401 -> throw PairedSessionException("Token was rejected")
+                else -> throw PairedApiException("Bad HTTP status ${response.code}")
             }
-            401 -> throw PairedSessionException("Token was rejected")
-            else -> throw PairedApiException("Bad HTTP status ${response.statusCode()}")
         }
     }
 
-    fun <T> request(url: String, method: Connection.Method, responseType: Class<T>, init: Connection.(Session?) -> Unit): T {
-        synchronized(lock) {
+    suspend fun <T> request(url: String, responseType: Class<T>, init: Request.Builder.(Session?) -> Unit): T {
+        lock.withLock {
             var allowServerDiscovery = true
             var allowSessionCreation = true
 
-            var requester: () -> T = { baseRequest(url, method, true, responseType, init) }
+            var requester: suspend () -> T = { baseRequest(url, true, responseType, init) }
 
             while (true) {
                 try {
@@ -163,28 +170,30 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
     override val networkManager by instance<NetworkManager>()
     private val pairedApiRequestManager by lazy { PairedApiRequestManager(kodein) }
 
-    private inline fun <reified T> get(url: String, crossinline init: Connection.() -> Unit = {}): T {
-        return pairedApiRequestManager.request(url, Connection.Method.GET, T::class.java) {
+    private suspend inline fun <reified T> get(url: String, crossinline init: Request.Builder.() -> Unit = {}): T {
+        return pairedApiRequestManager.request(url, T::class.java) {
+            get()
             init()
         }
     }
 
-    private inline fun <reified T> post(url: String, data: Any? = null, crossinline init: Connection.() -> Unit = {}): T {
-        return pairedApiRequestManager.request(url, Connection.Method.POST, T::class.java) { session ->
-            data?.let { gson.toJson(data) }
+    private suspend inline fun <reified T> post(url: String, data: Any? = null, crossinline init: Request.Builder.() -> Unit = {}): T {
+        return pairedApiRequestManager.request(url, T::class.java) { session ->
+            val body = data?.let { gson.toJson(data) }
                     ?.let { Encoding.stringToBytes(it) }
                     ?.let { Cryptography.encryptAES(it, session!!.key) }
                     ?.let { Encoding.encodeBase64(it) }
-                    ?.let { requestBody(it) }
+                    ?: ""
 
-            header("Content-Type", "text/plain")
-
+            post(body.toRequestBody(MediaTypes.TEXT_PLAIN))
             init()
         }
     }
 
     fun downloadTorrent(magnet: String, path: String) {
-        post<Unit>("/download-torrent", TorrentDownloadApiRequest(magnet, path))
+        runBlocking {
+            post<Unit>("/download-torrent", TorrentDownloadApiRequest(magnet, path))
+        }
     }
 
     override fun getName(context: Context): String = context.getString(R.string.module_pairing)
