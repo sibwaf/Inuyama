@@ -90,7 +90,7 @@ class MainActivity : SingleActivity(), KodeinAware {
 
     override fun onStop() {
         if (BuildConfig.DEBUG) {
-            WorkManager.getInstance().cancelUniqueWork(WORK_NAME_OVERSEER)
+            WorkManager.getInstance(applicationContext).cancelUniqueWork(WORK_NAME_OVERSEER)
         }
 
         super.onStop()

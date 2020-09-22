@@ -32,7 +32,7 @@ class OverseerStarter : BroadcastReceiver() {
 
             val policy = if (replacing) ExistingPeriodicWorkPolicy.REPLACE else ExistingPeriodicWorkPolicy.KEEP
 
-            WorkManager.getInstance().enqueueUniquePeriodicWork(WORK_NAME_OVERSEER, policy, work)
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK_NAME_OVERSEER, policy, work)
         }
 
     }
