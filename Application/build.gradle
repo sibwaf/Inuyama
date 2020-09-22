@@ -5,7 +5,7 @@ apply plugin: "kotlin-kapt"
 def localProperties = null
 def localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
-    localPropertiesFile.newInputStream().withCloseable {
+    localPropertiesFile.withInputStream {
         def properties = new Properties()
         properties.load(it)
         localProperties = properties
@@ -13,13 +13,13 @@ if (localPropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "ru.dyatel.inuyama"
         minSdkVersion 23
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode 3
         versionName "1.2"
     }
@@ -69,13 +69,13 @@ dependencies {
     implementation "org.kodein.di:kodein-di-generic-jvm:$kodeinVersion"
     implementation "org.kodein.di:kodein-di-framework-android-x:$kodeinVersion"
 
-    implementation "androidx.appcompat:appcompat:1.0.2"
-    implementation "androidx.recyclerview:recyclerview:1.0.0"
+    implementation "androidx.appcompat:appcompat:1.2.0"
+    implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation "androidx.cardview:cardview:1.0.0"
 
-    implementation "com.google.android.material:material:1.1.0-alpha02"
+    implementation "com.google.android.material:material:1.2.1"
 
-    implementation "androidx.work:work-runtime-ktx:2.2.0"
+    implementation "androidx.work:work-runtime-ktx:2.4.0"
 
     def ankoVersion = "0.10.8"
     implementation "org.jetbrains.anko:anko-commons:$ankoVersion"
@@ -102,12 +102,12 @@ dependencies {
     implementation "com.mikepenz:iconics-core:3.1.0"
     implementation "com.mikepenz:community-material-typeface:2.7.94.1@aar"
 
-    implementation "com.github.bumptech.glide:glide:4.9.0"
+    implementation "com.github.bumptech.glide:glide:4.11.0"
 
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation "com.google.code.gson:gson:$gsonVersion"
 
-    implementation "org.ocpsoft.prettytime:prettytime:4.0.1.Final"
+    implementation "org.ocpsoft.prettytime:prettytime:4.0.5.Final"
     implementation "com.darwinsys:hirondelle-date4j:$date4jVersion"
 
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
