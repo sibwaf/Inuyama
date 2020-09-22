@@ -42,6 +42,8 @@ interface RemoteService {
     fun getName(context: Context): String
     fun checkConnection(): Boolean
 
+    fun getHttpClient(trustedOnly: Boolean) = networkManager.getHttpClient(trustedOnly)
+
     fun createConnection(url: String, trustedOnly: Boolean): Connection {
         return networkManager.createJsoupConnection(url, trustedOnly)
     }
@@ -50,6 +52,8 @@ interface RemoteService {
 interface ProxyableRemoteService : RemoteService {
 
     val serviceId: Long
+
+    override fun getHttpClient(trustedOnly: Boolean) = networkManager.getHttpClient(trustedOnly, serviceId)
 
     override fun createConnection(url: String, trustedOnly: Boolean): Connection {
         return networkManager.createProxiedJsoupConnection(url, trustedOnly, serviceId)

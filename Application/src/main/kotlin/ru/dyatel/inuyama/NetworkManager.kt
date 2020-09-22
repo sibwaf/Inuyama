@@ -6,6 +6,7 @@ import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import io.objectbox.Box
 import io.objectbox.kotlin.query
+import okhttp3.OkHttpClient
 import org.jsoup.Connection
 import org.jsoup.Jsoup
 import org.kodein.di.Kodein
@@ -17,10 +18,14 @@ import ru.dyatel.inuyama.model.Network_
 import ru.dyatel.inuyama.model.ProxyBinding
 import java.io.IOException
 import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.net.NetworkInterface
+import java.net.Proxy
 import java.nio.ByteBuffer
 
 class NetworkManager(override val kodein: Kodein) : KodeinAware {
+
+    private val httpClient = OkHttpClient.Builder().build()
 
     private val context by instance<Context>()
     private val wifiManager by on(context).instance<WifiManager>()
@@ -74,6 +79,25 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
         }
     }
 
+    fun getHttpClient(trustedOnly: Boolean, serviceId: Long? = null): OkHttpClient {
+        if (trustedOnly && !isNetworkTrusted) {
+            throw UntrustedNetworkException()
+        }
+
+        val proxy = serviceId?.let { proxyBindingBox[it] }
+                ?.proxy
+                ?.target
+
+        return if (proxy == null) {
+            httpClient
+        } else {
+            httpClient.newBuilder()
+                    .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
+                    .build()
+        }
+    }
+
+    @Deprecated("Use getHttpClient() instead")
     fun createJsoupConnection(url: String, trustedOnly: Boolean): Connection {
         if (trustedOnly && !isNetworkTrusted) {
             throw UntrustedNetworkException()
@@ -82,6 +106,7 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
         return Jsoup.connect(url)
     }
 
+    @Deprecated("Use getHttpClient() instead")
     fun createProxiedJsoupConnection(url: String, trustedOnly: Boolean, serviceId: Long): Connection {
         val connection = createJsoupConnection(url, trustedOnly)
 

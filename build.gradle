@@ -6,6 +6,7 @@ buildscript {
 
     ext.kodeinVersion = "6.3.3"
 
+    ext.okHttpVersion = "4.2.1"
     ext.jsoupVersion = "1.13.1"
     ext.gsonVersion = "2.8.6"
 
