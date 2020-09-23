@@ -24,7 +24,6 @@ import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.capitalizeSentences
 import ru.dyatel.inuyama.utilities.isVisible
 
-// TODO: support account creation
 class FinanceAccountView(context: Context) : BaseScreenView<FinanceAccountScreen>(context) {
 
     lateinit var financeOperationEditor: FinanceOperationEditor
@@ -91,6 +90,8 @@ class FinanceAccountScreen(private val account: FinanceAccount) : InuScreen<Fina
             val categories = categoryBox.all
             expenseCategorySelector.bindItems(categories)
             incomeCategorySelector.bindItems(categories)
+
+            allowTransfers = accountBox.count(2) > 1
 
             saveButton.setOnClickListener {
                 when (selectedTab) {

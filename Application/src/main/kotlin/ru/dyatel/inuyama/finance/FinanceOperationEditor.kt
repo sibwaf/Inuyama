@@ -46,8 +46,15 @@ class FinanceOperationEditor(context: Context) : _CardView(context) {
     }
 
     private lateinit var tabView: TabLayout
+
     var selectedTab = TAB_EXPENSE
         private set(value) {
+            field = value
+            syncState()
+        }
+
+    var allowTransfers = true
+        set(value) {
             field = value
             syncState()
         }
@@ -179,6 +186,15 @@ class FinanceOperationEditor(context: Context) : _CardView(context) {
     }
 
     private fun syncState() {
+        if (allowTransfers) {
+            tabView.getTabAt(TAB_TRANSFER)?.view?.isVisible = false
+
+            if (tabView.selectedTabPosition == TAB_TRANSFER) {
+                selectedTab = 0
+                return
+            }
+        }
+
         incomeCategorySelector.isVisible = selectedTab == TAB_INCOME
         targetAccountSelector.isVisible = selectedTab == TAB_TRANSFER
         expenseCategorySelector.isVisible = selectedTab == TAB_EXPENSE
