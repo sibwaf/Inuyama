@@ -14,6 +14,7 @@ import org.jetbrains.anko.appcompat.v7.tintedButton
 import org.jetbrains.anko.cardview.v7.cardView
 import org.jetbrains.anko.design._TextInputLayout
 import org.jetbrains.anko.design.textInputEditText
+import org.jetbrains.anko.frameLayout
 import org.jetbrains.anko.leftPadding
 import org.jetbrains.anko.linearLayout
 import org.jetbrains.anko.margin
@@ -27,9 +28,11 @@ import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.DIM_LARGE
+import ru.dyatel.inuyama.layout.SP_EXTRA_LARGE
 import ru.dyatel.inuyama.layout.SP_MEDIUM
 import ru.dyatel.inuyama.utilities.disableSuggestions
 import ru.dyatel.inuyama.utilities.disableUiExtraction
+import ru.sibwaf.inuyama.common.utilities.KAOMOJI
 
 inline fun ViewGroup.uniformTextView(init: TextView.() -> Unit = {}): TextView {
     return textView {
@@ -178,4 +181,15 @@ inline fun Context.showConfirmationDialog(title: String, message: String, action
             .setPositiveButton(action) { _, _ -> callback() }
             .setNegativeButton(R.string.action_cancel) { _, _ -> }
             .show()
+}
+
+fun Context.uniformEmptyView(): View {
+    return frameLayout {
+        lparams { gravity = Gravity.CENTER }
+
+        textView {
+            textSize = SP_EXTRA_LARGE
+            text = KAOMOJI.random()
+        }
+    }
 }

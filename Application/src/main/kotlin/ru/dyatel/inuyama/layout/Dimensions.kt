@@ -31,3 +31,7 @@ val View.DIM_EXTRA_LARGE
 const val SP_SMALL = 12f
 
 const val SP_MEDIUM = 16f
+
+const val SP_LARGE = 20f
+
+const val SP_EXTRA_LARGE = 24f
