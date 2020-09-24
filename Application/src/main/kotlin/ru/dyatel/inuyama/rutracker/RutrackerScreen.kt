@@ -29,6 +29,7 @@ import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.buildFastAdapter
+import ru.sibwaf.inuyama.common.api.RutrackerApi
 
 class RutrackerScreenView(context: Context) : BaseScreenView<RutrackerScreen>(context) {
 

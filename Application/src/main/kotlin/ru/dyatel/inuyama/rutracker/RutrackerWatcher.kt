@@ -1,6 +1,8 @@
 package ru.dyatel.inuyama.rutracker
 
 import io.objectbox.Box
+import io.objectbox.BoxStore
+import kotlinx.coroutines.runBlocking
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
@@ -14,7 +16,8 @@ import ru.dyatel.inuyama.utilities.subscribeFor
 
 class RutrackerWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
 
-    private val api by instance<RutrackerApi>()
+    private val api by instance<RutrackerApiService>()
+    private val boxStore by instance<BoxStore>()
     private val watchBox by instance<Box<RutrackerWatch>>()
 
     private val undispatchedQuery by lazy {
@@ -31,29 +34,34 @@ class RutrackerWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
     }
 
     override fun checkUpdates(): List<String> {
-        return watchBox.all
-                .filter {
-                    val magnet = try {
-                        api.extractMagnet(it.topic)
-                    } catch (e: RutrackerException) {
-                        // TODO
-                        return@filter false
-                    }
+        val updates = mutableListOf<String>()
 
-                    val oldHash = it.magnet?.let { MagnetParser.extractHash(it) }
-                    if (oldHash == null || oldHash != MagnetParser.extractHash(magnet)) {
-                        it.magnet = magnet
-                        return@filter true
+        boxStore.runInTx {
+            val data = runBlocking {
+                watchBox.all.mapNotNull {
+                    try {
+                        it to api.getMagnet(it.topic)
+                    } catch (e: Exception) { // TODO: catch proper exception
+                        null
                     }
+                }
+            }
 
-                    return@filter false
+            for ((watch, magnet) in data) {
+                val oldHash = watch.magnet?.let { MagnetParser.extractHash(it) }
+                if (oldHash == null || oldHash != MagnetParser.extractHash(magnet)) {
+                    watch.magnet = magnet
+                    continue
                 }
-                .onEach {
-                    it.lastUpdate = System.currentTimeMillis()
-                    it.updateDispatched = false
-                    watchBox.put(it)
-                }
-                .map { it.description }
+
+                watch.lastUpdate = System.currentTimeMillis()
+                watch.updateDispatched = false
+                watchBox.put(watch)
+
+                updates += watch.description
+            }
+        }
+        return updates
     }
 
     override fun dispatchUpdates(dispatcher: UpdateDispatcher) {

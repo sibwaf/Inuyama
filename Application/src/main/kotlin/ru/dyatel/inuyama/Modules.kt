@@ -28,7 +28,7 @@ import ru.dyatel.inuyama.nyaa.NyaaWatcher
 import ru.dyatel.inuyama.ruranobe.RuranobeApi
 import ru.dyatel.inuyama.ruranobe.RuranobeScreen
 import ru.dyatel.inuyama.ruranobe.RuranobeWatcher
-import ru.dyatel.inuyama.rutracker.RutrackerApi
+import ru.dyatel.inuyama.rutracker.RutrackerApiService
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.dyatel.inuyama.rutracker.RutrackerScreen
 import ru.dyatel.inuyama.rutracker.RutrackerWatcher
@@ -91,7 +91,7 @@ abstract class ModuleScreenProvider {
 val rutrackerModule = Kodein.Module("rutracker") {
     bind<Box<RutrackerWatch>>() with singleton { instance<BoxStore>().boxFor<RutrackerWatch>() }
     bind<RutrackerConfiguration>() with singleton { instance<PreferenceHelper>().rutracker }
-    bind<RutrackerApi>() with singleton { RutrackerApi(kodein) }
+    bind<RutrackerApiService>() with singleton { RutrackerApiService(kodein) }
     bind<RutrackerWatcher>() with singleton { RutrackerWatcher(kodein) }
 
     bind<ModuleScreenProvider>().inSet() with singleton {
