@@ -220,16 +220,16 @@ class FinanceOperationItem(val operation: FinanceOperation) : UniformSimpleItem(
         val builder = StringBuilder()
 
         val account = operation.account.target
-        val category = operation.category.target
+        val categories = operation.categories.joinToString(", ") { it.name }
 
-        if (operation.amount > 0) {
-            builder.append(category.name, " > ")
+        if (categories.isNotEmpty() && operation.amount > 0) {
+            builder.append(categories, " > ")
         }
 
         builder.append(account.name)
 
-        if (operation.amount < 0) {
-            builder.append(" > ", category.name)
+        if (categories.isNotEmpty() && operation.amount < 0) {
+            builder.append(" > ", categories)
         }
 
         builder.append(", ", context.getString(R.string.label_finance_amount, abs(operation.amount)))

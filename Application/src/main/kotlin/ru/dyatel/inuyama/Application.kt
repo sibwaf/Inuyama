@@ -51,6 +51,8 @@ class Application : Application(), KodeinAware {
         bind<Box<ProxyBinding>>() with singleton { instance<BoxStore>().boxFor<ProxyBinding>() }
         bind<Box<Directory>>() with singleton { instance<BoxStore>().boxFor<Directory>() }
 
+        bind<MigrationRunner>() with singleton { MigrationRunner(kodein) }
+
         bind<Gson>() with singleton {
             GsonBuilder()
                     .setExclusionStrategies(object : ExclusionStrategy {

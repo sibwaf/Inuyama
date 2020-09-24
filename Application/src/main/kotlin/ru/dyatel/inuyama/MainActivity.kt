@@ -68,6 +68,9 @@ class MainActivity : SingleActivity(), KodeinAware {
                 .apply { generateDrawerItems() }
                 .build()
 
+        val migrationRunner by instance<MigrationRunner>()
+        migrationRunner.migrate()
+
         if (BuildConfig.DEBUG) {
             val boxStore by instance<BoxStore>()
             AndroidObjectBrowser(boxStore).start(applicationContext)

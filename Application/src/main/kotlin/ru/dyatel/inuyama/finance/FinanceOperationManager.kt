@@ -23,7 +23,7 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 
         val operation = FinanceOperation(amount = -amount, datetime = DateTime.now(TimeZone.getDefault()))
         operation.account.target = account
-        operation.category.target = category
+        operation.categories.add(category)
 
         boxStore.runInTx {
             accountBox.put(account)
@@ -43,7 +43,7 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 
         val operation = FinanceOperation(amount = amount, datetime = DateTime.now(TimeZone.getDefault()))
         operation.account.target = account
-        operation.category.target = category
+        operation.categories.add(category)
 
         boxStore.runInTx {
             accountBox.put(account)
