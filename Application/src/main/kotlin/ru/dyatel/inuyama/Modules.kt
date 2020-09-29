@@ -16,6 +16,7 @@ import ru.dyatel.inuyama.finance.FinanceOperationManager
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceOperation
+import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.model.NyaaWatch
 import ru.dyatel.inuyama.model.RuranobeProject
@@ -137,6 +138,7 @@ val financeModule = Kodein.Module("finance") {
     bind<Box<FinanceAccount>>() with singleton { instance<BoxStore>().boxFor<FinanceAccount>() }
     bind<Box<FinanceCategory>>() with singleton { instance<BoxStore>().boxFor<FinanceCategory>() }
     bind<Box<FinanceOperation>>() with singleton { instance<BoxStore>().boxFor<FinanceOperation>() }
+    bind<Box<FinanceTransfer>>() with singleton { instance<BoxStore>().boxFor<FinanceTransfer>() }
 
     bind<FinanceOperationManager>() with singleton { FinanceOperationManager(kodein) }
 }

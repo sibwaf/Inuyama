@@ -94,10 +94,6 @@
           "name": "title"
         },
         {
-          "id": "3:3166306035683854372",
-          "name": "link"
-        },
-        {
           "id": "4:4313162907854358206",
           "name": "hash"
         },
@@ -357,12 +353,17 @@
           "name": "categoryId"
         }
       ],
-      "relations": []
+      "relations": [
+        {
+          "id": "1:2322591001484335646",
+          "name": "categories"
+        }
+      ]
     }
   ],
   "lastEntityId": "14:5786096165469442601",
   "lastIndexId": "11:500529878753307040",
-  "lastRelationId": "0:0",
+  "lastRelationId": "1:2322591001484335646",
   "lastSequenceId": "0:0",
   "modelVersion": 4,
   "modelVersionParserMinimum": 4,
@@ -386,7 +387,8 @@
     718607883795632861,
     2198599329849317004,
     4764547678810817443,
-    773556026420113593
+    773556026420113593,
+    3166306035683854372
   ],
   "retiredRelationUids": [],
   "version": 1

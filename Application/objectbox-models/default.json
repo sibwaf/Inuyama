@@ -359,10 +359,40 @@
           "name": "categories"
         }
       ]
+    },
+    {
+      "id": "15:8468445278664187785",
+      "lastPropertyId": "5:7386468994988094192",
+      "name": "FinanceTransfer",
+      "properties": [
+        {
+          "id": "1:1596363770239025290",
+          "name": "id"
+        },
+        {
+          "id": "2:2406385660042858204",
+          "name": "amount"
+        },
+        {
+          "id": "3:1428143620438479198",
+          "name": "datetime"
+        },
+        {
+          "id": "4:8594639711404119920",
+          "indexId": "12:4344727850525824420",
+          "name": "fromId"
+        },
+        {
+          "id": "5:7386468994988094192",
+          "indexId": "13:4906101377821633750",
+          "name": "toId"
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "14:5786096165469442601",
-  "lastIndexId": "11:500529878753307040",
+  "lastEntityId": "15:8468445278664187785",
+  "lastIndexId": "13:4906101377821633750",
   "lastRelationId": "1:2322591001484335646",
   "lastSequenceId": "0:0",
   "modelVersion": 4,

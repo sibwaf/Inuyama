@@ -9,6 +9,7 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceOperation
+import ru.dyatel.inuyama.model.FinanceTransfer
 import java.util.TimeZone
 
 class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
@@ -17,6 +18,7 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 
     private val accountBox by instance<Box<FinanceAccount>>()
     private val operationBox by instance<Box<FinanceOperation>>()
+    private val transferBox by instance<Box<FinanceTransfer>>()
 
     fun createExpense(account: FinanceAccount, category: FinanceCategory, amount: Double) {
         account.balance -= amount
@@ -35,7 +37,14 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         from.balance -= amount
         to.balance += amount
 
-        accountBox.put(from, to)
+        val transfer = FinanceTransfer(amount = amount)
+        transfer.from.target = from
+        transfer.to.target = to
+
+        boxStore.runInTx {
+            accountBox.put(from, to)
+            transferBox.put(transfer)
+        }
     }
 
     fun createIncome(account: FinanceAccount, category: FinanceCategory, amount: Double) {
