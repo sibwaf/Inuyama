@@ -199,9 +199,9 @@ class FinanceOperationEditor(context: Context) : _CardView(context) {
     }
 
     private fun syncState() {
-        if (allowTransfers) {
-            tabView.getTabAt(TAB_TRANSFER)?.view?.isVisible = false
+        tabView.getTabAt(TAB_TRANSFER)?.view?.isVisible = allowTransfers
 
+        if (!allowTransfers) {
             if (tabView.selectedTabPosition == TAB_TRANSFER) {
                 selectedTab = 0
                 return
