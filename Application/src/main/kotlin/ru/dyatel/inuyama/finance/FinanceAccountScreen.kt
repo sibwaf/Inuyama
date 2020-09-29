@@ -98,7 +98,8 @@ class FinanceAccountScreen(private val account: FinanceAccount) : InuScreen<Fina
                     FinanceOperationEditor.TAB_EXPENSE -> {
                         val amount = amountEditor.value
                         val category = expenseCategorySelector.selected!!
-                        operationManager.createExpense(account, category, amount)
+                        val description = descriptionEditor.text
+                        operationManager.createExpense(account, category, amount, description)
                     }
                     FinanceOperationEditor.TAB_TRANSFER -> {
                         val other = targetAccountSelector.selected!!
@@ -108,7 +109,8 @@ class FinanceAccountScreen(private val account: FinanceAccount) : InuScreen<Fina
                     FinanceOperationEditor.TAB_INCOME -> {
                         val amount = amountEditor.value
                         val category = incomeCategorySelector.selected!!
-                        operationManager.createIncome(account, category, amount)
+                        val description = descriptionEditor.text
+                        operationManager.createIncome(account, category, amount, description)
                     }
                     else -> throw IllegalArgumentException("Unknown tab is selected")
                 }

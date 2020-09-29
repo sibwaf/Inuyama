@@ -30,9 +30,11 @@ import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.components.FinanceAccountSelector
 import ru.dyatel.inuyama.layout.components.FinanceCategorySelector
 import ru.dyatel.inuyama.layout.components.UniformDoubleInput
+import ru.dyatel.inuyama.layout.components.UniformTextInput
 import ru.dyatel.inuyama.layout.components.financeAccountSelector
 import ru.dyatel.inuyama.layout.components.financeCategorySelector
 import ru.dyatel.inuyama.layout.components.uniformDoubleInput
+import ru.dyatel.inuyama.layout.components.uniformTextInput
 import ru.dyatel.inuyama.utilities.isVisible
 
 class FinanceOperationEditor(context: Context) : _CardView(context) {
@@ -72,6 +74,9 @@ class FinanceOperationEditor(context: Context) : _CardView(context) {
         private set
 
     lateinit var amountEditor: UniformDoubleInput
+        private set
+
+    lateinit var descriptionEditor: UniformTextInput
         private set
 
     lateinit var saveButton: Button
@@ -178,6 +183,14 @@ class FinanceOperationEditor(context: Context) : _CardView(context) {
                     }
                 }
 
+                descriptionEditor = uniformTextInput {
+                    hintResource = R.string.hint_description
+                }.apply {
+                    lparams(width = matchParent, height = wrapContent) {
+                        horizontalMargin = DIM_LARGE
+                    }
+                }
+
                 saveButton = tintedButton(R.string.action_save)
             }
         }
@@ -194,6 +207,8 @@ class FinanceOperationEditor(context: Context) : _CardView(context) {
                 return
             }
         }
+
+        descriptionEditor.isVisible = selectedTab != TAB_TRANSFER
 
         incomeCategorySelector.isVisible = selectedTab == TAB_INCOME
         targetAccountSelector.isVisible = selectedTab == TAB_TRANSFER

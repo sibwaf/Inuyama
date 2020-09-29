@@ -85,6 +85,7 @@
     <string name="hint_host">Сервер</string>
     <string name="hint_port">Порт</string>
     <string name="hint_name">Название</string>
+    <string name="hint_description">Описание</string>
 
     <string name="hint_rutracker_watch_link">Ссылка или идентификатор</string>
     <string name="hint_rutracker_watch_description">Название</string>

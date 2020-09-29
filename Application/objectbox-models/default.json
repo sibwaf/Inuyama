@@ -327,7 +327,7 @@
     },
     {
       "id": "13:3485297411382379919",
-      "lastPropertyId": "5:5072582747955169778",
+      "lastPropertyId": "6:3493630955869960752",
       "name": "FinanceOperation",
       "properties": [
         {
@@ -351,6 +351,10 @@
           "id": "5:5072582747955169778",
           "indexId": "9:7728774810140342089",
           "name": "categoryId"
+        },
+        {
+          "id": "6:3493630955869960752",
+          "name": "description"
         }
       ],
       "relations": [

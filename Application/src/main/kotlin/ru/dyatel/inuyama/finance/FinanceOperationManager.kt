@@ -20,10 +20,14 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
     private val operationBox by instance<Box<FinanceOperation>>()
     private val transferBox by instance<Box<FinanceTransfer>>()
 
-    fun createExpense(account: FinanceAccount, category: FinanceCategory, amount: Double) {
+    fun createExpense(account: FinanceAccount, category: FinanceCategory, amount: Double, description: String?) {
         account.balance -= amount
 
-        val operation = FinanceOperation(amount = -amount, datetime = DateTime.now(TimeZone.getDefault()))
+        val operation = FinanceOperation(
+                amount = -amount,
+                datetime = DateTime.now(TimeZone.getDefault()),
+                description = description?.takeIf { it.isNotBlank() }
+        )
         operation.account.target = account
         operation.categories.add(category)
 
@@ -47,10 +51,14 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         }
     }
 
-    fun createIncome(account: FinanceAccount, category: FinanceCategory, amount: Double) {
+    fun createIncome(account: FinanceAccount, category: FinanceCategory, amount: Double, description: String?) {
         account.balance += amount
 
-        val operation = FinanceOperation(amount = amount, datetime = DateTime.now(TimeZone.getDefault()))
+        val operation = FinanceOperation(
+                amount = amount,
+                datetime = DateTime.now(TimeZone.getDefault()),
+                description = description?.takeIf { it.isNotBlank() }
+        )
         operation.account.target = account
         operation.categories.add(category)
 

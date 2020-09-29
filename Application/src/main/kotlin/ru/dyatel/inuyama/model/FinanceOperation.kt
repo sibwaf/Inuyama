@@ -15,7 +15,9 @@ data class FinanceOperation(
         var amount: Double = 0.0,
 
         @Convert(converter = DateTimeConverter::class, dbType = String::class)
-        var datetime: DateTime = DateTime.now(TimeZone.getDefault())
+        var datetime: DateTime = DateTime.now(TimeZone.getDefault()),
+
+        var description: String? = null
 ) {
     lateinit var account: ToOne<FinanceAccount>
     lateinit var categories: ToMany<FinanceCategory>
