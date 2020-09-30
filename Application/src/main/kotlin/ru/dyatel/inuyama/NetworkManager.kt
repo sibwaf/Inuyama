@@ -16,6 +16,7 @@ import org.kodein.di.generic.on
 import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.model.Network_
 import ru.dyatel.inuyama.model.ProxyBinding
+import ru.dyatel.inuyama.model.findByBssid
 import java.io.IOException
 import java.net.InetAddress
 import java.net.InetSocketAddress
@@ -59,14 +60,14 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
     val isNetworkTrusted: Boolean
         get() {
             val current = currentWifiConnection ?: return false
-            return networkBox.query { equal(Network_.bssid, current.bssid) }.findFirst()?.trusted ?: false
+            return networkBox.findByBssid(current.bssid)?.trusted == true
         }
 
     fun refreshNetworkList() {
         val current = currentWifiConnection
 
         networkBox.query {
-            notEqual(Network_.trusted, true)
+            equal(Network_.trusted, false)
 
             if (current != null) {
                 and()
@@ -74,7 +75,7 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
             }
         }.remove()
 
-        if (current != null && networkBox.query { equal(Network_.bssid, current.bssid) }.count() == 0L) {
+        if (current != null && networkBox.findByBssid(current.bssid) == null) {
             networkBox.put(Network(name = current.ssid, bssid = current.bssid))
         }
     }
