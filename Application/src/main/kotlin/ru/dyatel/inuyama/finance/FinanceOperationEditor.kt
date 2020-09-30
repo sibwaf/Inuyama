@@ -49,10 +49,14 @@ class FinanceOperationEditor(context: Context) : _CardView(context) {
 
     private lateinit var tabView: TabLayout
 
-    var selectedTab = TAB_EXPENSE
-        private set(value) {
-            field = value
-            syncState()
+    private val tabsToIndices = mutableMapOf<TabLayout.Tab, Int>()
+    private val indicesToTabs = mutableMapOf<Int, TabLayout.Tab>()
+
+    var selectedTab: Int
+        get() = tabView.selectedTabPosition
+        set(value) {
+            val tab = indicesToTabs[value] ?: throw IllegalArgumentException("Unknown tab")
+            tabView.selectTab(tab)
         }
 
     var allowTransfers = true
@@ -89,31 +93,27 @@ class FinanceOperationEditor(context: Context) : _CardView(context) {
             tabView = tabLayout {
                 lparams(width = matchParent, height = wrapContent)
 
-                fun createTab(icon: IIcon): TabLayout.Tab {
+                fun createTab(index: Int, icon: IIcon) {
                     val drawable = IconicsDrawable(context)
                             .icon(icon)
                             .sizeDp(16)
                             .colorRes(R.color.material_drawer_dark_primary_text)
 
-                    return newTab().setIcon(drawable).apply { addTab(this) }
+                    val tab = newTab().setIcon(drawable)
+
+                    tabsToIndices[tab] = index
+                    indicesToTabs[index] = tab
+                    addTab(tab)
                 }
 
-                val expenseTab = createTab(CommunityMaterial.Icon.cmd_arrow_top_right)
-                val transferTab = createTab(CommunityMaterial.Icon.cmd_arrow_expand)
-                val incomeTab = createTab(CommunityMaterial.Icon.cmd_arrow_bottom_right)
+                createTab(TAB_EXPENSE, CommunityMaterial.Icon.cmd_arrow_top_right)
+                createTab(TAB_TRANSFER, CommunityMaterial.Icon.cmd_arrow_expand)
+                createTab(TAB_INCOME, CommunityMaterial.Icon.cmd_arrow_bottom_right)
 
                 addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                     override fun onTabReselected(tab: TabLayout.Tab) = Unit
                     override fun onTabUnselected(tab: TabLayout.Tab?) = Unit
-
-                    override fun onTabSelected(tab: TabLayout.Tab) {
-                        selectedTab = when (tab) {
-                            expenseTab -> TAB_EXPENSE
-                            transferTab -> TAB_TRANSFER
-                            incomeTab -> TAB_INCOME
-                            else -> throw IllegalArgumentException("Unknown tab object")
-                        }
-                    }
+                    override fun onTabSelected(tab: TabLayout.Tab) = syncState()
                 })
             }
 
@@ -199,10 +199,10 @@ class FinanceOperationEditor(context: Context) : _CardView(context) {
     }
 
     private fun syncState() {
-        tabView.getTabAt(TAB_TRANSFER)?.view?.isVisible = allowTransfers
+        indicesToTabs[TAB_TRANSFER]!!.view.isVisible = allowTransfers
 
         if (!allowTransfers) {
-            if (tabView.selectedTabPosition == TAB_TRANSFER) {
+            if (selectedTab == TAB_TRANSFER) {
                 selectedTab = 0
                 return
             }
