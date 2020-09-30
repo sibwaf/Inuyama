@@ -85,6 +85,10 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
             navigator.goTo(FinanceAccountScreen(item.account))
             true
         }
+        operationFastAdapter.withOnClickListener { _, _, item, _ ->
+            navigator.goTo(FinanceOperationScreen(item.operation))
+            true
+        }
     }
 
     override fun createView(context: Context): FinanceDashboardView {

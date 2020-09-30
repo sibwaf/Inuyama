@@ -67,4 +67,32 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
             operationBox.put(operation)
         }
     }
+
+    fun update(
+            operation: FinanceOperation,
+            account: FinanceAccount,
+            category: FinanceCategory,
+            amount: Double,
+            description: String?
+    ) {
+        boxStore.runInTx {
+            var oldAccount = operation.account.target
+            if (oldAccount.id == account.id) {
+                oldAccount = account
+            }
+
+            oldAccount.balance -= operation.amount
+            accountBox.put(oldAccount)
+
+            account.balance += amount
+            accountBox.put(account)
+
+            operation.account.target = account
+            operation.categories.clear()
+            operation.categories.add(category)
+            operation.amount = amount
+            operation.description = description?.takeIf { it.isNotBlank() }
+            operationBox.put(operation)
+        }
+    }
 }
