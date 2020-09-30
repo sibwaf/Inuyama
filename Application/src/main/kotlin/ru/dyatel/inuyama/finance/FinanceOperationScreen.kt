@@ -31,7 +31,9 @@ class FinanceOperationScreen(private val operation: FinanceOperation) : InuScree
 
                 val categories = categoryBox.all
                 expenseCategorySelector.bindItems(categories)
+                expenseCategorySelector.selected = operation.categories.firstOrNull()
                 incomeCategorySelector.bindItems(categories)
+                incomeCategorySelector.selected = operation.categories.firstOrNull()
 
                 selectedTab = if (operation.amount > 0) {
                     FinanceOperationEditor.TAB_INCOME
