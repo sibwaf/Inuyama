@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import io.objectbox.Box
+import io.objectbox.kotlin.query
 import org.jetbrains.anko.cardview.v7.themedCardView
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
@@ -26,6 +27,7 @@ import ru.dyatel.inuyama.layout.components.OptionalView
 import ru.dyatel.inuyama.layout.components.createOptionalView
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceOperation
+import ru.dyatel.inuyama.model.FinanceOperation_
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 
@@ -69,6 +71,13 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                     layoutManager = LinearLayoutManager(context)
                 }
             }
+
+            setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+                // TODO: rework
+                if (scrollY > oldScrollY && !canScrollVertically(1)) {
+                    screen.loadMore()
+                }
+            }
         }
 
         optionalView = createOptionalView(regularView, true)
@@ -79,6 +88,10 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
 
 class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
 
+    private companion object {
+        const val AMOUNT_PER_SCROLL = 32
+    }
+
     override val titleResource = R.string.screen_finance_dashboard
 
     private val accountStore by instance<Box<FinanceAccount>>()
@@ -88,6 +101,8 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     private val operationStore by instance<Box<FinanceOperation>>()
     private val operationAdapter = ItemAdapter<FinanceOperationItem>()
     private val operationFastAdapter = operationAdapter.buildFastAdapter()
+
+    private var operationListOffset = 0
 
     init {
         accountFastAdapter.withOnClickListener { _, _, item, _ ->
@@ -120,15 +135,24 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     private fun reloadAccounts() {
         view.isEmpty = accountStore.isEmpty
         accountStore.all
-                .map { FinanceAccountItem(it) }
-                .let { accountAdapter.set(it) }
+            .map { FinanceAccountItem(it) }
+            .let { accountAdapter.set(it) }
     }
 
     private fun reloadOperations() {
-        operationStore.all
-                .sortedByDescending { it.datetime }
-                .map { FinanceOperationItem(it) }
-                .let { operationAdapter.set(it) }
+        operationListOffset = 0
+        operationAdapter.clear()
+        loadMore()
+    }
+
+    fun loadMore() {
+        val operations = operationStore
+            .query { orderDesc(FinanceOperation_.datetime) }
+            .find(operationListOffset.toLong(), AMOUNT_PER_SCROLL.toLong())
+            .map { FinanceOperationItem(it) }
+
+        operationListOffset += operations.size
+        operationAdapter.add(operations)
     }
 
     override fun onUpdateMenu(menu: Menu) {
