@@ -18,6 +18,8 @@
 
     <string name="menu_add">Добавить</string>
     <string name="menu_settings">Настройки</string>
+    <string name="menu_add_finance_account">Добавить кошелёк</string>
+    <string name="menu_goto_finance_categories">Категории</string>
 
     <string name="notification_channel_updates">Обновления</string>
     <string name="notification_updates">Найдены обновления</string>

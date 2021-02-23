@@ -9,4 +9,12 @@
           android:title="@string/menu_settings"
           android:showAsAction="ifRoom"/>
 
+    <item android:id="@+id/add_finance_account"
+          android:title="@string/menu_add_finance_account"
+          android:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/goto_finance_categories"
+          android:title="@string/menu_goto_finance_categories"
+          android:showAsAction="ifRoom"/>
+
 </menu>

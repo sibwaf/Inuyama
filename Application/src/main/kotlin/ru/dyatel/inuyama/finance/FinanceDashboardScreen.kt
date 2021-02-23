@@ -1,14 +1,15 @@
 package ru.dyatel.inuyama.finance
 
 import android.content.Context
+import android.view.Menu
 import android.view.ViewGroup
-import android.widget.Button
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import io.objectbox.Box
-import org.jetbrains.anko.appcompat.v7.tintedButton
+import org.jetbrains.anko.cardview.v7.themedCardView
+import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.padding
 import org.jetbrains.anko.recyclerview.v7.recyclerView
@@ -21,27 +22,25 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.FinanceAccountItem
 import ru.dyatel.inuyama.layout.FinanceOperationItem
+import ru.dyatel.inuyama.layout.components.OptionalView
+import ru.dyatel.inuyama.layout.components.createOptionalView
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceOperation
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 
-// TODO: split into multiple screens
 class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardScreen>(context) {
 
     lateinit var accountRecyclerView: RecyclerView
-        private set
-    lateinit var addAccountButton: Button
-        private set
-
-    lateinit var categoriesButton: Button
         private set
 
     lateinit var operationRecyclerView: RecyclerView
         private set
 
+    private val optionalView: OptionalView
+
     init {
-        nestedScrollView {
+        val regularView = context.nestedScrollView {
             descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
 
             verticalLayout {
@@ -49,14 +48,21 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                     padding = DIM_LARGE
                 }
 
-                addAccountButton = tintedButton(R.string.finance_button_add_account)
+                themedCardView {
+                    lparams(width = matchParent, height = wrapContent) {
+                        bottomMargin = DIM_LARGE
+                    }
 
-                accountRecyclerView = recyclerView {
-                    lparams(width = matchParent, height = wrapContent)
-                    layoutManager = LinearLayoutManager(context)
+                    setCardBackgroundColor(context.getColor(R.color.color_primary))
+
+                    accountRecyclerView = recyclerView {
+                        lparams(width = matchParent, height = wrapContent) {
+                            margin = DIM_LARGE
+                        }
+
+                        layoutManager = LinearLayoutManager(context)
+                    }
                 }
-
-                categoriesButton = tintedButton(R.string.finance_button_categories)
 
                 operationRecyclerView = recyclerView {
                     lparams(width = matchParent, height = wrapContent)
@@ -64,8 +70,11 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                 }
             }
         }
+
+        optionalView = createOptionalView(regularView, true)
     }
 
+    var isEmpty by optionalView::isEmpty
 }
 
 class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
@@ -94,12 +103,6 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     override fun createView(context: Context): FinanceDashboardView {
         return FinanceDashboardView(context).apply {
             accountRecyclerView.adapter = accountFastAdapter
-            addAccountButton.setOnClickListener {
-                navigator.goTo(FinanceAccountScreen(FinanceAccount()))
-            }
-
-            categoriesButton.setOnClickListener { navigator.goTo(FinanceCategoriesScreen()) }
-
             operationRecyclerView.adapter = operationFastAdapter
         }
     }
@@ -115,6 +118,7 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     }
 
     private fun reloadAccounts() {
+        view.isEmpty = accountStore.isEmpty
         accountStore.all
                 .map { FinanceAccountItem(it) }
                 .let { accountAdapter.set(it) }
@@ -125,5 +129,23 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
                 .sortedByDescending { it.datetime }
                 .map { FinanceOperationItem(it) }
                 .let { operationAdapter.set(it) }
+    }
+
+    override fun onUpdateMenu(menu: Menu) {
+        menu.findItem(R.id.add_finance_account).apply {
+            isVisible = true
+            setOnMenuItemClickListener {
+                navigator.goTo(FinanceAccountScreen(FinanceAccount()))
+                true
+            }
+        }
+
+        menu.findItem(R.id.goto_finance_categories).apply {
+            isVisible = true
+            setOnMenuItemClickListener {
+                navigator.goTo(FinanceCategoriesScreen())
+                true
+            }
+        }
     }
 }
