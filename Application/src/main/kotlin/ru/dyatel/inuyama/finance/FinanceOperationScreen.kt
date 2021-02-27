@@ -45,20 +45,22 @@ class FinanceOperationScreen(private val operation: FinanceOperation) : InuScree
                 descriptionEditor.text = operation.description ?: ""
 
                 saveButton.setOnClickListener {
-                    var amount = amountEditor.value
                     // TODO: check > 0
+                    var amount = amountEditor.value
+                    if (selectedTab == FinanceOperationEditor.TAB_EXPENSE) {
+                        amount = -amount
+                    }
 
-                    when (selectedTab) {
-                        FinanceOperationEditor.TAB_INCOME -> {
-                        }
-                        FinanceOperationEditor.TAB_EXPENSE -> amount = -amount
+                    val category = when (selectedTab) {
+                        FinanceOperationEditor.TAB_INCOME -> incomeCategorySelector.selected!!
+                        FinanceOperationEditor.TAB_EXPENSE -> expenseCategorySelector.selected!!
                         else -> throw IllegalArgumentException("Unknown tab is selected")
                     }
 
                     operationManager.update(
                             operation,
                             account = currentAccountSelector.selected!!,
-                            category = expenseCategorySelector.selected!!,
+                            category = category,
                             amount = amount,
                             description = descriptionEditor.text
                     )
