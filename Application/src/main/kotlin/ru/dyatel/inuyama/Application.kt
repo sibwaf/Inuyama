@@ -97,4 +97,10 @@ class Application : Application(), KodeinAware {
         import(financeModule)
     }
 
+    override fun onCreate() {
+        super.onCreate()
+
+        val migrationRunner by instance<MigrationRunner>()
+        migrationRunner.migrate()
+    }
 }
