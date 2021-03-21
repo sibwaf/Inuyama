@@ -9,3 +9,5 @@ val Date.asDateTime
 
 val DateTime.asDate
     get() = Date(getMilliseconds(TimeZone.getDefault()))
+
+fun DateTime.minusMonths(months: Int): DateTime = minus(0, months, 0, 0, 0, 0, 0, DateTime.DayOverflow.Spillover)

@@ -24,6 +24,7 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.finance.FinanceDashboardScreen
+import ru.dyatel.inuyama.finance.FinanceStatisticsScreen
 import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.pairing.PairingScreen
 import ru.dyatel.inuyama.screens.DirectoryScreen
@@ -147,6 +148,7 @@ class MainActivity : SingleActivity(), KodeinAware {
         addDrawerItems(DividerDrawerItem())
 
         createMenuItem<FinanceDashboardScreen>(CommunityMaterial.Icon2.cmd_wallet, getString(R.string.screen_finance_dashboard))
+        createMenuItem<FinanceStatisticsScreen>(CommunityMaterial.Icon.cmd_chart_histogram, getString(R.string.screen_finance_statistics))
 
         addDrawerItems(DividerDrawerItem())
 
