@@ -13,12 +13,12 @@ import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_LARGE
-import ru.dyatel.inuyama.layout.components.UniformTextInput
-import ru.dyatel.inuyama.layout.components.uniformTextInput
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.screens.InuScreen
-import ru.dyatel.inuyama.utilities.capitalizeSentences
+import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.components.UniformTextInput
+import sibwaf.inuyama.app.common.components.uniformTextInput
+import sibwaf.inuyama.app.common.utilities.capitalizeSentences
 
 class FinanceCategoryView(context: Context) : BaseScreenView<FinanceCategoryScreen>(context) {
 

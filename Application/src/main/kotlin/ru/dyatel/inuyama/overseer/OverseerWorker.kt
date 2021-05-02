@@ -11,11 +11,11 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.allInstances
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.Notifier
 import ru.dyatel.inuyama.UpdateDispatcher
 import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.utilities.PreferenceHelper
+import sibwaf.inuyama.app.common.NetworkManager
 import java.util.TimeZone
 
 typealias OverseerListener = (Boolean) -> Unit

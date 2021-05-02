@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.layout.components
+package sibwaf.inuyama.app.common.components
 
 import android.app.AlertDialog
 import android.content.Context
@@ -25,14 +25,14 @@ import org.jetbrains.anko.textResource
 import org.jetbrains.anko.textView
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
-import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
-import ru.dyatel.inuyama.layout.DIM_LARGE
-import ru.dyatel.inuyama.layout.SP_EXTRA_LARGE
-import ru.dyatel.inuyama.layout.SP_MEDIUM
-import ru.dyatel.inuyama.utilities.disableSuggestions
-import ru.dyatel.inuyama.utilities.disableUiExtraction
 import ru.sibwaf.inuyama.common.utilities.KAOMOJI
+import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
+import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.R
+import sibwaf.inuyama.app.common.SP_EXTRA_LARGE
+import sibwaf.inuyama.app.common.SP_MEDIUM
+import sibwaf.inuyama.app.common.utilities.disableSuggestions
+import sibwaf.inuyama.app.common.utilities.disableUiExtraction
 
 inline fun ViewGroup.uniformTextView(init: TextView.() -> Unit = {}): TextView {
     return textView {

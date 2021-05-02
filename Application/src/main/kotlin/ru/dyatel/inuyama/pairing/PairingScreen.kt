@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,20 +24,19 @@ import org.jetbrains.anko.textResource
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.PairingServerItem
-import ru.dyatel.inuyama.layout.components.ElementPicker
-import ru.dyatel.inuyama.layout.components.UniformTextInput
-import ru.dyatel.inuyama.layout.components.uniformTextInput
-import ru.dyatel.inuyama.layout.components.uniformTextView
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.buildFastAdapter
-import ru.dyatel.inuyama.utilities.isVisible
 import ru.sibwaf.inuyama.common.Pairing
 import ru.sibwaf.inuyama.common.utilities.humanReadable
+import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.NetworkManager
+import sibwaf.inuyama.app.common.components.ElementPicker
+import sibwaf.inuyama.app.common.components.UniformTextInput
+import sibwaf.inuyama.app.common.components.uniformTextInput
+import sibwaf.inuyama.app.common.components.uniformTextView
 
 class PairingView(context: Context) : BaseScreenView<PairingScreen>(context) {
 

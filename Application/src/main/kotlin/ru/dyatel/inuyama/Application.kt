@@ -33,6 +33,8 @@ import ru.dyatel.inuyama.utilities.NoJson
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
 import ru.sibwaf.inuyama.common.utilities.Encoding
+import sibwaf.inuyama.app.common.ModuleScreenProvider
+import sibwaf.inuyama.app.common.NetworkManager
 import java.security.PublicKey
 
 class Application : Application(), KodeinAware {
@@ -84,7 +86,7 @@ class Application : Application(), KodeinAware {
 
         bind<Notifier>() with singleton { Notifier(kodein) }
 
-        bind<NetworkManager>() with singleton { NetworkManager(kodein) }
+        bind<NetworkManager>() with singleton { NetworkManagerImpl(kodein) }
 
         bind<DiscoveryService>() with singleton { DiscoveryService(kodein) }
         bind<PairingManager>() with singleton { PairingManager(kodein) }

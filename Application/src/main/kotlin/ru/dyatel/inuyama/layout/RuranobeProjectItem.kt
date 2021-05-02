@@ -24,11 +24,14 @@ import ru.dyatel.inuyama.ITEM_TYPE_RURANOBE_PROJECT
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RURANOBE_COVER_ASPECT_RATIO
 import ru.dyatel.inuyama.RURANOBE_COVER_SIZE
-import ru.dyatel.inuyama.layout.components.uniformTextView
 import ru.dyatel.inuyama.model.RuranobeProject
-import ru.dyatel.inuyama.utilities.hideIf
 import ru.dyatel.inuyama.utilities.prettyTime
 import ru.sibwaf.inuyama.common.utilities.asDate
+import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
+import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.DIM_MEDIUM
+import sibwaf.inuyama.app.common.components.uniformTextView
+import sibwaf.inuyama.app.common.utilities.hideIf
 
 class RuranobeProjectItem(
         val project: RuranobeProject

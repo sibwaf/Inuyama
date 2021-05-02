@@ -22,10 +22,12 @@ import ru.dyatel.inuyama.ITEM_TYPE_RURANOBE_VOLUME
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.RURANOBE_COVER_ASPECT_RATIO
 import ru.dyatel.inuyama.RURANOBE_COVER_SIZE
-import ru.dyatel.inuyama.layout.components.uniformTextView
 import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.utilities.prettyTime
 import ru.sibwaf.inuyama.common.utilities.asDate
+import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
+import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.components.uniformTextView
 
 class RuranobeVolumeItem(val volume: RuranobeVolume) : AbstractItem<RuranobeVolumeItem, RuranobeVolumeItem.ViewHolder>() {
 

@@ -5,6 +5,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
@@ -31,20 +32,12 @@ import org.kodein.di.generic.allInstances
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.BuildConfig
 import ru.dyatel.inuyama.DASHBOARD_UPDATE_COUNT
-import ru.dyatel.inuyama.ProxyableRemoteService
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.RemoteService
 import ru.dyatel.inuyama.Watcher
-import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
-import ru.dyatel.inuyama.layout.DIM_LARGE
-import ru.dyatel.inuyama.layout.DIM_MEDIUM
+import ru.dyatel.inuyama.layout.ProxySelector
 import ru.dyatel.inuyama.layout.RemoteServiceStateItem
 import ru.dyatel.inuyama.layout.UpdateItem
-import ru.dyatel.inuyama.layout.components.ProxySelector
-import ru.dyatel.inuyama.layout.components.StatusBar
-import ru.dyatel.inuyama.layout.components.proxySelector
-import ru.dyatel.inuyama.layout.components.statusBar
-import ru.dyatel.inuyama.layout.components.uniformTextView
+import ru.dyatel.inuyama.layout.proxySelector
 import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.ProxyBinding
 import ru.dyatel.inuyama.overseer.OverseerListener
@@ -52,9 +45,16 @@ import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.overseer.OverseerWorker
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.buildFastAdapter
-import ru.dyatel.inuyama.utilities.isVisible
 import ru.dyatel.inuyama.utilities.prettyTime
 import ru.sibwaf.inuyama.common.utilities.asDate
+import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
+import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.DIM_MEDIUM
+import sibwaf.inuyama.app.common.ProxyableRemoteService
+import sibwaf.inuyama.app.common.RemoteService
+import sibwaf.inuyama.app.common.components.StatusBar
+import sibwaf.inuyama.app.common.components.statusBar
+import sibwaf.inuyama.app.common.components.uniformTextView
 
 class HomeScreenView(context: Context) : BaseScreenView<HomeScreen>(context) {
 

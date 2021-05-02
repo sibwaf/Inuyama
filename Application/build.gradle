@@ -47,11 +47,6 @@ android {
         }
     }
 
-    sourceSets {
-        main.java.srcDirs += "src/main/kotlin"
-        test.java.srcDirs += "src/test/kotlin"
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -63,13 +58,14 @@ android {
 }
 
 dependencies {
+    implementation project(":Application-Common")
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
 
     implementation "org.kodein.di:kodein-di-generic-jvm:$kodeinVersion"
     implementation "org.kodein.di:kodein-di-framework-android-x:$kodeinVersion"
 
-    implementation "androidx.appcompat:appcompat:1.2.0"
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation "androidx.cardview:cardview:1.0.0"
 
@@ -77,43 +73,19 @@ dependencies {
 
     implementation "androidx.work:work-runtime-ktx:2.4.0"
 
-    def ankoVersion = "0.10.8"
-    implementation "org.jetbrains.anko:anko-commons:$ankoVersion"
-    implementation "org.jetbrains.anko:anko-sdk21:$ankoVersion"
-    implementation "org.jetbrains.anko:anko-appcompat-v7:$ankoVersion"
-    implementation "org.jetbrains.anko:anko-recyclerview-v7:$ankoVersion"
-    implementation "org.jetbrains.anko:anko-cardview-v7:$ankoVersion"
-    implementation "org.jetbrains.anko:anko-design:$ankoVersion"
-
     implementation "io.objectbox:objectbox-kotlin:$objectboxVersion"
     releaseImplementation "io.objectbox:objectbox-android:$objectboxVersion"
     debugImplementation "io.objectbox:objectbox-android-objectbrowser:$objectboxVersion"
 
-    def magellanVersion = "1.1.0"
-    implementation "com.wealthfront:magellan:$magellanVersion"
-    implementation "com.wealthfront:magellan-support:$magellanVersion"
-
-    def fastAdapterVersion = "3.3.1"
-    implementation "com.mikepenz:fastadapter:$fastAdapterVersion"
-    implementation "com.mikepenz:fastadapter-commons:$fastAdapterVersion"
-
-    implementation "com.mikepenz:materialize:1.2.1"
     implementation "com.mikepenz:materialdrawer:6.1.2"
-    implementation "com.mikepenz:iconics-core:3.1.0"
-    implementation "com.mikepenz:community-material-typeface:2.7.94.1@aar"
 
     implementation "com.github.bumptech.glide:glide:4.11.0"
 
-    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
-    implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation "com.google.code.gson:gson:$gsonVersion"
 
     implementation "org.ocpsoft.prettytime:prettytime:4.0.5.Final"
-    implementation "com.darwinsys:hirondelle-date4j:$date4jVersion"
 
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
-
-    implementation project(":Common")
 }
 
 apply plugin: "io.objectbox"

@@ -20,16 +20,16 @@ import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.FinanceAccountItem
 import ru.dyatel.inuyama.layout.FinanceOperationItem
-import ru.dyatel.inuyama.layout.components.OptionalView
-import ru.dyatel.inuyama.layout.components.createOptionalView
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceOperation
 import ru.dyatel.inuyama.model.FinanceOperation_
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
+import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.components.OptionalView
+import sibwaf.inuyama.app.common.components.createOptionalView
 
 class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardScreen>(context) {
 

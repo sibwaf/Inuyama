@@ -3,10 +3,10 @@ package ru.dyatel.inuyama.pairing
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.sibwaf.inuyama.common.DiscoverRequest
 import ru.sibwaf.inuyama.common.Pairing
+import sibwaf.inuyama.app.common.NetworkManager
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress

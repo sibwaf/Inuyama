@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.layout.components
+package sibwaf.inuyama.app.common.components
 
 import android.content.Context
 import android.view.View
@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Switch
 import android.widget.TextView
+import androidx.core.view.isVisible
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.IIcon
 import org.jetbrains.anko.alignParentRight
@@ -23,10 +24,9 @@ import org.jetbrains.anko.switch
 import org.jetbrains.anko.textResource
 import org.jetbrains.anko.textView
 import org.jetbrains.anko.wrapContent
-import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
-import ru.dyatel.inuyama.layout.SP_MEDIUM
-import ru.dyatel.inuyama.utilities.isVisible
+import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
+import sibwaf.inuyama.app.common.R
+import sibwaf.inuyama.app.common.SP_MEDIUM
 import kotlin.properties.Delegates
 
 class StatusBar(context: Context) : _CardView(context) {
@@ -85,7 +85,7 @@ class StatusBar(context: Context) : _CardView(context) {
             IconicsDrawable(context)
                     .icon(value)
                     .sizeDp(24)
-                    .colorRes(R.color.material_drawer_dark_secondary_text)
+                    .colorRes(R.color.md_dark_secondary)
         }
 
         iconView.setImageDrawable(drawable)

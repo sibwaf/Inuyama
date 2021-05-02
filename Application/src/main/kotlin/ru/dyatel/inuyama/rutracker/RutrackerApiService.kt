@@ -5,15 +5,13 @@ import okhttp3.Request
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.ProxyableRemoteService
 import ru.dyatel.inuyama.SERVICE_RUTRACKER
 import ru.sibwaf.inuyama.common.api.RutrackerApi
 import ru.sibwaf.inuyama.common.utilities.await
+import sibwaf.inuyama.app.common.NetworkManager
+import sibwaf.inuyama.app.common.ProxyableRemoteService
 import java.io.IOException
-import java.net.SocketTimeoutException
-import java.net.URI
 
 class RutrackerApiService(override val kodein: Kodein) : KodeinAware, ProxyableRemoteService {
 

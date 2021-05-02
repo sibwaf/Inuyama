@@ -3,6 +3,7 @@ package ru.dyatel.inuyama.ruranobe
 import android.content.Context
 import android.view.View
 import android.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
@@ -26,7 +27,6 @@ import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
-import ru.dyatel.inuyama.utilities.isVisible
 
 class RuranobeView(context: Context) : BaseScreenView<RuranobeScreen>(context) {
 

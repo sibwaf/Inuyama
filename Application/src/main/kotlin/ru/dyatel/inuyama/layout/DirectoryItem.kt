@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.view.isVisible
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
@@ -25,10 +26,11 @@ import org.jetbrains.anko.rightPadding
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_DIRECTORY
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.components.uniformTextInput
-import ru.dyatel.inuyama.layout.components.uniformTextView
 import ru.dyatel.inuyama.model.Directory
-import ru.dyatel.inuyama.utilities.isVisible
+import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
+import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.components.uniformTextInput
+import sibwaf.inuyama.app.common.components.uniformTextView
 
 class DirectoryItem(
         private val directory: Directory,

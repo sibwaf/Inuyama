@@ -18,20 +18,20 @@ import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
+import ru.dyatel.inuyama.layout.DirectorySelector
 import ru.dyatel.inuyama.layout.NyaaWatchItem
-import ru.dyatel.inuyama.layout.components.DatePicker
-import ru.dyatel.inuyama.layout.components.DirectorySelector
-import ru.dyatel.inuyama.layout.components.UniformTextInput
-import ru.dyatel.inuyama.layout.components.directorySelector
-import ru.dyatel.inuyama.layout.components.showConfirmationDialog
-import ru.dyatel.inuyama.layout.components.uniformTextInput
+import ru.dyatel.inuyama.layout.directorySelector
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.model.NyaaTorrent_
 import ru.dyatel.inuyama.model.NyaaWatch
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
+import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
+import sibwaf.inuyama.app.common.components.DatePicker
+import sibwaf.inuyama.app.common.components.UniformTextInput
+import sibwaf.inuyama.app.common.components.showConfirmationDialog
+import sibwaf.inuyama.app.common.components.uniformTextInput
 
 class NyaaView(context: Context) : BaseScreenView<NyaaScreen>(context) {
 

@@ -1,4 +1,4 @@
-package ru.dyatel.inuyama.layout.components
+package sibwaf.inuyama.app.common.components
 
 import android.app.Dialog
 import android.os.Bundle
@@ -8,7 +8,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import org.jetbrains.anko.numberPicker
 import org.jetbrains.anko.support.v4.ctx
-import ru.dyatel.inuyama.R
+import sibwaf.inuyama.app.common.R
 import kotlin.properties.Delegates
 
 class ElementPicker<T>(

@@ -12,10 +12,10 @@ import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_LARGE
-import ru.dyatel.inuyama.layout.components.StatusBar
-import ru.dyatel.inuyama.layout.components.statusBar
 import ru.dyatel.inuyama.screens.InuScreen
+import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.components.StatusBar
+import sibwaf.inuyama.app.common.components.statusBar
 
 class PairingServerView(context: Context) : BaseScreenView<PairingServerScreen>(context) {
 

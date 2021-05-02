@@ -30,4 +30,20 @@ subprojects {
         mavenCentral()
         maven { url "https://dl.bintray.com/kodein-framework/Kodein-DI/" }
     }
+
+    afterEvaluate {
+        def androidPlugin = getPlugins().findPlugin("com.android.application")
+        if (androidPlugin == null) {
+            androidPlugin = getPlugins().findPlugin("com.android.library")
+        }
+
+        if (androidPlugin != null) {
+            (androidPlugin as com.android.build.gradle.BasePlugin).extension.with {
+                sourceSets {
+                    main.java.srcDirs += "src/main/kotlin"
+                    test.java.srcDirs += "src/test/kotlin"
+                }
+            }
+        }
+    }
 }

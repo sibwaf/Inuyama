@@ -10,10 +10,11 @@ import com.mikepenz.fastadapter.items.AbstractItem
 import org.jetbrains.anko.find
 import ru.dyatel.inuyama.ITEM_TYPE_RUTRACKER_WATCH
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.components.uniformTextView
-import ru.dyatel.inuyama.layout.components.uniformWatchView
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.utilities.prettyTime
+import sibwaf.inuyama.app.common.DIM_MEDIUM
+import sibwaf.inuyama.app.common.components.uniformTextView
+import sibwaf.inuyama.app.common.components.uniformWatchView
 import java.util.Date
 
 class RutrackerWatchItem(

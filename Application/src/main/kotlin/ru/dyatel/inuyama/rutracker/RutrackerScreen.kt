@@ -17,19 +17,19 @@ import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
+import ru.dyatel.inuyama.layout.DirectorySelector
 import ru.dyatel.inuyama.layout.RutrackerWatchItem
-import ru.dyatel.inuyama.layout.components.DirectorySelector
-import ru.dyatel.inuyama.layout.components.UniformTextInput
-import ru.dyatel.inuyama.layout.components.directorySelector
-import ru.dyatel.inuyama.layout.components.showConfirmationDialog
-import ru.dyatel.inuyama.layout.components.uniformTextInput
+import ru.dyatel.inuyama.layout.directorySelector
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.sibwaf.inuyama.common.api.RutrackerApi
+import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
+import sibwaf.inuyama.app.common.components.UniformTextInput
+import sibwaf.inuyama.app.common.components.showConfirmationDialog
+import sibwaf.inuyama.app.common.components.uniformTextInput
 
 class RutrackerScreenView(context: Context) : BaseScreenView<RutrackerScreen>(context) {
 

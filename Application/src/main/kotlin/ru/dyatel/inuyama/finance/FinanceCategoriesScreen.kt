@@ -17,12 +17,12 @@ import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_LARGE
-import ru.dyatel.inuyama.layout.DIM_MEDIUM
 import ru.dyatel.inuyama.layout.FinanceCategoryItem
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
+import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.DIM_MEDIUM
 
 class FinanceCategoriesView(context: Context) : BaseScreenView<FinanceCategoriesScreen>(context) {
 

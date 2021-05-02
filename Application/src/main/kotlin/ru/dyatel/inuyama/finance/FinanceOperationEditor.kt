@@ -5,6 +5,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.view.isVisible
 import com.google.android.material.tabs.TabLayout
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
@@ -26,16 +27,15 @@ import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.verticalMargin
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_LARGE
-import ru.dyatel.inuyama.layout.components.FinanceAccountSelector
-import ru.dyatel.inuyama.layout.components.FinanceCategorySelector
-import ru.dyatel.inuyama.layout.components.UniformDoubleInput
-import ru.dyatel.inuyama.layout.components.UniformTextInput
-import ru.dyatel.inuyama.layout.components.financeAccountSelector
-import ru.dyatel.inuyama.layout.components.financeCategorySelector
-import ru.dyatel.inuyama.layout.components.uniformDoubleInput
-import ru.dyatel.inuyama.layout.components.uniformTextInput
-import ru.dyatel.inuyama.utilities.isVisible
+import ru.dyatel.inuyama.layout.FinanceAccountSelector
+import ru.dyatel.inuyama.layout.FinanceCategorySelector
+import ru.dyatel.inuyama.layout.financeAccountSelector
+import ru.dyatel.inuyama.layout.financeCategorySelector
+import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.components.UniformDoubleInput
+import sibwaf.inuyama.app.common.components.UniformTextInput
+import sibwaf.inuyama.app.common.components.uniformDoubleInput
+import sibwaf.inuyama.app.common.components.uniformTextInput
 
 class FinanceOperationEditor(context: Context) : _CardView(context) {
 

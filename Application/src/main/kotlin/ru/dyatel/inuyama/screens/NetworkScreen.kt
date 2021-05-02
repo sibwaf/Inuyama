@@ -16,12 +16,12 @@ import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.NetworkItem
 import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.utilities.buildFastAdapter
+import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.NetworkManager
 
 class NetworkView(context: Context) : BaseScreenView<NetworkScreen>(context) {
 

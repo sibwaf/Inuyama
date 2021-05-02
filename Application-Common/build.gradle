@@ -1,0 +1,58 @@
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+apply plugin: "kotlin-android-extensions"
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
+
+    defaultConfig {
+        minSdkVersion 23
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+    }
+}
+
+dependencies {
+    api project(":Common")
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    api "androidx.core:core-ktx:1.1.0"
+    api "androidx.appcompat:appcompat:1.2.0"
+
+    def ankoVersion = "0.10.8"
+    api "org.jetbrains.anko:anko-commons:$ankoVersion"
+    api "org.jetbrains.anko:anko-sdk21:$ankoVersion"
+    api "org.jetbrains.anko:anko-appcompat-v7:$ankoVersion"
+    api "org.jetbrains.anko:anko-recyclerview-v7:$ankoVersion"
+    api "org.jetbrains.anko:anko-cardview-v7:$ankoVersion"
+    api "org.jetbrains.anko:anko-design:$ankoVersion"
+
+    def magellanVersion = "1.1.0"
+    api "com.wealthfront:magellan:$magellanVersion"
+    api "com.wealthfront:magellan-support:$magellanVersion"
+
+    def fastAdapterVersion = "3.3.1"
+    api "com.mikepenz:fastadapter:$fastAdapterVersion"
+    api "com.mikepenz:fastadapter-commons:$fastAdapterVersion"
+
+    api "com.mikepenz:iconics-core:3.1.0"
+    api "com.mikepenz:community-material-typeface:2.7.94.1@aar"
+
+    api "com.mikepenz:materialize:1.2.1"
+
+    testImplementation "junit:junit:4.12"
+    androidTestImplementation "androidx.test.ext:junit:1.1.1"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.2.0"
+}

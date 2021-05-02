@@ -10,9 +10,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.NetworkManager
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.RemoteService
 import ru.sibwaf.inuyama.common.BindSessionApiRequest
 import ru.sibwaf.inuyama.common.BindSessionApiResponse
 import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
@@ -21,6 +19,8 @@ import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.common.utilities.MediaTypes
 import ru.sibwaf.inuyama.common.utilities.await
+import sibwaf.inuyama.app.common.NetworkManager
+import sibwaf.inuyama.app.common.RemoteService
 import java.net.ConnectException
 import java.security.PublicKey
 import javax.crypto.SecretKey

@@ -2,11 +2,8 @@ package ru.dyatel.inuyama
 
 import android.content.Context
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
-import com.mikepenz.iconics.typeface.IIcon
-import com.wealthfront.magellan.Screen
 import io.objectbox.Box
 import io.objectbox.BoxStore
-import org.jsoup.Connection
 import org.kodein.di.Kodein
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.inSet
@@ -35,31 +32,7 @@ import ru.dyatel.inuyama.rutracker.RutrackerScreen
 import ru.dyatel.inuyama.rutracker.RutrackerWatcher
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
-
-interface RemoteService {
-
-    val networkManager: NetworkManager
-
-    fun getName(context: Context): String
-    suspend fun checkConnection(): Boolean
-
-    fun getHttpClient(trustedOnly: Boolean) = networkManager.getHttpClient(trustedOnly)
-
-    fun createConnection(url: String, trustedOnly: Boolean): Connection {
-        return networkManager.createJsoupConnection(url, trustedOnly)
-    }
-}
-
-interface ProxyableRemoteService : RemoteService {
-
-    val serviceId: Long
-
-    override fun getHttpClient(trustedOnly: Boolean) = networkManager.getHttpClient(trustedOnly, serviceId)
-
-    override fun createConnection(url: String, trustedOnly: Boolean): Connection {
-        return networkManager.createProxiedJsoupConnection(url, trustedOnly, serviceId)
-    }
-}
+import sibwaf.inuyama.app.common.ModuleScreenProvider
 
 abstract class Watcher {
 
@@ -81,12 +54,6 @@ abstract class Watcher {
         listeners.forEach { it() }
     }
 
-}
-
-abstract class ModuleScreenProvider {
-    abstract fun getIcon(): IIcon
-    abstract fun getTitle(context: Context): String
-    abstract fun getScreenClass(): Class<out Screen<*>>
 }
 
 val rutrackerModule = Kodein.Module("rutracker") {

@@ -17,8 +17,6 @@
     <string name="module_ruranobe">РуРанобэ</string>
     <string name="module_pairing">Шибари</string>
 
-    <string name="menu_add">Добавить</string>
-    <string name="menu_settings">Настройки</string>
     <string name="menu_add_finance_account">Добавить кошелёк</string>
     <string name="menu_goto_finance_categories">Категории</string>
 
@@ -31,20 +29,9 @@
     <string name="dialog_remove_watch_title">Удаление отслеживания</string>
     <string name="dialog_remove_watch_message">Перестаём отслеживать %s?</string>
     <string name="dialog_select_proxy">Выбор прокси</string>
-    <string name="dialog_settings">Настройки</string>
-
-    <string name="action_add">Добавить</string>
-    <string name="action_save">Сохранить</string>
-    <string name="action_edit">Изменить</string>
-    <string name="action_remove">Удалить</string>
-    <string name="action_cancel">Отмена</string>
-    <string name="action_search">Поиск</string>
-    <string name="action_refresh">Обновить</string>
-    <string name="action_unbind">Отвязать</string>
 
     <string name="const_directory_default">[по умолчанию]</string>
     <string name="const_proxy_default">[прямое подключение]</string>
-    <string name="const_never">никогда</string>
 
     <string name="label_path">Путь: %s</string>
     <string name="label_last_update">Обновление: %s</string>
@@ -58,12 +45,6 @@
     <string name="label_finance_change">%+.2f ₽</string>
     <string name="label_current_network_untrusted">Текущая сеть не является доверенной</string>
     <string name="label_pairing_discovery_port">Порт связывания</string>
-
-    <plurals name="common_months">
-        <item quantity="one">%d месяц</item>
-        <item quantity="few">%d месяца</item>
-        <item quantity="other">%d месяцев</item>
-    </plurals>
 
     <plurals name="ruranobe_volumes">
         <item quantity="one">%d том, %s</item>
@@ -91,11 +72,6 @@
 
     <string name="container_services">Сервисы</string>
     <string name="container_update_list">Обновления</string>
-
-    <string name="hint_host">Сервер</string>
-    <string name="hint_port">Порт</string>
-    <string name="hint_name">Название</string>
-    <string name="hint_description">Описание</string>
 
     <string name="hint_rutracker_watch_link">Ссылка или идентификатор</string>
     <string name="hint_rutracker_watch_description">Название</string>

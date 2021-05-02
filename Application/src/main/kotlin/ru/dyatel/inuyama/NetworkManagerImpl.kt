@@ -17,14 +17,15 @@ import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.model.Network_
 import ru.dyatel.inuyama.model.ProxyBinding
 import ru.dyatel.inuyama.model.findByBssid
-import java.io.IOException
+import sibwaf.inuyama.app.common.NetworkManager
+import sibwaf.inuyama.app.common.UntrustedNetworkException
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.NetworkInterface
 import java.net.Proxy
 import java.nio.ByteBuffer
 
-class NetworkManager(override val kodein: Kodein) : KodeinAware {
+class NetworkManagerImpl(override val kodein: Kodein) : KodeinAware, NetworkManager {
 
     private val httpClient = OkHttpClient.Builder().build()
 
@@ -40,7 +41,7 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
                     ?.takeIf { it.bssid != null && it.supplicantState == SupplicantState.COMPLETED }
         }
 
-    val broadcastAddress: InetAddress?
+    override val broadcastAddress: InetAddress?
         get() {
             val dhcp = wifiManager.dhcpInfo ?: return null
 
@@ -57,13 +58,13 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
                     .singleOrNull()
         }
 
-    val isNetworkTrusted: Boolean
+    override val isNetworkTrusted: Boolean
         get() {
             val current = currentWifiConnection ?: return false
             return networkBox.findByBssid(current.bssid)?.trusted == true
         }
 
-    fun refreshNetworkList() {
+    override fun refreshNetworkList() {
         val current = currentWifiConnection
 
         networkBox.query {
@@ -80,7 +81,7 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
         }
     }
 
-    fun getHttpClient(trustedOnly: Boolean, serviceId: Long? = null): OkHttpClient {
+    override fun getHttpClient(trustedOnly: Boolean, serviceId: Long?): OkHttpClient {
         if (trustedOnly && !isNetworkTrusted) {
             throw UntrustedNetworkException()
         }
@@ -99,7 +100,7 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
     }
 
     @Deprecated("Use getHttpClient() instead")
-    fun createJsoupConnection(url: String, trustedOnly: Boolean): Connection {
+    override fun createJsoupConnection(url: String, trustedOnly: Boolean): Connection {
         if (trustedOnly && !isNetworkTrusted) {
             throw UntrustedNetworkException()
         }
@@ -108,7 +109,7 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
     }
 
     @Deprecated("Use getHttpClient() instead")
-    fun createProxiedJsoupConnection(url: String, trustedOnly: Boolean, serviceId: Long): Connection {
+    override fun createProxiedJsoupConnection(url: String, trustedOnly: Boolean, serviceId: Long): Connection {
         val connection = createJsoupConnection(url, trustedOnly)
 
         proxyBindingBox[serviceId]
@@ -118,12 +119,4 @@ class NetworkManager(override val kodein: Kodein) : KodeinAware {
 
         return connection
     }
-
-}
-
-class UntrustedNetworkException : IOException {
-    constructor() : super()
-    constructor(message: String) : super(message)
-    constructor(message: String, cause: Throwable) : super(message, cause)
-    constructor(cause: Throwable) : super(cause)
 }

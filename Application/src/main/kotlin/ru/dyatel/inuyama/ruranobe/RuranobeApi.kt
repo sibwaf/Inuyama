@@ -10,8 +10,6 @@ import org.jsoup.HttpStatusException
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.NetworkManager
-import ru.dyatel.inuyama.ProxyableRemoteService
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.SERVICE_RURANOBE
 import ru.dyatel.inuyama.model.RuranobeProject
@@ -19,6 +17,8 @@ import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.utilities.fromJson
 import ru.sibwaf.inuyama.common.utilities.asDateTime
 import ru.sibwaf.inuyama.common.utilities.await
+import sibwaf.inuyama.app.common.NetworkManager
+import sibwaf.inuyama.app.common.ProxyableRemoteService
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL

@@ -20,15 +20,15 @@ import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
-import ru.dyatel.inuyama.layout.DIM_EXTRA_LARGE
-import ru.dyatel.inuyama.layout.DIM_LARGE
 import ru.dyatel.inuyama.layout.ProxyItem
-import ru.dyatel.inuyama.layout.components.UniformIntegerInput
-import ru.dyatel.inuyama.layout.components.UniformTextInput
-import ru.dyatel.inuyama.layout.components.uniformIntegerInput
-import ru.dyatel.inuyama.layout.components.uniformTextInput
 import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.utilities.buildFastAdapter
+import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
+import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.components.UniformIntegerInput
+import sibwaf.inuyama.app.common.components.UniformTextInput
+import sibwaf.inuyama.app.common.components.uniformIntegerInput
+import sibwaf.inuyama.app.common.components.uniformTextInput
 
 class ProxyScreenView(context: Context) : BaseScreenView<ProxyScreen>(context) {
 

@@ -1,0 +1,28 @@
+<resources>
+    <string name="menu_add">Добавить</string>
+    <string name="menu_settings">Настройки</string>
+
+    <string name="dialog_settings">Настройки</string>
+
+    <string name="action_add">Добавить</string>
+    <string name="action_save">Сохранить</string>
+    <string name="action_edit">Изменить</string>
+    <string name="action_remove">Удалить</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="action_search">Поиск</string>
+    <string name="action_refresh">Обновить</string>
+    <string name="action_unbind">Отвязать</string>
+
+    <string name="const_never">никогда</string>
+
+    <plurals name="common_months">
+        <item quantity="one">%d месяц</item>
+        <item quantity="few">%d месяца</item>
+        <item quantity="other">%d месяцев</item>
+    </plurals>
+
+    <string name="hint_host">Сервер</string>
+    <string name="hint_port">Порт</string>
+    <string name="hint_name">Название</string>
+    <string name="hint_description">Описание</string>
+</resources>

@@ -11,8 +11,8 @@ import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.model.RutrackerWatch_
 import ru.dyatel.inuyama.model.Update
-import ru.dyatel.inuyama.utilities.MagnetParser
 import ru.dyatel.inuyama.utilities.subscribeFor
+import ru.sibwaf.inuyama.common.utilities.MagnetParser
 
 class RutrackerWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
 

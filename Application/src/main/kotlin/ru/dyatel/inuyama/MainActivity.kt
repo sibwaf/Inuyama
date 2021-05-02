@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.isVisible
 import androidx.work.WorkManager
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
@@ -33,7 +34,7 @@ import ru.dyatel.inuyama.screens.HomeScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
 import ru.dyatel.inuyama.screens.ProxyScreen
 import ru.dyatel.inuyama.utilities.grantPermissions
-import ru.dyatel.inuyama.utilities.isVisible
+import sibwaf.inuyama.app.common.ModuleScreenProvider
 import java.util.concurrent.atomic.AtomicLong
 
 class MainActivity : SingleActivity(), KodeinAware {
