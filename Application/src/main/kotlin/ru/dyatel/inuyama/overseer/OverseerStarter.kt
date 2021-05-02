@@ -23,12 +23,12 @@ class OverseerStarter : BroadcastReceiver() {
             val configuration by kodein.instance<OverseerConfiguration>()
 
             val constraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
 
             val work = PeriodicWorkRequestBuilder<OverseerWorker>(configuration.period.toLong(), TimeUnit.MINUTES)
-                    .setConstraints(constraints)
-                    .build()
+                .setConstraints(constraints)
+                .build()
 
             val policy = if (replacing) ExistingPeriodicWorkPolicy.REPLACE else ExistingPeriodicWorkPolicy.KEEP
 

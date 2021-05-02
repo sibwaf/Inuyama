@@ -125,9 +125,9 @@ class PairingScreen : InuScreen<PairingView>() {
             }
 
             val portPicker = ElementPicker(
-                    discoveryPortView.editText!!,
-                    generateSequence(Pairing.DEFAULT_DISCOVER_SERVER_PORT) { it + 1 }.take(100).toList(),
-                    { preferenceHelper.discoveryPort = it }
+                discoveryPortView.editText!!,
+                generateSequence(Pairing.DEFAULT_DISCOVER_SERVER_PORT) { it + 1 }.take(100).toList(),
+                { preferenceHelper.discoveryPort = it }
             )
             portPicker.currentValue = preferenceHelper.discoveryPort
             discoveryPortView.editText!!.setOnClickListener { portPicker.showDialog(fragmentManager) }

@@ -36,11 +36,11 @@ class NyaaApiService(override val kodein: Kodein) : KodeinAware, ProxyableRemote
         val torrents = api.query(query, getHttpClient(false))
         return torrents.map {
             NyaaTorrent(
-                    id = it.id.toLong(), // TODO
-                    title = it.title,
-                    hash = it.hash,
-                    updateDatetime = it.lastUpdate,
-                    dispatched = false
+                id = it.id.toLong(), // TODO
+                title = it.title,
+                hash = it.hash,
+                updateDatetime = it.lastUpdate,
+                dispatched = false
             )
         }
     }

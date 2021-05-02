@@ -49,8 +49,8 @@ class PreferenceHelper(context: Context) : KodeinAware {
     var lastCheck: DateTime?
         get() {
             return preferences.getLong(DATA_LAST_CHECK, -1)
-                    .takeIf { it > 0 }
-                    ?.let { DateTime.forInstant(it, TimeZone.getDefault()) }
+                .takeIf { it > 0 }
+                ?.let { DateTime.forInstant(it, TimeZone.getDefault()) }
         }
         set(value) {
             preferences.editAndApply { putLong(DATA_LAST_CHECK, value?.getMilliseconds(TimeZone.getDefault()) ?: -1) }
@@ -65,7 +65,7 @@ class PreferenceHelper(context: Context) : KodeinAware {
     var keyPair: KeyPair?
         get() = preferences.getString(DATA_DEVICE_KEYPAIR, null)?.let { Encoding.decodeRSAKeyPair(Encoding.decodeBase64(it)) }
         set(value) {
-            preferences.editAndApply { putString(DATA_DEVICE_KEYPAIR, value?.let { Encoding.encodeBase64(Encoding.encodeRSAKeyPair(it)) })}
+            preferences.editAndApply { putString(DATA_DEVICE_KEYPAIR, value?.let { Encoding.encodeBase64(Encoding.encodeRSAKeyPair(it)) }) }
         }
 
     var deviceIdentifier: String?

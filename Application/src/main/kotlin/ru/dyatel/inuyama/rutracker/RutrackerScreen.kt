@@ -74,15 +74,15 @@ class RutrackerScreen : InuScreen<RutrackerScreenView>(), KodeinAware {
     private fun refresh() {
         adapter.set(watchBox.all.map {
             RutrackerWatchItem(
-                    it,
-                    { showEditDialog(it) },
-                    {
-                        activity!!.showConfirmationDialog(
-                                context!!.getString(R.string.dialog_remove_watch_title),
-                                context!!.getString(R.string.dialog_remove_watch_message, it.description),
-                                context!!.getString(R.string.action_remove)
-                        ) { watchBox.remove(it) }
-                    })
+                it,
+                { showEditDialog(it) },
+                {
+                    activity!!.showConfirmationDialog(
+                        context!!.getString(R.string.dialog_remove_watch_title),
+                        context!!.getString(R.string.dialog_remove_watch_message, it.description),
+                        context!!.getString(R.string.action_remove)
+                    ) { watchBox.remove(it) }
+                })
         })
     }
 
@@ -111,17 +111,17 @@ class RutrackerScreen : InuScreen<RutrackerScreenView>(), KodeinAware {
         }
 
         AlertDialog.Builder(context!!)
-                .setTitle(R.string.dialog_add_watch)
-                .setView(view)
-                .setPositiveButton(R.string.action_save) { _, _ ->
-                    watch.topic = linkEditor.text.let { it.toLongOrNull() ?: RutrackerApi.extractTopic(it) }
-                    watch.description = descriptionEditor.text
-                    watch.directory.target = directorySelector.selected
+            .setTitle(R.string.dialog_add_watch)
+            .setView(view)
+            .setPositiveButton(R.string.action_save) { _, _ ->
+                watch.topic = linkEditor.text.let { it.toLongOrNull() ?: RutrackerApi.extractTopic(it) }
+                watch.description = descriptionEditor.text
+                watch.directory.target = directorySelector.selected
 
-                    watchBox.put(watch)
-                }
-                .setNegativeButton(R.string.action_cancel) { _, _ -> }
-                .show()
+                watchBox.put(watch)
+            }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+            .show()
     }
 
     private fun showConfigurationDialog() {
@@ -138,14 +138,14 @@ class RutrackerScreen : InuScreen<RutrackerScreenView>(), KodeinAware {
         }
 
         AlertDialog.Builder(context!!)
-                .setTitle(R.string.dialog_settings)
-                .setView(view)
-                .setPositiveButton(R.string.action_save) { _, _ ->
-                    rutrackerConfiguration.host = hostEditor.text
-                    preferenceHelper.rutracker = rutrackerConfiguration
-                }
-                .setNegativeButton(R.string.action_cancel) { _, _ -> }
-                .show()
+            .setTitle(R.string.dialog_settings)
+            .setView(view)
+            .setPositiveButton(R.string.action_save) { _, _ ->
+                rutrackerConfiguration.host = hostEditor.text
+                preferenceHelper.rutracker = rutrackerConfiguration
+            }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+            .show()
     }
 
     override fun onUpdateMenu(menu: Menu) {

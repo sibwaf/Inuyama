@@ -11,18 +11,18 @@ class QBittorrentClient(override val kodein: Kodein) : TorrentClient, KodeinAwar
     // TODO: configuration
     override fun download(magnet: String, directory: String?) {
         Jsoup.connect("http://localhost:9091/api/v2/torrents/add")
-                .method(Connection.Method.POST)
-                .apply {
-                    val charset = request().postDataCharset()
+            .method(Connection.Method.POST)
+            .apply {
+                val charset = request().postDataCharset()
 
-                    var body = "urls=${URLEncoder.encode(magnet, charset)}"
+                var body = "urls=${URLEncoder.encode(magnet, charset)}"
 
-                    if (directory != null) {
-                        body += "&savepath=${URLEncoder.encode(directory, charset).replace("+", "%20")}"
-                    }
-
-                    requestBody(body)
+                if (directory != null) {
+                    body += "&savepath=${URLEncoder.encode(directory, charset).replace("+", "%20")}"
                 }
-                .execute()
+
+                requestBody(body)
+            }
+            .execute()
     }
 }

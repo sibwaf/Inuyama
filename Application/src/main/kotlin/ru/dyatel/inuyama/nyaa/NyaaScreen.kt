@@ -77,15 +77,15 @@ class NyaaScreen : InuScreen<NyaaView>(), KodeinAware {
         val watches = watchBox.all.map {
             NyaaWatchItem(it, { showEditDialog(it) }, {
                 activity!!.showConfirmationDialog(
-                        context!!.getString(R.string.dialog_remove_watch_title),
-                        context!!.getString(R.string.dialog_remove_watch_message, it.description),
-                        context!!.getString(R.string.action_remove)
+                    context!!.getString(R.string.dialog_remove_watch_title),
+                    context!!.getString(R.string.dialog_remove_watch_message, it.description),
+                    context!!.getString(R.string.action_remove)
                 ) {
                     boxStore.runInTx {
                         torrentBox.query()
-                                .equal(NyaaTorrent_.watchId, it.id)
-                                .build()
-                                .remove()
+                            .equal(NyaaTorrent_.watchId, it.id)
+                            .build()
+                            .remove()
                         watchBox.remove(it)
                     }
                 }
@@ -134,19 +134,19 @@ class NyaaScreen : InuScreen<NyaaView>(), KodeinAware {
         }
 
         AlertDialog.Builder(context!!)
-                .setTitle(R.string.dialog_add_watch)
-                .setView(view)
-                .setPositiveButton(R.string.action_save) { _, _ ->
-                    watch.query = queryEditor.text
-                    watch.startDatetime = startDateSelector.date
-                    watch.description = descriptionEditor.text
-                    watch.collectPath = collectPathEditor.text
-                    watch.directory.target = directorySelector.selected
+            .setTitle(R.string.dialog_add_watch)
+            .setView(view)
+            .setPositiveButton(R.string.action_save) { _, _ ->
+                watch.query = queryEditor.text
+                watch.startDatetime = startDateSelector.date
+                watch.description = descriptionEditor.text
+                watch.collectPath = collectPathEditor.text
+                watch.directory.target = directorySelector.selected
 
-                    watchBox.put(watch)
-                }
-                .setNegativeButton(R.string.action_cancel) { _, _ -> }
-                .show()
+                watchBox.put(watch)
+            }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+            .show()
     }
 
     override fun onUpdateMenu(menu: Menu) {

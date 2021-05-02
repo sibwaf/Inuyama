@@ -31,8 +31,8 @@ private val kodein = Kodein.lazy {
 
     bind<InuyamaConfiguration>() with singleton {
         val gson = GsonBuilder()
-                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES)
-                .create()
+            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES)
+            .create()
 
         val configurationPath = Paths.get("configuration.json")
         return@singleton if (Files.exists(configurationPath)) {
@@ -56,10 +56,10 @@ private inline fun <reified T> Context.decryptedBody(): T {
     val session = attribute<Session>(ATTRIBUTE_SESSION)!!
     val gson by kodein.instance<Gson>()
     return body()
-            .let { Encoding.decodeBase64(it) }
-            .let { Cryptography.decryptAES(it, session.key) }
-            .let { Encoding.bytesToString(it) }
-            .let { gson.fromJson(it) }
+        .let { Encoding.decodeBase64(it) }
+        .let { Cryptography.decryptAES(it, session.key) }
+        .let { Encoding.bytesToString(it) }
+        .let { gson.fromJson(it) }
 }
 
 private val insecurePaths = listOf("/ping", "/bind-session")
@@ -82,70 +82,70 @@ fun main() {
     val torrentClient by kodein.instance<TorrentClient>()
 
     Javalin.create()
-            .port(configuration.serverPort)
-            .start()
-            .apply {
-                get("/ping") {}
+        .port(configuration.serverPort)
+        .start()
+        .apply {
+            get("/ping") {}
 
-                post("/bind-session") { ctx ->
-                    val request = ctx.body<BindSessionApiRequest>()
-                    val clientKey = Encoding.decodeRSAPublicKey(Encoding.decodeBase64(request.key))
-                    val challenge = Cryptography.decryptRSA(Encoding.decodeBase64(request.challenge), keyKeeper.keyPair.private)
+            post("/bind-session") { ctx ->
+                val request = ctx.body<BindSessionApiRequest>()
+                val clientKey = Encoding.decodeRSAPublicKey(Encoding.decodeBase64(request.key))
+                val challenge = Cryptography.decryptRSA(Encoding.decodeBase64(request.challenge), keyKeeper.keyPair.private)
 
-                    val session = sessionManager.createSession()
+                val session = sessionManager.createSession()
 
-                    val response = BindSessionApiResponse(
-                            challenge = Encoding.encodeBase64(Cryptography.encryptRSA(challenge, clientKey)),
-                            token = Encoding.encodeBase64(Cryptography.encryptRSA(Encoding.stringToBytes(session.token), clientKey)),
-                            key = Encoding.encodeBase64(Cryptography.encryptRSA(Encoding.encodeAESKey(session.key), clientKey))
-                    )
+                val response = BindSessionApiResponse(
+                    challenge = Encoding.encodeBase64(Cryptography.encryptRSA(challenge, clientKey)),
+                    token = Encoding.encodeBase64(Cryptography.encryptRSA(Encoding.stringToBytes(session.token), clientKey)),
+                    key = Encoding.encodeBase64(Cryptography.encryptRSA(Encoding.encodeAESKey(session.key), clientKey))
+                )
 
-                    ctx.json(response)
-                }
-
-                post("/echo") { ctx ->
-                    val request = ctx.decryptedBody<Any>()
-                    ctx.json(request)
-                }
-
-                post("/download-torrent") { ctx ->
-                    val request = ctx.decryptedBody<TorrentDownloadApiRequest>()
-                    torrentClient.download(request.magnet, request.path)
-                }
-
-                before { ctx ->
-                    if (insecurePaths.any { ctx.path().startsWith(it) }) {
-                        return@before
-                    }
-
-                    val session = ctx.header("Authorization")
-                            ?.takeIf { it.startsWith("Bearer ") }
-                            ?.removePrefix("Bearer ")
-                            ?.let { sessionManager.findSession(it) }
-                            ?: throw SessionException()
-
-                    ctx.attribute(ATTRIBUTE_SESSION, session)
-                }
-
-                after { ctx ->
-                    val session = ctx.attribute<Session>(ATTRIBUTE_SESSION) ?: return@after
-                    val response = ctx.resultString() ?: return@after
-                    response.let { Encoding.stringToBytes(it) }
-                            .let { Cryptography.encryptAES(it, session.key) }
-                            .let { Encoding.encodeBase64(it) }
-                            .let { ctx.result(it) }
-                            .let { ctx.contentType("text/plain") }
-                }
-
-                exception<SessionException> { _, ctx ->
-                    ctx.status(401)
-                }
-
-                exception<Exception> { e, ctx ->
-                    logger.error("Caught an unhandled exception", e)
-                    ctx.status(500)
-                }
+                ctx.json(response)
             }
+
+            post("/echo") { ctx ->
+                val request = ctx.decryptedBody<Any>()
+                ctx.json(request)
+            }
+
+            post("/download-torrent") { ctx ->
+                val request = ctx.decryptedBody<TorrentDownloadApiRequest>()
+                torrentClient.download(request.magnet, request.path)
+            }
+
+            before { ctx ->
+                if (insecurePaths.any { ctx.path().startsWith(it) }) {
+                    return@before
+                }
+
+                val session = ctx.header("Authorization")
+                    ?.takeIf { it.startsWith("Bearer ") }
+                    ?.removePrefix("Bearer ")
+                    ?.let { sessionManager.findSession(it) }
+                    ?: throw SessionException()
+
+                ctx.attribute(ATTRIBUTE_SESSION, session)
+            }
+
+            after { ctx ->
+                val session = ctx.attribute<Session>(ATTRIBUTE_SESSION) ?: return@after
+                val response = ctx.resultString() ?: return@after
+                response.let { Encoding.stringToBytes(it) }
+                    .let { Cryptography.encryptAES(it, session.key) }
+                    .let { Encoding.encodeBase64(it) }
+                    .let { ctx.result(it) }
+                    .let { ctx.contentType("text/plain") }
+            }
+
+            exception<SessionException> { _, ctx ->
+                ctx.status(401)
+            }
+
+            exception<Exception> { e, ctx ->
+                logger.error("Caught an unhandled exception", e)
+                ctx.status(500)
+            }
+        }
 
     kodein.direct.instance<PairingManager>().start()
 }

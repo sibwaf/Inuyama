@@ -24,14 +24,14 @@ class RuranobeWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
 
     private val watchingQuery by lazy {
         projectBox.query()
-                .equal(RuranobeProject_.watching, true)
-                .build()
+            .equal(RuranobeProject_.watching, true)
+            .build()
     }
 
     private val undispatchedQuery by lazy {
         volumeBox.query()
-                .equal(RuranobeVolume_.dispatched, false)
-                .build()
+            .equal(RuranobeVolume_.dispatched, false)
+            .build()
     }
 
     fun syncProjects() {
@@ -107,13 +107,13 @@ class RuranobeWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
 
     override fun listUpdates(): List<Update> {
         return volumeBox.all
-                .filter { it.project.target.watching }
-                .mapNotNull { update ->
-                    update.updateDatetime?.let {
-                        Update(update.title, it.getMilliseconds(TimeZone.getDefault()))
-                    }
+            .filter { it.project.target.watching }
+            .mapNotNull { update ->
+                update.updateDatetime?.let {
+                    Update(update.title, it.getMilliseconds(TimeZone.getDefault()))
                 }
-                .distinctBy { it.description }
+            }
+            .distinctBy { it.description }
     }
 
 }

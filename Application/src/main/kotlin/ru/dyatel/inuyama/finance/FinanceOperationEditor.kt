@@ -95,9 +95,9 @@ class FinanceOperationEditor(context: Context) : _CardView(context) {
 
                 fun createTab(index: Int, icon: IIcon) {
                     val drawable = IconicsDrawable(context)
-                            .icon(icon)
-                            .sizeDp(16)
-                            .colorRes(R.color.material_drawer_dark_primary_text)
+                        .icon(icon)
+                        .sizeDp(16)
+                        .colorRes(R.color.material_drawer_dark_primary_text)
 
                     val tab = newTab().setIcon(drawable)
 
@@ -160,9 +160,9 @@ class FinanceOperationEditor(context: Context) : _CardView(context) {
                     }
 
                     val icon = IconicsDrawable(context)
-                            .icon(CommunityMaterial.Icon.cmd_arrow_down)
-                            .sizeDp(24)
-                            .colorRes(R.color.material_drawer_dark_primary_text)
+                        .icon(CommunityMaterial.Icon.cmd_arrow_down)
+                        .sizeDp(24)
+                        .colorRes(R.color.material_drawer_dark_primary_text)
 
                     imageView(icon) {
                         id = directionIconId

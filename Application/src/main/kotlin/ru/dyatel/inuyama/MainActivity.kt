@@ -48,20 +48,20 @@ class MainActivity : SingleActivity(), KodeinAware {
     private lateinit var searchView: SearchView
 
     override fun createNavigator(): Navigator =
-            Navigator
-                    .withRoot(HomeScreen())
-                    .build()
-                    .apply {
-                        addLifecycleListener(
-                            object : ScreenLifecycleListener {
-                                override fun onShow(screen: Screen<*>) = syncNavigation()
-                                override fun onHide(screen: Screen<*>) {
-                                    closeSearchView()
-                                    searchView.isVisible = false
-                                }
-                            }
-                        )
+        Navigator
+            .withRoot(HomeScreen())
+            .build()
+            .apply {
+                addLifecycleListener(
+                    object : ScreenLifecycleListener {
+                        override fun onShow(screen: Screen<*>) = syncNavigation()
+                        override fun onHide(screen: Screen<*>) {
+                            closeSearchView()
+                            searchView.isVisible = false
+                        }
                     }
+                )
+            }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -76,10 +76,10 @@ class MainActivity : SingleActivity(), KodeinAware {
         }
 
         drawer = DrawerBuilder(this)
-                .withToolbar(toolbar)
-                .withSavedInstance(savedInstanceState)
-                .apply { generateDrawerItems() }
-                .build()
+            .withToolbar(toolbar)
+            .withSavedInstance(savedInstanceState)
+            .apply { generateDrawerItems() }
+            .build()
 
         if (BuildConfig.DEBUG) {
             val boxStore by instance<BoxStore>()
@@ -166,7 +166,7 @@ class MainActivity : SingleActivity(), KodeinAware {
 
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : Screen<*>> DrawerBuilder.createMenuItem(icon: IIcon, name: String) =
-            createMenuItem(icon, name, T::class.java as Class<Screen<*>>)
+        createMenuItem(icon, name, T::class.java as Class<Screen<*>>)
 
     private fun DrawerBuilder.createMenuItem(icon: IIcon, name: String, c: Class<out Screen<*>>) {
         val id = menuIdGenerator.getAndIncrement()
@@ -174,20 +174,20 @@ class MainActivity : SingleActivity(), KodeinAware {
         menuItemRegistry[c] = id
 
         addDrawerItems(PrimaryDrawerItem()
-                .withIdentifier(id)
-                .withIcon(icon)
-                .withName(name)
-                .withOnDrawerItemClickListener { view, _, _ ->
-                    if (view != null && !c.isInstance(getNavigator().currentScreen())) {
-                        navigate(c.newInstance())
-                    }
+            .withIdentifier(id)
+            .withIcon(icon)
+            .withName(name)
+            .withOnDrawerItemClickListener { view, _, _ ->
+                if (view != null && !c.isInstance(getNavigator().currentScreen())) {
+                    navigate(c.newInstance())
+                }
 
-                    false
-                })
+                false
+            })
     }
 
     private fun createActionBarIcon(icon: IIcon) =
-            IconicsDrawable(this).actionBar().icon(icon).colorRes(R.color.material_drawer_dark_primary_text)
+        IconicsDrawable(this).actionBar().icon(icon).colorRes(R.color.material_drawer_dark_primary_text)
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu, menu)

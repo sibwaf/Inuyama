@@ -10,6 +10,7 @@ class UpdateDispatcher(override val kodein: Kodein) : KodeinAware {
     interface Transaction {
 
         fun downloadTorrent(magnet: String, path: String)
+
         // TODO: more actions
         fun onSuccess(action: () -> Unit)
     }

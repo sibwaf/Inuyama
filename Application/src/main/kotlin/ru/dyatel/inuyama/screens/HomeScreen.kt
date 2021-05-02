@@ -184,18 +184,18 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
 
     init {
         serviceFastAdapter
-                .withOnClickListener { _, _, _, _ ->
-                    requestServiceCheck()
+            .withOnClickListener { _, _, _, _ ->
+                requestServiceCheck()
+                true
+            }
+            .withOnLongClickListener { _, _, item, _ ->
+                if (item.service is ProxyableRemoteService) {
+                    editProxy(item.service)
                     true
+                } else {
+                    false
                 }
-                .withOnLongClickListener { _, _, item, _ ->
-                    if (item.service is ProxyableRemoteService) {
-                        editProxy(item.service)
-                        true
-                    } else {
-                        false
-                    }
-                }
+            }
     }
 
     override fun createView(context: Context): HomeScreenView {
@@ -213,8 +213,8 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
                 view.statusBar.textResource = R.string.label_checking
             } else {
                 val lastCheckText = preferenceHelper.lastCheck
-                        ?.let { prettyTime.format(it.asDate) }
-                        ?: context.getString(R.string.const_never)
+                    ?.let { prettyTime.format(it.asDate) }
+                    ?: context.getString(R.string.const_never)
                 view.statusBar.text = context.getString(R.string.label_last_check, lastCheckText)
             }
         }.also {
@@ -222,8 +222,8 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
         }
 
         serviceAdapter.set(services
-                .sortedBy { it.getName(context) }
-                .map { RemoteServiceStateItem(it, R.color.color_pending) })
+            .sortedBy { it.getName(context) }
+            .map { RemoteServiceStateItem(it, R.color.color_pending) })
         requestServiceCheck()
 
         for (watcher in watchers) {
@@ -247,10 +247,10 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
 
     private fun refreshUpdates() {
         val updates = watchers
-                .flatMap { it.listUpdates() }
-                .sortedByDescending { it.timestamp }
-                .take(DASHBOARD_UPDATE_COUNT)
-                .map { UpdateItem(it) }
+            .flatMap { it.listUpdates() }
+            .sortedByDescending { it.timestamp }
+            .take(DASHBOARD_UPDATE_COUNT)
+            .map { UpdateItem(it) }
 
         // Updates can come from background threads
         launchJob {
@@ -276,14 +276,14 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
         }
 
         AlertDialog.Builder(context!!)
-                .setTitle(R.string.dialog_select_proxy)
-                .setView(view)
-                .setPositiveButton(R.string.action_save) { _, _ ->
-                    binding.proxy.target = proxySelectorView.selected
-                    proxyBindingBox.put(binding)
-                }
-                .setNegativeButton(R.string.action_cancel) { _, _ -> }
-                .show()
+            .setTitle(R.string.dialog_select_proxy)
+            .setView(view)
+            .setPositiveButton(R.string.action_save) { _, _ ->
+                binding.proxy.target = proxySelectorView.selected
+                proxyBindingBox.put(binding)
+            }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+            .show()
     }
 
     fun requestOverseerCheck() {

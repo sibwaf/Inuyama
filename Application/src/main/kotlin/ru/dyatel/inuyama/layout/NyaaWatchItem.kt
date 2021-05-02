@@ -18,9 +18,9 @@ import sibwaf.inuyama.app.common.components.uniformWatchView
 import java.util.Date
 
 class NyaaWatchItem(
-        private val watch: NyaaWatch,
-        private val editListener: () -> Unit,
-        private val removeListener: () -> Unit
+    private val watch: NyaaWatch,
+    private val editListener: () -> Unit,
+    private val removeListener: () -> Unit
 ) : AbstractItem<NyaaWatchItem, NyaaWatchItem.ViewHolder>() {
 
     private companion object {
@@ -60,11 +60,11 @@ class NyaaWatchItem(
             descriptionView.text = item.watch.description
 
             val directoryText = item.watch.directory.target?.path
-                    ?: context.getString(R.string.const_directory_default)
+                ?: context.getString(R.string.const_directory_default)
             directoryView.text = context.getString(R.string.label_path, directoryText)
 
             val lastUpdateText = item.watch.lastUpdate?.let { prettyTime.format(Date(it)) }
-                    ?: context.getString(R.string.const_never)
+                ?: context.getString(R.string.const_never)
             lastUpdateView.text = context.getString(R.string.label_last_update, lastUpdateText)
 
             editButton.setOnClickListener { item.editListener() }

@@ -38,7 +38,7 @@ class NetworkManagerImpl(override val kodein: Kodein) : KodeinAware, NetworkMana
     private val currentWifiConnection: WifiInfo?
         get() {
             return wifiManager.connectionInfo
-                    ?.takeIf { it.bssid != null && it.supplicantState == SupplicantState.COMPLETED }
+                ?.takeIf { it.bssid != null && it.supplicantState == SupplicantState.COMPLETED }
         }
 
     override val broadcastAddress: InetAddress?
@@ -46,16 +46,16 @@ class NetworkManagerImpl(override val kodein: Kodein) : KodeinAware, NetworkMana
             val dhcp = wifiManager.dhcpInfo ?: return null
 
             val ipAddress = ByteBuffer.allocate(4)
-                    .putInt(dhcp.ipAddress)
-                    .array()
-                    .apply { reverse() }
-                    .let { InetAddress.getByAddress(it) }
+                .putInt(dhcp.ipAddress)
+                .array()
+                .apply { reverse() }
+                .let { InetAddress.getByAddress(it) }
 
             return NetworkInterface.getNetworkInterfaces().asSequence()
-                    .filter { it.inetAddresses.asSequence().contains(ipAddress) }
-                    .flatMap { it.interfaceAddresses.asSequence() }
-                    .mapNotNull { it.broadcast }
-                    .singleOrNull()
+                .filter { it.inetAddresses.asSequence().contains(ipAddress) }
+                .flatMap { it.interfaceAddresses.asSequence() }
+                .mapNotNull { it.broadcast }
+                .singleOrNull()
         }
 
     override val isNetworkTrusted: Boolean
@@ -87,15 +87,15 @@ class NetworkManagerImpl(override val kodein: Kodein) : KodeinAware, NetworkMana
         }
 
         val proxy = serviceId?.let { proxyBindingBox[it] }
-                ?.proxy
-                ?.target
+            ?.proxy
+            ?.target
 
         return if (proxy == null) {
             httpClient
         } else {
             httpClient.newBuilder()
-                    .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
-                    .build()
+                .proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress(proxy.host, proxy.port)))
+                .build()
         }
     }
 
@@ -113,9 +113,9 @@ class NetworkManagerImpl(override val kodein: Kodein) : KodeinAware, NetworkMana
         val connection = createJsoupConnection(url, trustedOnly)
 
         proxyBindingBox[serviceId]
-                ?.proxy
-                ?.target
-                ?.let { connection.proxy(it.host, it.port) }
+            ?.proxy
+            ?.target
+            ?.let { connection.proxy(it.host, it.port) }
 
         return connection
     }

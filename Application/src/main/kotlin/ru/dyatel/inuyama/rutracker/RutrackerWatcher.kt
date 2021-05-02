@@ -22,15 +22,15 @@ class RutrackerWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
 
     private val undispatchedQuery by lazy {
         watchBox.query()
-                .notNull(RutrackerWatch_.magnet)
-                .equal(RutrackerWatch_.updateDispatched, false)
-                .build()
+            .notNull(RutrackerWatch_.magnet)
+            .equal(RutrackerWatch_.updateDispatched, false)
+            .build()
     }
 
     init {
         watchBox.store.subscribeFor<RutrackerWatch>()
-                .onlyChanges()
-                .observer { notifyListeners() }
+            .onlyChanges()
+            .observer { notifyListeners() }
     }
 
     override fun checkUpdates(): List<String> {

@@ -43,9 +43,9 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
     private suspend fun discoverServer(): ServerConnection {
         val server = pairingManager.findPairedServer() ?: throw PairedServerNotAvailableException()
         return ServerConnection(
-                address = "http://${server.address.hostAddress}:${server.port}",
-                key = server.key,
-                session = null
+            address = "http://${server.address.hostAddress}:${server.port}",
+            key = server.key,
+            session = null
         )
     }
 
@@ -55,8 +55,8 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
 
         val challenge = Encoding.stringToBytes(CommonUtilities.generateRandomString(64, CommonUtilities.ALPHABET_ALNUM))
         val request = BindSessionApiRequest(
-                key = Encoding.encodeBase64(Encoding.encodeRSAPublicKey(deviceKeyPair.public)),
-                challenge = Encoding.encodeBase64(Cryptography.encryptRSA(challenge, serverConnection.key))
+            key = Encoding.encodeBase64(Encoding.encodeRSAPublicKey(deviceKeyPair.public)),
+            challenge = Encoding.encodeBase64(Cryptography.encryptRSA(challenge, serverConnection.key))
         )
 
         val response = baseRequest("/bind-session", false, BindSessionApiResponse::class.java) {
@@ -69,16 +69,16 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
         }
 
         return Session(
-                token = Encoding.bytesToString(Cryptography.decryptRSA(Encoding.decodeBase64(response.token), deviceKeyPair.private)),
-                key = Encoding.decodeAESKey(Cryptography.decryptRSA(Encoding.decodeBase64(response.key), deviceKeyPair.private))
+            token = Encoding.bytesToString(Cryptography.decryptRSA(Encoding.decodeBase64(response.token), deviceKeyPair.private)),
+            key = Encoding.decodeAESKey(Cryptography.decryptRSA(Encoding.decodeBase64(response.key), deviceKeyPair.private))
         )
     }
 
     private suspend fun <T> baseRequest(
-            url: String,
-            requiresSession: Boolean,
-            responseType: Class<T>,
-            init: Request.Builder.(Session?) -> Unit
+        url: String,
+        requiresSession: Boolean,
+        responseType: Class<T>,
+        init: Request.Builder.(Session?) -> Unit
     ): T {
         val serverConnection = serverConnection ?: throw PairedServerNotAvailableException("No cached server connections")
         val session = serverConnection.session
@@ -87,7 +87,7 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
         }
 
         val requestBuilder = Request.Builder()
-                .url("${serverConnection.address}$url")
+            .url("${serverConnection.address}$url")
 
         if (requiresSession) {
             requestBuilder.header("Authorization", "Bearer ${session!!.token}")
@@ -96,7 +96,7 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
         requestBuilder.init(session)
 
         val request = networkManager.getHttpClient(true)
-                .newCall(requestBuilder.build())
+            .newCall(requestBuilder.build())
 
         val awaitedResponse = try {
             request.await()
@@ -110,9 +110,9 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
                     var body = response.body!!.string()
                     if (requiresSession) {
                         body = body
-                                .let { Encoding.decodeBase64(it) }
-                                .let { Cryptography.decryptAES(it, session!!.key) }
-                                .let { Encoding.bytesToString(it) }
+                            .let { Encoding.decodeBase64(it) }
+                            .let { Cryptography.decryptAES(it, session!!.key) }
+                            .let { Encoding.bytesToString(it) }
                     }
 
                     gson.fromJson(body, responseType)
@@ -180,10 +180,10 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
     private suspend inline fun <reified T> post(url: String, data: Any? = null, crossinline init: Request.Builder.() -> Unit = {}): T {
         return pairedApiRequestManager.request(url, T::class.java) { session ->
             val body = data?.let { gson.toJson(data) }
-                    ?.let { Encoding.stringToBytes(it) }
-                    ?.let { Cryptography.encryptAES(it, session!!.key) }
-                    ?.let { Encoding.encodeBase64(it) }
-                    ?: ""
+                ?.let { Encoding.stringToBytes(it) }
+                ?.let { Cryptography.encryptAES(it, session!!.key) }
+                ?.let { Encoding.encodeBase64(it) }
+                ?: ""
 
             post(body.toRequestBody(MediaTypes.TEXT_PLAIN))
             init()

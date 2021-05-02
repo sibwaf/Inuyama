@@ -59,13 +59,14 @@ class OverseerWorker(context: Context, workerParams: WorkerParameters) : Worker(
         try {
             isWorking = true
 
-            watchers.map { it.checkUpdates() }
-                    .flatten()
-                    .takeUnless { it.isEmpty() }
-                    ?.let { notifier.notifyUpdates(it) }
+            watchers.flatMap { it.checkUpdates() }
+                .takeUnless { it.isEmpty() }
+                ?.let { notifier.notifyUpdates(it) }
 
             val dispatcher = UpdateDispatcher(kodein)
-            watchers.forEach { it.dispatchUpdates(dispatcher) }
+            for (watcher in watchers) {
+                watcher.dispatchUpdates(dispatcher)
+            }
             dispatcher.commit()
 
             return Result.success()

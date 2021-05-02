@@ -10,10 +10,10 @@ interface OptionalView {
 }
 
 private class OptionalViewImpl(
-        context: Context,
-        private val container: ViewGroup,
-        private val regularView: View,
-        isEmpty: Boolean
+    context: Context,
+    private val container: ViewGroup,
+    private val regularView: View,
+    isEmpty: Boolean
 ) : OptionalView {
 
     private val emptyView: View by lazy { context.uniformEmptyView() }

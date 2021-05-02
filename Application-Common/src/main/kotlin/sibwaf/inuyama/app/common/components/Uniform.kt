@@ -85,9 +85,9 @@ class UniformIntegerInput(context: Context) : UniformTextInput(context) {
 
     var value: Int
         get() = editText!!.text.toString()
-                .takeIf { it.isNotBlank() }
-                ?.let { it.toInt() }
-                ?: 0
+            .takeIf { it.isNotBlank() }
+            ?.let { it.toInt() }
+            ?: 0
         set(value) {
             editText!!.setText(value.toString())
         }
@@ -107,9 +107,9 @@ class UniformDoubleInput(context: Context) : UniformTextInput(context) {
 
     var value: Double
         get() = editText!!.text.toString()
-                .takeIf { it.isNotBlank() }
-                ?.let { it.toDouble() }
-                ?: 0.0
+            .takeIf { it.isNotBlank() }
+            ?.let { it.toDouble() }
+            ?: 0.0
         set(value) {
             editText!!.setText(value.toString())
         }
@@ -126,9 +126,9 @@ inline fun ViewGroup.uniformDoubleInput(init: TextInputEditText.() -> Unit = {})
 }
 
 inline fun Context.uniformWatchView(
-        descriptionViewId: Int,
-        editButtonId: Int, removeButtonId: Int,
-        init: _LinearLayout.() -> Unit = {}
+    descriptionViewId: Int,
+    editButtonId: Int, removeButtonId: Int,
+    init: _LinearLayout.() -> Unit = {}
 ): View {
     return cardView {
         lparams(width = matchParent, height = wrapContent) {
@@ -176,11 +176,11 @@ inline fun Context.uniformWatchView(
 
 inline fun Context.showConfirmationDialog(title: String, message: String, action: String, crossinline callback: () -> Unit) {
     AlertDialog.Builder(this)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton(action) { _, _ -> callback() }
-            .setNegativeButton(R.string.action_cancel) { _, _ -> }
-            .show()
+        .setTitle(title)
+        .setMessage(message)
+        .setPositiveButton(action) { _, _ -> callback() }
+        .setNegativeButton(R.string.action_cancel) { _, _ -> }
+        .show()
 }
 
 fun Context.uniformEmptyView(): View {

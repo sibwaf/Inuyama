@@ -44,7 +44,7 @@ class UpdateItem(val update: Update) : UniformSimpleItem() {
 
     override fun getTitle(context: Context) = update.description
     override fun getSubtitle(context: Context) =
-            DateTime.forInstant(update.timestamp, TimeZone.getDefault()).format("DD.MM.YYYY, hh:mm")!!
+        DateTime.forInstant(update.timestamp, TimeZone.getDefault()).format("DD.MM.YYYY, hh:mm")!!
 
     override fun getType() = ITEM_TYPE_HOME_UPDATE
 }
@@ -78,7 +78,7 @@ class PairingServerItem(val server: DiscoveredServer, paired: Boolean) : Uniform
 class FinanceAccountItem(val account: FinanceAccount) : UniformSimpleItem() {
     override fun getTitle(context: Context) = account.name
     override fun getSubtitle(context: Context) =
-            context.getString(R.string.label_finance_amount, account.initialBalance + account.balance)!!
+        context.getString(R.string.label_finance_amount, account.initialBalance + account.balance)!!
 
     override fun getType() = ITEM_TYPE_FINANCE_ACCOUNT
 }

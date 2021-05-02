@@ -73,7 +73,8 @@ class FinanceAccountScreen(private val account: FinanceAccount) : InuScreen<Fina
 
     private val operationManager by instance<FinanceOperationManager>()
 
-    override fun getTitle(context: Context) = if (existingAccount) account.name else context.getString(R.string.screen_finance_new_account)!!
+    override fun getTitle(context: Context) =
+        if (existingAccount) account.name else context.getString(R.string.screen_finance_new_account)!!
 
     override fun createView(context: Context) = FinanceAccountView(context).apply {
         with(financeOperationEditor) {

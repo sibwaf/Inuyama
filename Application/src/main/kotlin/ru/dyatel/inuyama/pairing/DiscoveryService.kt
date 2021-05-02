@@ -42,8 +42,8 @@ class DiscoveryService(override val kodein: Kodein) : KodeinAware {
                 }
 
                 val listeners = synchronized(listeners) { listeners.toList() }
-                        .takeIf { it.isNotEmpty() }
-                        ?: continue
+                    .takeIf { it.isNotEmpty() }
+                    ?: continue
 
                 val response = Pairing.decodeDiscoverResponse(packet) ?: continue
 

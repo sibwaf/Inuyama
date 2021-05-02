@@ -7,10 +7,10 @@ import io.objectbox.kotlin.query
 
 @Entity
 data class Network(
-        @Id var id: Long = 0,
-        var name: String,
-        var bssid: String,
-        var trusted: Boolean = false
+    @Id var id: Long = 0,
+    var name: String,
+    var bssid: String,
+    var trusted: Boolean = false
 )
 
 fun Box<Network>.findByBssid(bssid: String): Network? {

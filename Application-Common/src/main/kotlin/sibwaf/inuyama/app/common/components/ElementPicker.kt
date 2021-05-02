@@ -12,17 +12,17 @@ import sibwaf.inuyama.app.common.R
 import kotlin.properties.Delegates
 
 class ElementPicker<T>(
-        private val editor: EditText,
-        private val values: List<T>,
-        private val onValueChanged: (T) -> Unit,
-        valueConverter: (T) -> String = { it.toString() }
+    private val editor: EditText,
+    private val values: List<T>,
+    private val onValueChanged: (T) -> Unit,
+    valueConverter: (T) -> String = { it.toString() }
 ) {
 
     var currentValue: T
         get() = values[currentIndex]
         set(value) {
             currentIndex = values.indexOf(value).takeIf { it >= 0 }
-                    ?: throw IllegalArgumentException("Value not found in provided value list")
+                ?: throw IllegalArgumentException("Value not found in provided value list")
         }
 
     private var currentIndex by Delegates.observable(-1) { _, _, index ->
@@ -67,9 +67,9 @@ class ElementPickerFragment : DialogFragment() {
         }
 
         return AlertDialog.Builder(ctx)
-                .setView(layout)
-                .setPositiveButton(R.string.action_save) { _, _ -> onValueSelected(layout.value) }
-                .setNegativeButton(R.string.action_cancel) { _, _ -> }
-                .create()
+            .setView(layout)
+            .setPositiveButton(R.string.action_save) { _, _ -> onValueSelected(layout.value) }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+            .create()
     }
 }

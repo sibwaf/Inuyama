@@ -34,7 +34,7 @@ import sibwaf.inuyama.app.common.components.uniformTextView
 import sibwaf.inuyama.app.common.utilities.hideIf
 
 class RuranobeProjectItem(
-        val project: RuranobeProject
+    val project: RuranobeProject
 ) : AbstractItem<RuranobeProjectItem, RuranobeProjectItem.ViewHolder>() {
 
     private companion object {
@@ -77,7 +77,7 @@ class RuranobeProjectItem(
 
         override fun bindView(item: RuranobeProjectItem, payloads: MutableList<Any>?) {
             worksMarker.backgroundColorResource =
-                    if (item.project.works) R.color.ruranobe_project_works else R.color.ruranobe_project_main
+                if (item.project.works) R.color.ruranobe_project_works else R.color.ruranobe_project_main
 
             val coverUrl = item.project.volumes.firstOrNull()?.coverUrl
             if (coverUrl != null) {
@@ -93,13 +93,13 @@ class RuranobeProjectItem(
 
             val volumeCount = volumes.count()
             statusView.text = context.resources.getQuantityString(
-                    R.plurals.ruranobe_volumes, volumeCount,
-                    volumeCount, item.project.status
+                R.plurals.ruranobe_volumes, volumeCount,
+                volumeCount, item.project.status
             )
 
             val lastUpdateText = volumes.mapNotNull { it.updateDatetime }.max()
-                    ?.let { prettyTime.format(it.asDate) }
-                    ?: context.getString(R.string.const_never)
+                ?.let { prettyTime.format(it.asDate) }
+                ?: context.getString(R.string.const_never)
             lastUpdateView.text = context.getString(R.string.label_last_update, lastUpdateText)
         }
     }

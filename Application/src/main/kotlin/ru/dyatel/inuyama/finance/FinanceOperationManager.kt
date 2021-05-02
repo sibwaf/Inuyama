@@ -24,9 +24,9 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         account.balance -= amount
 
         val operation = FinanceOperation(
-                amount = -amount,
-                datetime = DateTime.now(TimeZone.getDefault()),
-                description = description?.takeIf { it.isNotBlank() }
+            amount = -amount,
+            datetime = DateTime.now(TimeZone.getDefault()),
+            description = description?.takeIf { it.isNotBlank() }
         )
         operation.account.target = account
         operation.categories.add(category)
@@ -55,9 +55,9 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         account.balance += amount
 
         val operation = FinanceOperation(
-                amount = amount,
-                datetime = DateTime.now(TimeZone.getDefault()),
-                description = description?.takeIf { it.isNotBlank() }
+            amount = amount,
+            datetime = DateTime.now(TimeZone.getDefault()),
+            description = description?.takeIf { it.isNotBlank() }
         )
         operation.account.target = account
         operation.categories.add(category)
@@ -69,11 +69,11 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
     }
 
     fun update(
-            operation: FinanceOperation,
-            account: FinanceAccount,
-            category: FinanceCategory,
-            amount: Double,
-            description: String?
+        operation: FinanceOperation,
+        account: FinanceAccount,
+        category: FinanceCategory,
+        amount: Double,
+        description: String?
     ) {
         boxStore.runInTx {
             var oldAccount = operation.account.target

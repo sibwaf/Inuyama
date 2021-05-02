@@ -18,9 +18,9 @@ import java.util.Locale
 
 fun Activity.grantPermissions(vararg permissions: String) {
     val required = permissions
-            .filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
-            .takeUnless { it.isEmpty() }
-            ?: return
+        .filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
+        .takeUnless { it.isEmpty() }
+        ?: return
 
     requestPermissions(required.toTypedArray(), 1)
 }

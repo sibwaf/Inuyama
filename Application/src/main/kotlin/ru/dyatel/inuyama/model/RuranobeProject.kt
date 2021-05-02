@@ -10,21 +10,24 @@ import ru.dyatel.inuyama.utilities.NoJson
 
 @Entity
 data class RuranobeProject(
-        @Id(assignable = true) @SerializedName("projectId") var id: Long = 0,
-        var url: String = "",
+    @Id(assignable = true) @SerializedName("projectId") var id: Long = 0,
+    var url: String = "",
 
-        var title: String = "",
-        @SerializedName("nameRomaji") var titleRomaji: String? = null,
-        var author: String = "",
+    var title: String = "",
+    @SerializedName("nameRomaji") var titleRomaji: String? = null,
+    var author: String = "",
 
-        var works: Boolean = false,
+    var works: Boolean = false,
 
-        var status: String = "",
-        var issueStatus: String? = "",
-        var translationStatus: String? = "",
+    var status: String = "",
+    var issueStatus: String? = "",
+    var translationStatus: String? = "",
 
-        @NoJson var watching: Boolean = false
+    @NoJson var watching: Boolean = false
 ) {
-    @NoJson lateinit var directory: ToOne<Directory>
-    @NoJson @Backlink lateinit var volumes: ToMany<RuranobeVolume>
+    @NoJson
+    lateinit var directory: ToOne<Directory>
+    @NoJson
+    @Backlink
+    lateinit var volumes: ToMany<RuranobeVolume>
 }

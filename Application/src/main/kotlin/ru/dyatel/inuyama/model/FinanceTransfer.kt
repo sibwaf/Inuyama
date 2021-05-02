@@ -10,11 +10,11 @@ import java.util.TimeZone
 
 @Entity
 data class FinanceTransfer(
-        @Id var id: Long = 0,
-        var amount: Double = 0.0,
+    @Id var id: Long = 0,
+    var amount: Double = 0.0,
 
-        @Convert(converter = DateTimeConverter::class, dbType = String::class)
-        var datetime: DateTime = DateTime.now(TimeZone.getDefault())
+    @Convert(converter = DateTimeConverter::class, dbType = String::class)
+    var datetime: DateTime = DateTime.now(TimeZone.getDefault())
 ) {
     lateinit var from: ToOne<FinanceAccount>
     lateinit var to: ToOne<FinanceAccount>

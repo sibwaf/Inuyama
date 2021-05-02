@@ -109,15 +109,15 @@ class ProxyScreen : InuScreen<ProxyScreenView>(), KodeinAware {
         }
 
         AlertDialog.Builder(context!!)
-                .setTitle(R.string.dialog_add_proxy)
-                .setView(view)
-                .setPositiveButton(R.string.action_save) { _, _ ->
-                    val host = hostEdit.text
-                    val port = portEdit.value
-                    proxyBox.put(Proxy(host = host, port = port))
-                }
-                .setNegativeButton(R.string.action_cancel) { _, _ -> }
-                .show()
+            .setTitle(R.string.dialog_add_proxy)
+            .setView(view)
+            .setPositiveButton(R.string.action_save) { _, _ ->
+                val host = hostEdit.text
+                val port = portEdit.value
+                proxyBox.put(Proxy(host = host, port = port))
+            }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+            .show()
     }
 
 }

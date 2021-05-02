@@ -28,9 +28,9 @@ class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClie
         val url = with(configuration) { URI.create("http://$host:$port/$path").normalize().toString() }
 
         val connection = Jsoup.connect(url)
-                .ignoreHttpErrors(true)
-                .ignoreContentType(true)
-                .method(Connection.Method.POST)
+            .ignoreHttpErrors(true)
+            .ignoreContentType(true)
+            .method(Connection.Method.POST)
 
         val username = configuration.username
         val password = configuration.password
@@ -60,7 +60,7 @@ class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClie
 
             if (response.statusCode() == HttpURLConnection.HTTP_CONFLICT) {
                 session = response.header(SESSION_HEADER)
-                        ?: throw TransmissionException("Failed to get session ID after authorization!")
+                    ?: throw TransmissionException("Failed to get session ID after authorization!")
 
                 response = try {
                     connection.header(SESSION_HEADER, session).execute()

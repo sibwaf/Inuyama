@@ -34,16 +34,16 @@ class NyaaApi(val host: String = "https://nyaa.si") {
             val datetime = element.getElementsByTag("pubDate").single().text()
 
             return NyaaTorrent(
-                    id = id,
-                    title = element.getElementsByTag("title").single().text(),
-                    hash = element.getElementsByTag("nyaa:infoHash").single().text(),
-                    lastUpdate = datetimeFormat.parse(datetime).asDateTime
+                id = id,
+                title = element.getElementsByTag("title").single().text(),
+                hash = element.getElementsByTag("nyaa:infoHash").single().text(),
+                lastUpdate = datetimeFormat.parse(datetime).asDateTime
             )
         }
 
         val request = Request.Builder()
-                .url("$host/?page=rss&f=2&c=0_0&q=$query")
-                .build()
+            .url("$host/?page=rss&f=2&c=0_0&q=$query")
+            .build()
 
         val response = httpClient.newCall(request).await()
         response.use {
@@ -58,8 +58,8 @@ class NyaaApi(val host: String = "https://nyaa.si") {
 
     suspend fun getMagnet(id: String, httpClient: OkHttpClient): String {
         val request = Request.Builder()
-                .url("$host/view/$id")
-                .build()
+            .url("$host/view/$id")
+            .build()
 
         val response = httpClient.newCall(request).await()
         response.use {

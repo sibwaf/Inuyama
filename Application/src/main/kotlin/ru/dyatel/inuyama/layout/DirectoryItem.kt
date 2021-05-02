@@ -33,10 +33,10 @@ import sibwaf.inuyama.app.common.components.uniformTextInput
 import sibwaf.inuyama.app.common.components.uniformTextView
 
 class DirectoryItem(
-        private val directory: Directory,
-        private val modeChangeListener: () -> Unit,
-        private val saveListener: (String) -> Unit,
-        private val removeListener: () -> Unit
+    private val directory: Directory,
+    private val modeChangeListener: () -> Unit,
+    private val saveListener: (String) -> Unit,
+    private val removeListener: () -> Unit
 ) : AbstractItem<DirectoryItem, DirectoryItem.ViewHolder>() {
 
     private companion object {
@@ -103,10 +103,10 @@ class DirectoryItem(
     override fun getLayoutRes() = throw UnsupportedOperationException()
 
     private fun createIcon(ctx: Context, icon: IIcon) =
-            IconicsDrawable(ctx)
-                    .icon(icon)
-                    .sizeDp(20)
-                    .colorRes(R.color.material_drawer_dark_secondary_text)
+        IconicsDrawable(ctx)
+            .icon(icon)
+            .sizeDp(20)
+            .colorRes(R.color.material_drawer_dark_secondary_text)
 
     override fun createView(ctx: Context, parent: ViewGroup?): View {
         return ctx.relativeLayout {

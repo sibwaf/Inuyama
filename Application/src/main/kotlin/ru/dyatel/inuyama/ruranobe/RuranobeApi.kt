@@ -72,10 +72,10 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteSer
     fun fetchProjects(): List<RuranobeProject> {
         try {
             val response = createConnection("$host/api/projects", false)
-                    .ignoreContentType(true)
-                    .ignoreHttpErrors(true)
-                    .data("fields", "projectId,url,title,nameRomaji,author,works,status,translationStatus,issueStatus")
-                    .execute()
+                .ignoreContentType(true)
+                .ignoreHttpErrors(true)
+                .data("fields", "projectId,url,title,nameRomaji,author,works,status,translationStatus,issueStatus")
+                .execute()
 
             if (handleResponseCode(response)) {
                 return fetchProjects()
@@ -85,7 +85,7 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteSer
 
             val typeToken = object : TypeToken<List<RuranobeProject>>() {}.type
             return gson.fromJson<List<RuranobeProject>>(json, typeToken)
-                    .onEach { it.status = it.status.toLowerCase() }
+                .onEach { it.status = it.status.toLowerCase() }
         } catch (e: Exception) {
             throw e
         }
@@ -94,10 +94,10 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteSer
     fun fetchVolumes(project: RuranobeProject): List<RuranobeVolume> {
         try {
             val response = createConnection("$host/api/projects/${project.id}/volumes", false)
-                    .ignoreContentType(true)
-                    .ignoreHttpErrors(true)
-                    .data("fields", "volumeId,url,imageThumbnail,nameTitle,volumeStatus,lastUpdateDate,lastEditDate")
-                    .execute()
+                .ignoreContentType(true)
+                .ignoreHttpErrors(true)
+                .data("fields", "volumeId,url,imageThumbnail,nameTitle,volumeStatus,lastUpdateDate,lastEditDate")
+                .execute()
 
             if (handleResponseCode(response)) {
                 return fetchVolumes(project)
@@ -106,26 +106,26 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteSer
             val json = response.body()
 
             return jsonParser.parse(json).asJsonArray
-                    .map { it.asJsonObject!! }
-                    .mapIndexed { index, volume ->
-                        val parsed = gson.fromJson<RuranobeVolume>(volume)
+                .map { it.asJsonObject!! }
+                .mapIndexed { index, volume ->
+                    val parsed = gson.fromJson<RuranobeVolume>(volume)
 
-                        parsed.coverUrl = volume.getAsJsonArray("covers")
-                                .map { it.asJsonObject["thumbnail"].asString }
-                                .firstOrNull()
-                                ?.let { if (it.startsWith("//")) "http:$it" else it }
-                                ?.replace("%dpx", "240px")
+                    parsed.coverUrl = volume.getAsJsonArray("covers")
+                        .map { it.asJsonObject["thumbnail"].asString }
+                        .firstOrNull()
+                        ?.let { if (it.startsWith("//")) "http:$it" else it }
+                        ?.replace("%dpx", "240px")
 
-                        parsed.updateDatetime = listOfNotNull(volume["lastUpdateDate"], volume["lastEditDate"])
-                                .map { datetimeFormat.parse(it.asString).asDateTime }
-                                .sorted()
-                                .lastOrNull()
+                    parsed.updateDatetime = listOfNotNull(volume["lastUpdateDate"], volume["lastEditDate"])
+                        .map { datetimeFormat.parse(it.asString).asDateTime }
+                        .sorted()
+                        .lastOrNull()
 
-                        parsed.order = index
-                        parsed.project.target = project
+                    parsed.order = index
+                    parsed.project.target = project
 
-                        return@mapIndexed parsed
-                    }
+                    return@mapIndexed parsed
+                }
         } catch (e: Exception) {
             throw e
         }
@@ -134,11 +134,11 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteSer
     fun getDownloadUrl(volume: RuranobeVolume, format: String): URL {
         try {
             return createConnection("$host/d/$format/${volume.url}", false)
-                    .ignoreContentType(true)
-                    .followRedirects(true)
-                    .header("Referer", "$host/r/${volume.url}")
-                    .execute()
-                    .url()
+                .ignoreContentType(true)
+                .followRedirects(true)
+                .header("Referer", "$host/r/${volume.url}")
+                .execute()
+                .url()
         } catch (e: Exception) {
             throw e
         }

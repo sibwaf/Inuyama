@@ -58,11 +58,11 @@ class FinanceOperationScreen(private val operation: FinanceOperation) : InuScree
                     }
 
                     operationManager.update(
-                            operation,
-                            account = currentAccountSelector.selected!!,
-                            category = category,
-                            amount = amount,
-                            description = descriptionEditor.text
+                        operation,
+                        account = currentAccountSelector.selected!!,
+                        category = category,
+                        amount = amount,
+                        description = descriptionEditor.text
                     )
 
                     navigator.goBack()

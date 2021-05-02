@@ -44,8 +44,8 @@ class Application : Application(), KodeinAware {
 
         bind<BoxStore>() with singleton {
             MyObjectBox.builder()
-                    .androidContext(instance<Context>())
-                    .build()
+                .androidContext(instance<Context>())
+                .build()
         }
 
         bind<Box<Network>>() with singleton { instance<BoxStore>().boxFor<Network>() }
@@ -57,27 +57,27 @@ class Application : Application(), KodeinAware {
 
         bind<Gson>() with singleton {
             GsonBuilder()
-                    .setExclusionStrategies(object : ExclusionStrategy {
-                        override fun shouldSkipClass(clazz: Class<*>) = false
-                        override fun shouldSkipField(f: FieldAttributes) = f.getAnnotation(NoJson::class.java) != null
-                    })
-                    .registerTypeAdapter(PublicKey::class.java, object : TypeAdapter<PublicKey>() {
-                        override fun write(writer: JsonWriter, value: PublicKey?) {
-                            if (value == null) {
-                                writer.nullValue()
-                                return
-                            }
-
-                            writer.value(Encoding.encodeBase64(Encoding.encodeRSAPublicKey(value)))
+                .setExclusionStrategies(object : ExclusionStrategy {
+                    override fun shouldSkipClass(clazz: Class<*>) = false
+                    override fun shouldSkipField(f: FieldAttributes) = f.getAnnotation(NoJson::class.java) != null
+                })
+                .registerTypeAdapter(PublicKey::class.java, object : TypeAdapter<PublicKey>() {
+                    override fun write(writer: JsonWriter, value: PublicKey?) {
+                        if (value == null) {
+                            writer.nullValue()
+                            return
                         }
 
-                        override fun read(reader: JsonReader): PublicKey? {
-                            val value = reader.nextString() ?: return null
-                            return Encoding.decodeRSAPublicKey(Encoding.decodeBase64(value))
-                        }
-                    })
-                    .setPrettyPrinting()
-                    .create()
+                        writer.value(Encoding.encodeBase64(Encoding.encodeRSAPublicKey(value)))
+                    }
+
+                    override fun read(reader: JsonReader): PublicKey? {
+                        val value = reader.nextString() ?: return null
+                        return Encoding.decodeRSAPublicKey(Encoding.decodeBase64(value))
+                    }
+                })
+                .setPrettyPrinting()
+                .create()
         }
         bind<JsonParser>() with singleton { JsonParser() }
 

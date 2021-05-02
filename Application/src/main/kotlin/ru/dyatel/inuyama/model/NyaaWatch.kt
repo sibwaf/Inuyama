@@ -12,16 +12,17 @@ import java.util.TimeZone
 
 @Entity
 data class NyaaWatch(
-        @Id var id: Long = 0,
-        var description: String = "",
-        var query: String = "",
+    @Id var id: Long = 0,
+    var description: String = "",
+    var query: String = "",
 
-        @Convert(converter = DateTimeConverter::class, dbType = String::class)
-        var startDatetime: DateTime = DateTime.today(TimeZone.getDefault()),
+    @Convert(converter = DateTimeConverter::class, dbType = String::class)
+    var startDatetime: DateTime = DateTime.today(TimeZone.getDefault()),
 
-        var collectPath: String = "",
-        var lastUpdate: Long? = null
+    var collectPath: String = "",
+    var lastUpdate: Long? = null
 ) {
     lateinit var directory: ToOne<Directory?>
-    @Backlink lateinit var torrents: ToMany<NyaaTorrent>
+    @Backlink
+    lateinit var torrents: ToMany<NyaaTorrent>
 }

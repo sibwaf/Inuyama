@@ -77,15 +77,15 @@ class DirectoryScreen : InuScreen<DirectoryView>(), KodeinAware {
     private fun refresh() {
         adapter.set(directoryBox.all.map { directory ->
             DirectoryItem(
-                    directory,
-                    { fastAdapter.notifyAdapterItemChanged(adapter.getAdapterPosition(directory.id)) },
-                    {
-                        activity!!.hideKeyboard()
+                directory,
+                { fastAdapter.notifyAdapterItemChanged(adapter.getAdapterPosition(directory.id)) },
+                {
+                    activity!!.hideKeyboard()
 
-                        directory.path = it
-                        directoryBox.put(directory)
-                    },
-                    { directoryBox.remove(directory) }
+                    directory.path = it
+                    directoryBox.put(directory)
+                },
+                { directoryBox.remove(directory) }
             )
         })
     }
@@ -102,11 +102,11 @@ class DirectoryScreen : InuScreen<DirectoryView>(), KodeinAware {
         }
 
         AlertDialog.Builder(context!!)
-                .setTitle(R.string.dialog_add_directory)
-                .setView(view)
-                .setPositiveButton(R.string.action_save) { _, _ -> directoryBox.put(Directory(path = editor.text)) }
-                .setNegativeButton(R.string.action_cancel) { _, _ -> }
-                .show()
+            .setTitle(R.string.dialog_add_directory)
+            .setView(view)
+            .setPositiveButton(R.string.action_save) { _, _ -> directoryBox.put(Directory(path = editor.text)) }
+            .setNegativeButton(R.string.action_cancel) { _, _ -> }
+            .show()
     }
 
 }

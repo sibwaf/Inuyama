@@ -81,13 +81,13 @@ class NetworkScreen : InuScreen<NetworkView>(), KodeinAware {
 
     private fun refresh() {
         adapter.set(networkBox.all
-                .sortedBy { it.name }
-                .map { network ->
-                    NetworkItem(network) {
-                        network.trusted = it
-                        networkBox.put(network)
-                    }
-                })
+            .sortedBy { it.name }
+            .map { network ->
+                NetworkItem(network) {
+                    network.trusted = it
+                    networkBox.put(network)
+                }
+            })
     }
 
 }

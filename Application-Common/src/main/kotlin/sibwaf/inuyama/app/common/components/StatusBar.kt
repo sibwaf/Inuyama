@@ -83,9 +83,9 @@ class StatusBar(context: Context) : _CardView(context) {
     var icon by Delegates.observable<IIcon?>(null) { _, _, value ->
         val drawable = value?.let {
             IconicsDrawable(context)
-                    .icon(value)
-                    .sizeDp(24)
-                    .colorRes(R.color.md_dark_secondary)
+                .icon(value)
+                .sizeDp(24)
+                .colorRes(R.color.md_dark_secondary)
         }
 
         iconView.setImageDrawable(drawable)

@@ -77,8 +77,8 @@ class RuranobeVolumeItem(val volume: RuranobeVolume) : AbstractItem<RuranobeVolu
             }
 
             val lastUpdateText = item.volume.updateDatetime
-                    ?.let { prettyTime.format(it.asDate) }
-                    ?: context.getString(R.string.const_never)
+                ?.let { prettyTime.format(it.asDate) }
+                ?: context.getString(R.string.const_never)
             lastUpdateView.text = context.getString(R.string.label_last_update, lastUpdateText)
         }
     }

@@ -106,8 +106,8 @@ class RuranobeScreen : InuScreen<RuranobeView>(), KodeinAware {
             }
 
             val itemTokens = listOfNotNull(item.project.title, item.project.titleRomaji)
-                    .flatMap { it.split(" ") }
-                    .filter { it.isNotEmpty() }
+                .flatMap { it.split(" ") }
+                .filter { it.isNotEmpty() }
 
             val constraintTokens = constraint.split(" ").filter { it.isNotEmpty() }
 
@@ -153,14 +153,14 @@ class RuranobeScreen : InuScreen<RuranobeView>(), KodeinAware {
 
     private fun refresh() {
         val projects = projectBox.all
-                .sortedWith(projectComparator)
-                .map {
-                    RuranobeProjectItem(it)
-                            .withOnItemClickListener { _, _, item, _ ->
-                                navigator.goTo(RuranobeProjectScreen(item.project))
-                                true
-                            }
-                }
+            .sortedWith(projectComparator)
+            .map {
+                RuranobeProjectItem(it)
+                    .withOnItemClickListener { _, _, item, _ ->
+                        navigator.goTo(RuranobeProjectScreen(item.project))
+                        true
+                    }
+            }
 
         adapter.set(projects)
     }

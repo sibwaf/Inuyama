@@ -9,22 +9,22 @@ object MagnetParser {
         }
 
         return magnetParts[1].split("&")
-                .map {
-                    val parts = it.split("=")
-                    if (parts.size != 2) {
-                        throw MagnetParsingException("Invalid parameter: $it")
-                    }
-
-                    Pair(parts[0], parts[1])
+            .map {
+                val parts = it.split("=")
+                if (parts.size != 2) {
+                    throw MagnetParsingException("Invalid parameter: $it")
                 }
-                .toMap()
+
+                Pair(parts[0], parts[1])
+            }
+            .toMap()
     }
 
     fun extractHash(magnet: String) =
-            getQuery(magnet)
-                    .getOrElse("xt") { throw MagnetParsingException("xt not found") }
-                    .split(":")
-                    .last()
+        getQuery(magnet)
+            .getOrElse("xt") { throw MagnetParsingException("xt not found") }
+            .split(":")
+            .last()
 
 }
 

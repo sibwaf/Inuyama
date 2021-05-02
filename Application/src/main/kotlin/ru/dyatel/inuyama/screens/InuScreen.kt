@@ -48,12 +48,15 @@ abstract class InuScreen<V> : Screen<V>(), KodeinAware where V : ViewGroup, V : 
         boxStoreObservers += subscription
     }
 
-    protected inline fun <reified T> observe(init: SubscriptionBuilder<Class<T>>.() -> Unit, crossinline onUpdate: () -> Unit): DataSubscription {
+    protected inline fun <reified T> observe(
+        init: SubscriptionBuilder<Class<T>>.() -> Unit,
+        crossinline onUpdate: () -> Unit
+    ): DataSubscription {
         return boxStore.subscribeFor<T>()
-                .on(AndroidScheduler.mainThread())
-                .apply(init)
-                .observer { onUpdate() }
-                .also { attachDataObserver(it) }
+            .on(AndroidScheduler.mainThread())
+            .apply(init)
+            .observer { onUpdate() }
+            .also { attachDataObserver(it) }
     }
 
     protected inline fun <reified T> observeChanges(crossinline onUpdate: () -> Unit) = observe<T>({ onlyChanges() }, onUpdate)
@@ -65,10 +68,10 @@ abstract class InuScreen<V> : Screen<V>(), KodeinAware where V : ViewGroup, V : 
     }
 
     protected fun launchJob(
-            dispatcher: CoroutineDispatcher = Dispatchers.Main,
-            id: Long = generateJobId(),
-            replacing: Boolean = false,
-            block: suspend CoroutineScope.() -> Unit
+        dispatcher: CoroutineDispatcher = Dispatchers.Main,
+        id: Long = generateJobId(),
+        replacing: Boolean = false,
+        block: suspend CoroutineScope.() -> Unit
     ): Job {
         val existing = jobs[id]
         if (existing != null && !existing.isCompleted) {

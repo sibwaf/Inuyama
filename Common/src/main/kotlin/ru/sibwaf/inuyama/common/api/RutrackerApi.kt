@@ -29,8 +29,8 @@ open class RutrackerApi(val host: String = "https://rutracker.org") {
 
     suspend fun getMagnet(topic: Long, httpClient: OkHttpClient): String {
         val request = Request.Builder()
-                .url(generateLink(topic))
-                .build()
+            .url(generateLink(topic))
+            .build()
 
         val response = httpClient.newCall(request).await()
         response.use {

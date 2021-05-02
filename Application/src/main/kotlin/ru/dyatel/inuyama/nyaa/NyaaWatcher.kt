@@ -29,8 +29,8 @@ class NyaaWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
 
     init {
         boxStore.subscribeFor<NyaaWatch>()
-                .onlyChanges()
-                .observer { notifyListeners() }
+            .onlyChanges()
+            .observer { notifyListeners() }
     }
 
     override fun checkUpdates(): List<String> {
@@ -49,11 +49,11 @@ class NyaaWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
 
             for ((watch, torrents) in data) {
                 val updatedTorrents = torrents
-                        .filter {
-                            val old = watch.torrents.getById(it.id)
-                            old == null || old.hash != it.hash
-                        }
-                        .filter { it.updateDatetime.gteq(watch.startDatetime) }
+                    .filter {
+                        val old = watch.torrents.getById(it.id)
+                        old == null || old.hash != it.hash
+                    }
+                    .filter { it.updateDatetime.gteq(watch.startDatetime) }
 
                 for (torrent in updatedTorrents) {
                     torrent.watch.target = watch
@@ -75,8 +75,8 @@ class NyaaWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
         for (torrent in undispatchedQuery.find()) {
             val watch = torrent.watch.target
             val directory = watch.directory.target
-                    ?.let { "${it.path}/" }
-                    ?: ""
+                ?.let { "${it.path}/" }
+                ?: ""
 
             dispatcher.transaction {
                 val magnet = runBlocking { api.getMagnet(torrent) }

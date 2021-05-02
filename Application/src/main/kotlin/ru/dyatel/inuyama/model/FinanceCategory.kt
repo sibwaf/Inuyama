@@ -5,6 +5,6 @@ import io.objectbox.annotation.Id
 
 @Entity
 data class FinanceCategory(
-        @Id var id: Long = 0,
-        var name: String
+    @Id var id: Long = 0,
+    var name: String
 )

@@ -5,6 +5,6 @@ import io.objectbox.annotation.Id
 
 @Entity
 data class Directory(
-        @Id var id: Long = 0,
-        var path: String
+    @Id var id: Long = 0,
+    var path: String
 )

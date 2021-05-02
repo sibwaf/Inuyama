@@ -11,18 +11,19 @@ import ru.dyatel.inuyama.utilities.NoJson
 
 @Entity
 data class RuranobeVolume(
-        @Id(assignable = true) @SerializedName("volumeId") var id: Long = 0,
-        @NoJson var order: Int = 0,
+    @Id(assignable = true) @SerializedName("volumeId") var id: Long = 0,
+    @NoJson var order: Int = 0,
 
-        var url: String = "",
-        @NoJson var coverUrl: String? = null,
-        @SerializedName("nameTitle") var title: String = "",
-        @SerializedName("volumeStatus") var status: String = "",
+    var url: String = "",
+    @NoJson var coverUrl: String? = null,
+    @SerializedName("nameTitle") var title: String = "",
+    @SerializedName("volumeStatus") var status: String = "",
 
-        @NoJson @Convert(converter = DateTimeConverter::class, dbType = String::class)
-        var updateDatetime: DateTime? = null,
+    @NoJson @Convert(converter = DateTimeConverter::class, dbType = String::class)
+    var updateDatetime: DateTime? = null,
 
-        @NoJson var dispatched: Boolean = false
+    @NoJson var dispatched: Boolean = false
 ) {
-    @NoJson lateinit var project: ToOne<RuranobeProject>
+    @NoJson
+    lateinit var project: ToOne<RuranobeProject>
 }
