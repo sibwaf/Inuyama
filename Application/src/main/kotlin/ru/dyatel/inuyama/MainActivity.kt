@@ -73,6 +73,7 @@ class MainActivity : SingleActivity(), KodeinAware {
 
         searchView = find<SearchView>(R.id.search).apply {
             queryHint = getString(R.string.action_search)
+            isVisible = false
         }
 
         drawer = DrawerBuilder(this)
