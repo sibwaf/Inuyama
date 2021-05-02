@@ -2,6 +2,7 @@ package ru.dyatel.inuyama.screens
 
 import android.content.Context
 import android.view.ViewGroup
+import android.widget.SearchView
 import androidx.annotation.StringRes
 import com.wealthfront.magellan.Screen
 import com.wealthfront.magellan.ScreenView
@@ -15,18 +16,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.jetbrains.anko.find
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.MainActivity
+import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.utilities.subscribeFor
 import java.util.concurrent.atomic.AtomicLong
 
 @Suppress("FINITE_BOUNDS_VIOLATION_IN_JAVA")
 abstract class InuScreen<V> : Screen<V>(), KodeinAware where V : ViewGroup, V : ScreenView<*> {
-
-    protected val activity: MainActivity?
-        get() = super.getActivity() as MainActivity
 
     protected val context: Context?
         get() = activity
@@ -38,6 +37,8 @@ abstract class InuScreen<V> : Screen<V>(), KodeinAware where V : ViewGroup, V : 
 
     private val jobIdProvider = AtomicLong(1)
     private val jobs = mutableMapOf<Long, Job>()
+
+    val searchView by lazy { activity.find<SearchView>(R.id.search) }
 
     @StringRes
     protected open val titleResource = 0
@@ -82,11 +83,6 @@ abstract class InuScreen<V> : Screen<V>(), KodeinAware where V : ViewGroup, V : 
     }
 
     abstract override fun createView(context: Context): V
-
-    override fun onShow(context: Context) {
-        super.onShow(context)
-        activity!!.syncNavigation()
-    }
 
     override fun onHide(context: Context) {
         for (observer in boxStoreObservers) {

@@ -126,7 +126,7 @@ class RuranobeScreen : InuScreen<RuranobeView>(), KodeinAware {
     override fun onShow(context: Context) {
         super.onShow(context)
 
-        activity!!.searchView.apply {
+        searchView.apply {
             isVisible = true
 
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {

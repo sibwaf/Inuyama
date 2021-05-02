@@ -16,6 +16,7 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.wealthfront.magellan.NavigationType
 import com.wealthfront.magellan.Navigator
 import com.wealthfront.magellan.Screen
+import com.wealthfront.magellan.ScreenLifecycleListener
 import com.wealthfront.magellan.support.SingleActivity
 import io.objectbox.BoxStore
 import io.objectbox.android.AndroidObjectBrowser
@@ -43,13 +44,23 @@ class MainActivity : SingleActivity(), KodeinAware {
     private val menuItemRegistry = mutableMapOf<Class<out Screen<*>>, Long>()
     private lateinit var drawer: Drawer
 
-    lateinit var searchView: SearchView
-        private set
+    private lateinit var searchView: SearchView
 
-    override fun createNavigator() =
+    override fun createNavigator(): Navigator =
             Navigator
                     .withRoot(HomeScreen())
-                    .build()!!
+                    .build()
+                    .apply {
+                        addLifecycleListener(
+                            object : ScreenLifecycleListener {
+                                override fun onShow(screen: Screen<*>) = syncNavigation()
+                                override fun onHide(screen: Screen<*>) {
+                                    closeSearchView()
+                                    searchView.isVisible = false
+                                }
+                            }
+                        )
+                    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -111,10 +122,7 @@ class MainActivity : SingleActivity(), KodeinAware {
         searchView.isIconified = true
     }
 
-    fun syncNavigation() {
-        closeSearchView()
-        searchView.isVisible = false
-
+    private fun syncNavigation() {
         // TODO: find nearest existing screen
         val id = menuItemRegistry[getNavigator().currentScreen().javaClass] ?: return
         drawer.setSelection(id)
