@@ -3,7 +3,6 @@ package ru.dyatel.inuyama.nyaa
 import android.app.AlertDialog
 import android.content.Context
 import android.view.Menu
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
@@ -32,6 +31,7 @@ import sibwaf.inuyama.app.common.components.DatePicker
 import sibwaf.inuyama.app.common.components.UniformTextInput
 import sibwaf.inuyama.app.common.components.showConfirmationDialog
 import sibwaf.inuyama.app.common.components.uniformTextInput
+import sibwaf.inuyama.app.common.utilities.supportFragmentManager
 
 class NyaaView(context: Context) : BaseScreenView<NyaaScreen>(context) {
 
@@ -54,8 +54,6 @@ class NyaaView(context: Context) : BaseScreenView<NyaaScreen>(context) {
 class NyaaScreen : InuScreen<NyaaView>(), KodeinAware {
 
     override val titleResource = R.string.module_nyaa
-
-    private val fragmentManager by instance<FragmentManager>()
 
     private val directoryBox by instance<Box<Directory>>()
     private val watchBox by instance<Box<NyaaWatch>>()
@@ -116,7 +114,7 @@ class NyaaScreen : InuScreen<NyaaView>(), KodeinAware {
                 hintResource = R.string.hint_nyaa_watch_start_date
 
                 startDateSelector = DatePicker(this, watch.startDatetime)
-                setOnClickListener { startDateSelector.showDialog(fragmentManager) }
+                setOnClickListener { startDateSelector.showDialog(activity.supportFragmentManager) }
             }
 
             descriptionEditor = uniformTextInput {

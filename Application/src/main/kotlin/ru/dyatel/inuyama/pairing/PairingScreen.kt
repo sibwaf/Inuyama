@@ -5,7 +5,6 @@ import android.view.Gravity
 import android.view.View
 import android.widget.Button
 import androidx.core.view.isVisible
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mikepenz.fastadapter.adapters.ItemAdapter
@@ -37,6 +36,7 @@ import sibwaf.inuyama.app.common.components.ElementPicker
 import sibwaf.inuyama.app.common.components.UniformTextInput
 import sibwaf.inuyama.app.common.components.uniformTextInput
 import sibwaf.inuyama.app.common.components.uniformTextView
+import sibwaf.inuyama.app.common.utilities.supportFragmentManager
 
 class PairingView(context: Context) : BaseScreenView<PairingScreen>(context) {
 
@@ -92,8 +92,6 @@ class PairingScreen : InuScreen<PairingView>() {
 
     override val titleResource = R.string.module_pairing
 
-    private val fragmentManager by instance<FragmentManager>()
-
     private val networkManager by instance<NetworkManager>()
 
     private val preferenceHelper by instance<PreferenceHelper>()
@@ -130,7 +128,7 @@ class PairingScreen : InuScreen<PairingView>() {
                 { preferenceHelper.discoveryPort = it }
             )
             portPicker.currentValue = preferenceHelper.discoveryPort
-            discoveryPortView.editText!!.setOnClickListener { portPicker.showDialog(fragmentManager) }
+            discoveryPortView.editText!!.setOnClickListener { portPicker.showDialog(activity.supportFragmentManager) }
 
             recyclerView.adapter = serverFastAdapter
         }
