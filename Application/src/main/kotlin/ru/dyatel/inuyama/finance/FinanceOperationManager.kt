@@ -20,6 +20,28 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
     private val operationBox by instance<Box<FinanceOperation>>()
     private val transferBox by instance<Box<FinanceTransfer>>()
 
+//    fun getCurrentBalance(account: FinanceAccount): Double {
+//        return boxStore.callInReadTx {
+//            val operationQuery = operationBox.query {
+//                link(FinanceOperation_.account).equal(FinanceAccount_.id, account.id)
+//            }.property(FinanceOperation_.amount)
+//
+//            val transferFromQuery = transferBox.query {
+//                link(FinanceTransfer_.from).equal(FinanceAccount_.id, account.id)
+//            }.property(FinanceTransfer_.amount)
+//
+//            val transferToQuery = transferBox.query {
+//                link(FinanceTransfer_.to).equal(FinanceAccount_.id, account.id)
+//            }.property(FinanceTransfer_.amount)
+//
+//            0.0 +
+//                    +account.initialBalance +
+//                    +operationQuery.sumDouble() +
+//                    -transferFromQuery.sumDouble() +
+//                    +transferToQuery.sumDouble()
+//        }
+//    }
+
     fun createExpense(account: FinanceAccount, category: FinanceCategory, amount: Double, description: String?) {
         account.balance -= amount
 
@@ -65,6 +87,16 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         boxStore.runInTx {
             accountBox.put(account)
             operationBox.put(operation)
+        }
+    }
+
+    fun cancel(operation: FinanceOperation) {
+        boxStore.runInTx {
+            val account = operation.account.target
+            account.balance -= operation.amount
+            accountBox.put(account)
+
+            operationBox.remove(operation)
         }
     }
 

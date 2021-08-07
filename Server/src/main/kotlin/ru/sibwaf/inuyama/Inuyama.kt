@@ -4,6 +4,7 @@ import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
+import com.zaxxer.hikari.HikariDataSource
 import io.javalin.Context
 import io.javalin.Javalin
 import io.javalin.json.FromJsonMapper
@@ -24,6 +25,7 @@ import ru.sibwaf.inuyama.torrent.QBittorrentClient
 import ru.sibwaf.inuyama.torrent.TorrentClient
 import java.nio.file.Files
 import java.nio.file.Paths
+import javax.sql.DataSource
 
 private val kodein = Kodein.lazy {
     bind<Gson>() with singleton { Gson() }
@@ -40,6 +42,17 @@ private val kodein = Kodein.lazy {
             gson.fromJson(configurationText)
         } else {
             InuyamaConfiguration()
+        }
+    }
+
+    // TODO: provide "is database available property"
+
+    bind<DataSource>() with singleton {
+        HikariDataSource().apply {
+            val configuration = instance<InuyamaConfiguration>().database!!
+            jdbcUrl = configuration.url
+            username = configuration.username
+            password = configuration.password
         }
     }
 
@@ -65,6 +78,9 @@ private inline fun <reified T> Context.decryptedBody(): T {
 private val insecurePaths = listOf("/ping", "/bind-session")
 
 fun main() {
+    // TODO: data replication by marking "last update" on entities
+    // TODO: handle deletion somehow
+
     val gson by kodein.instance<Gson>()
 
     JavalinJson.fromJsonMapper = object : FromJsonMapper {
@@ -80,6 +96,10 @@ fun main() {
     val keyKeeper by kodein.instance<KeyKeeper>()
     val sessionManager by kodein.instance<SessionManager>()
     val torrentClient by kodein.instance<TorrentClient>()
+
+    if (configuration.database == null) {
+        logger.warn("DB connection is not configured, some features won't be available")
+    }
 
     Javalin.create()
         .port(configuration.serverPort)

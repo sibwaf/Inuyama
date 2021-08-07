@@ -1,5 +1,6 @@
 package ru.dyatel.inuyama
 
+//import androidx.biometric.BiometricManager
 import android.Manifest
 import android.os.Bundle
 import android.view.Menu
@@ -91,6 +92,13 @@ class MainActivity : SingleActivity(), KodeinAware {
     override fun onStart() {
         super.onStart()
         OverseerStarter.start(applicationContext, false)
+
+//        QrFeature(this, supportFragmentManager,
+//                onNeedToRequestPermissions = {  grantPermissions(requestPermissions(it, 0))},
+//        onScanResult =         {            toast("Scanned: $it")        }
+//        )
+
+//        val biometric = BiometricManager.from(this)
     }
 
     override fun onResume() {

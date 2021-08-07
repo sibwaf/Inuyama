@@ -1,5 +1,7 @@
 package ru.sibwaf.inuyama.common.utilities
 
+// TODO: categorize unhappy/neutral/happy
+
 val KAOMOJI = listOf(
     "(,,#ﾟДﾟ)",
     "(ಠ⌣ಠ)",
