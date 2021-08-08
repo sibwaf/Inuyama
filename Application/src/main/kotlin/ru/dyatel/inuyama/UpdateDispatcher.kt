@@ -1,11 +1,9 @@
 package ru.dyatel.inuyama
 
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.pairing.PairedApi
+import ru.dyatel.inuyama.overseer.UpdateDispatchExecutor
 
-class UpdateDispatcher(override val kodein: Kodein) : KodeinAware {
+// todo: this whole api is bullshit and needs rework
+class UpdateDispatcher {
 
     interface Transaction {
 
@@ -15,7 +13,7 @@ class UpdateDispatcher(override val kodein: Kodein) : KodeinAware {
         fun onSuccess(action: () -> Unit)
     }
 
-    private class TransactionImpl : Transaction {
+    class TransactionImpl : Transaction {
 
         val torrents = mutableListOf<Pair<String, String>>()
 
@@ -31,26 +29,19 @@ class UpdateDispatcher(override val kodein: Kodein) : KodeinAware {
 
     }
 
-    private val pairedApi by instance<PairedApi>()
-
     private val transactions = mutableListOf<TransactionImpl>()
 
     fun transaction(block: Transaction.() -> Unit) {
         transactions += TransactionImpl().apply(block)
     }
 
-    fun commit() {
+    fun dispatchOn(executor: UpdateDispatchExecutor) {
         for (transaction in transactions) {
             try {
-                for (torrent in transaction.torrents) {
-                    pairedApi.downloadTorrent(torrent.first, torrent.second)
-                }
-
-                transaction.commit()
+                executor.dispatch(transaction)
             } catch (e: Exception) {
                 // TODO: notify
             }
         }
     }
-
 }

@@ -41,8 +41,7 @@ import ru.dyatel.inuyama.layout.proxySelector
 import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.ProxyBinding
 import ru.dyatel.inuyama.overseer.OverseerListener
-import ru.dyatel.inuyama.overseer.OverseerStarter
-import ru.dyatel.inuyama.overseer.OverseerWorker
+import ru.dyatel.inuyama.overseer.OverseerService
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import ru.dyatel.inuyama.utilities.prettyTime
@@ -180,7 +179,9 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
     private val updateAdapter = ItemAdapter<UpdateItem>()
     private val updateFastAdapter = updateAdapter.buildFastAdapter()
 
+    private val overseer by instance<OverseerService>()
     private var overseerListener: OverseerListener? = null
+    private val overseerJobId = generateJobId()
 
     init {
         serviceFastAdapter
@@ -208,18 +209,8 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
     override fun onShow(context: Context) {
         super.onShow(context)
 
-        overseerListener = OverseerWorker.addListener { state ->
-            if (state) {
-                view.statusBar.textResource = R.string.label_checking
-            } else {
-                val lastCheckText = preferenceHelper.lastCheck
-                    ?.let { prettyTime.format(it.asDate) }
-                    ?: context.getString(R.string.const_never)
-                view.statusBar.text = context.getString(R.string.label_last_check, lastCheckText)
-            }
-        }.also {
-            it(OverseerWorker.isWorking)
-        }
+        overseerListener = overseer.addListener { syncOverseerState() }
+        syncOverseerState()
 
         serviceAdapter.set(services
             .sortedBy { it.getName(context) }
@@ -234,7 +225,7 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
 
     override fun onHide(context: Context) {
         overseerListener?.let {
-            OverseerWorker.removeListener(it)
+            overseer.removeListener(it)
             overseerListener = null
         }
 
@@ -243,6 +234,19 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
         }
 
         super.onHide(context)
+    }
+
+    private fun syncOverseerState() {
+        val context = context ?: return
+
+        if (overseer.isWorking) {
+            view.statusBar.textResource = R.string.label_checking
+        } else {
+            val lastCheckText = preferenceHelper.lastCheck
+                ?.let { prettyTime.format(it.asDate) }
+                ?: context.getString(R.string.const_never)
+            view.statusBar.text = context.getString(R.string.label_last_check, lastCheckText)
+        }
     }
 
     private fun refreshUpdates() {
@@ -287,9 +291,11 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
     }
 
     fun requestOverseerCheck() {
-        if (!OverseerWorker.isWorking) {
+        if (!overseer.isWorking) {
             view.statusBar.textResource = R.string.label_waiting_for_task
-            OverseerStarter.start(context!!, true)
+            launchJob(dispatcher = Dispatchers.Default, id = overseerJobId, replacing = true) {
+                overseer.execute()
+            }
         }
     }
 

@@ -15,6 +15,7 @@ import io.objectbox.BoxStore
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.x.androidXModule
+import org.kodein.di.generic.allInstances
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.provider
@@ -26,6 +27,8 @@ import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.ProxyBinding
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
+import ru.dyatel.inuyama.overseer.OverseerService
+import ru.dyatel.inuyama.overseer.UpdateDispatchExecutor
 import ru.dyatel.inuyama.pairing.DiscoveryService
 import ru.dyatel.inuyama.pairing.PairedApi
 import ru.dyatel.inuyama.pairing.PairingManager
@@ -84,6 +87,8 @@ class Application : Application(), KodeinAware {
         bind<PreferenceHelper>() with singleton { PreferenceHelper(instance()) }
         bind<OverseerConfiguration>() with provider { instance<PreferenceHelper>().overseer }
 
+        bind<BackgroundServiceManager>() with singleton { BackgroundServiceManager() }
+
         bind<Notifier>() with singleton { Notifier(kodein) }
 
         bind<NetworkManager>() with singleton { NetworkManagerImpl(kodein) }
@@ -91,6 +96,17 @@ class Application : Application(), KodeinAware {
         bind<DiscoveryService>() with singleton { DiscoveryService(kodein) }
         bind<PairingManager>() with singleton { PairingManager(kodein) }
         bind<PairedApi>() with singleton { PairedApi(kodein) }
+
+        bind<UpdateDispatchExecutor>() with singleton { UpdateDispatchExecutor(instance()) }
+
+        bind<OverseerService>() with singleton {
+            OverseerService(
+                preferenceHelper = instance(),
+                notifier = instance(),
+                updateDispatchExecutor = instance(),
+                watchers = allInstances()
+            )
+        }
 
         bind() from setBinding<ModuleScreenProvider>()
         import(rutrackerModule)

@@ -7,7 +7,6 @@ import android.view.Menu
 import android.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
-import androidx.work.WorkManager
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.IIcon
@@ -25,10 +24,10 @@ import io.objectbox.android.AndroidObjectBrowser
 import org.jetbrains.anko.find
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
+import org.kodein.di.direct
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.finance.FinanceDashboardScreen
 import ru.dyatel.inuyama.finance.FinanceStatisticsScreen
-import ru.dyatel.inuyama.overseer.OverseerStarter
 import ru.dyatel.inuyama.pairing.PairingScreen
 import ru.dyatel.inuyama.screens.DirectoryScreen
 import ru.dyatel.inuyama.screens.HomeScreen
@@ -41,6 +40,8 @@ import java.util.concurrent.atomic.AtomicLong
 class MainActivity : SingleActivity(), KodeinAware {
 
     override val kodein by closestKodein()
+
+    private val backgroundServiceManager by lazy { kodein.direct.instance<BackgroundServiceManager>() }
 
     private val menuIdGenerator = AtomicLong(1)
     private val menuItemRegistry = mutableMapOf<Class<out Screen<*>>, Long>()
@@ -91,7 +92,7 @@ class MainActivity : SingleActivity(), KodeinAware {
 
     override fun onStart() {
         super.onStart()
-        OverseerStarter.start(applicationContext, false)
+        backgroundServiceManager.onActivityStart(applicationContext)
 
 //        QrFeature(this, supportFragmentManager,
 //                onNeedToRequestPermissions = {  grantPermissions(requestPermissions(it, 0))},
@@ -111,10 +112,7 @@ class MainActivity : SingleActivity(), KodeinAware {
     }
 
     override fun onStop() {
-        if (BuildConfig.DEBUG) {
-            WorkManager.getInstance(applicationContext).cancelUniqueWork(WORK_NAME_OVERSEER)
-        }
-
+        backgroundServiceManager.onActivityStop(applicationContext)
         super.onStop()
     }
 

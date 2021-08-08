@@ -30,7 +30,7 @@
 
         </activity>
 
-        <receiver android:name=".overseer.OverseerStarter">
+        <receiver android:name=".BackgroundServiceManager">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
