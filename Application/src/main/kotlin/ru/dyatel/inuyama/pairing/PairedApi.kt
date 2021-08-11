@@ -3,9 +3,11 @@ package ru.dyatel.inuyama.pairing
 import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.kodein.di.Kodein
@@ -119,10 +121,14 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
             Log.d(logTag, "Response ${response.code} ${request.method} ${request.url}")
             when (response.code) {
                 200 -> {
-                    var body = response.body!!.string()
+                    var body = withContext(Dispatchers.IO) {
+                        response.body
+                            ?.string()
+                            ?.takeUnless { it.isBlank() }
+                    }
                     Log.v(logTag, "Response body: $body")
 
-                    if (requiresSession) {
+                    if (requiresSession && body != null) {
                         body = body
                             .let { Encoding.decodeBase64(it) }
                             .let { Cryptography.decryptAES(it, session!!.key) }
@@ -130,7 +136,11 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
                         Log.v(logTag, "Decrypted response body: $body")
                     }
 
-                    gson.fromJson(body, responseType)
+                    @Suppress("UNCHECKED_CAST")
+                    when (responseType) {
+                        Unit::class.java -> Unit as T
+                        else -> gson.fromJson(body!!, responseType)
+                    }
                 }
                 401 -> throw PairedSessionException("Token was rejected")
                 else -> throw PairedApiException("Bad HTTP status ${response.code}")
