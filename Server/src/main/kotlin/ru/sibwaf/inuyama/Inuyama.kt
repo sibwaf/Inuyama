@@ -12,6 +12,7 @@ import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
 import org.slf4j.LoggerFactory
+import ru.sibwaf.inuyama.backup.backupModule
 import ru.sibwaf.inuyama.torrent.torrentModule
 import ru.sibwaf.inuyama.web.webModule
 import java.nio.file.Files
@@ -53,6 +54,7 @@ private val kodein = Kodein.lazy {
 
     import(webModule)
     import(torrentModule)
+    import(backupModule)
 }
 
 fun main() {

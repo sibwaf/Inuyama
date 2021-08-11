@@ -21,6 +21,7 @@ import org.kodein.di.generic.instance
 import org.kodein.di.generic.provider
 import org.kodein.di.generic.setBinding
 import org.kodein.di.generic.singleton
+import ru.dyatel.inuyama.backup.BackupService
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.MyObjectBox
 import ru.dyatel.inuyama.model.Network
@@ -99,6 +100,12 @@ class Application : Application(), KodeinAware {
 
         bind<UpdateDispatchExecutor>() with singleton { UpdateDispatchExecutor(instance()) }
 
+        bind<BackupService>() with singleton {
+            BackupService(
+                pairedApi = instance(),
+                backupProviders = allInstances()
+            )
+        }
         bind<OverseerService>() with singleton {
             OverseerService(
                 preferenceHelper = instance(),

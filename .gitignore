@@ -8,5 +8,6 @@ captures/
 
 local.properties
 
-server.key
-configuration.json
+Server/*.key
+Server/configuration.json
+Server/backups

@@ -14,8 +14,12 @@ class SecurityFilter(
 ) : WebFilter {
 
     companion object {
-        const val ATTRIBUTE_SESSION = "sibwaf.inuyama.session"
+        private const val ATTRIBUTE_SESSION = "sibwaf.inuyama.session"
         private const val ATTRIBUTE_DECRYPTED_BODY = "sibwaf.inuyama.request-body"
+
+        fun Context.session(): Session? = attribute(ATTRIBUTE_SESSION)
+
+        fun Context.requireSession(): Session = attribute(ATTRIBUTE_SESSION) ?: throw SessionException()
 
         fun Context.decryptedBody(): String = attribute<() -> String>(ATTRIBUTE_DECRYPTED_BODY)!!.invoke()
 
@@ -47,7 +51,7 @@ class SecurityFilter(
     }
 
     override fun after(ctx: Context) {
-        val session = ctx.attribute<Session>(ATTRIBUTE_SESSION) ?: return
+        val session = ctx.session() ?: return
 
         val response = ctx.resultString() ?: return
         response

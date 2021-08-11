@@ -14,6 +14,7 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
+import ru.sibwaf.inuyama.common.BackupPrepareResponse
 import ru.sibwaf.inuyama.common.BindSessionApiRequest
 import ru.sibwaf.inuyama.common.BindSessionApiResponse
 import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
@@ -205,7 +206,8 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     private suspend inline fun <reified T> post(url: String, data: Any? = null, crossinline init: Request.Builder.() -> Unit = {}): T {
         return pairedApiRequestManager.request(url, T::class.java) { session ->
-            val body = data?.let { gson.toJson(data) }
+            val body = data
+                ?.let { if (it is String) it else gson.toJson(data) }
                 ?.let { Encoding.stringToBytes(it) }
                 ?.let { Cryptography.encryptAES(it, session!!.key) }
                 ?.let { Encoding.encodeBase64(it) }
@@ -220,6 +222,14 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
         runBlocking {
             post<Unit>("/download-torrent", TorrentDownloadApiRequest(magnet, path))
         }
+    }
+
+    suspend fun prepareBackup(module: String): Boolean {
+        return get<BackupPrepareResponse>("/backup/$module").ready
+    }
+
+    suspend fun makeBackup(module: String, data: String) {
+        post<Unit>("/backup/$module", data)
     }
 
     override fun getName(context: Context): String = context.getString(R.string.module_pairing)
