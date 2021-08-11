@@ -68,7 +68,8 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
         val challenge = Encoding.stringToBytes(CommonUtilities.generateRandomString(64, CommonUtilities.ALPHABET_ALNUM))
         val request = BindSessionApiRequest(
             key = Encoding.encodeBase64(Encoding.encodeRSAPublicKey(deviceKeyPair.public)),
-            challenge = Encoding.encodeBase64(Cryptography.encryptRSA(challenge, serverConnection.key))
+            challenge = Encoding.encodeBase64(Cryptography.encryptRSA(challenge, serverConnection.key)),
+            deviceId = pairingManager.deviceIdentifier
         )
 
         val response = baseRequest("/bind-session", false, BindSessionApiResponse::class.java) {

@@ -4,8 +4,10 @@ import ru.sibwaf.inuyama.common.utilities.CommonUtilities
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import javax.crypto.SecretKey
 
-data class Session(val token: String, val key: SecretKey)
+data class Session(val token: String, val key: SecretKey, val deviceId: String)
 
+// todo: [critical] session timeout
+// todo: [critical] session overwriting
 class SessionManager {
 
     private companion object {
@@ -16,11 +18,11 @@ class SessionManager {
 
     fun findSession(token: String): Session? = sessions[token]
 
-    fun createSession(): Session {
+    fun createSession(deviceId: String): Session {
         val token = CommonUtilities.generateRandomString(TOKEN_LENGTH, CommonUtilities.ALPHABET_ALNUM)
 
-        val session = Session(token, Cryptography.createAESKey())
-        return session.also { sessions[token] = it }
+        return Session(token, Cryptography.createAESKey(), deviceId)
+            .also { sessions[token] = it }
     }
 
 }

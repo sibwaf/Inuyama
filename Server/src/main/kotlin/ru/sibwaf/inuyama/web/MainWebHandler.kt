@@ -25,7 +25,7 @@ class MainWebHandler(
                 val clientKey = Encoding.decodeRSAPublicKey(Encoding.decodeBase64(request.key))
                 val challenge = Cryptography.decryptRSA(Encoding.decodeBase64(request.challenge), keyKeeper.keyPair.private)
 
-                val session = sessionManager.createSession()
+                val session = sessionManager.createSession(request.deviceId)
 
                 val response = BindSessionApiResponse(
                     challenge = Encoding.encodeBase64(Cryptography.encryptRSA(challenge, clientKey)),
