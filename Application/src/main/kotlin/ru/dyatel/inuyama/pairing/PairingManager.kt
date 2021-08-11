@@ -63,7 +63,7 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
             withTimeoutOrNull(10000) {
                 suspendCancellableCoroutine<DiscoveredServer> { continuation ->
                     listener = { server: DiscoveredServer ->
-                        if (compareWithPaired(server)) {
+                        if (compareWithPaired(server) && !continuation.isCompleted) {
                             continuation.resume(server)
                         }
                     }.also { discoveryService.addListener(it) }
