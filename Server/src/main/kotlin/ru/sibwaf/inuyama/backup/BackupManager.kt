@@ -30,32 +30,39 @@ class BackupManager {
     init {
         thread(name = "Backup cleaner", isDaemon = true) {
             while (true) {
-                val now = OffsetDateTime.now()
+                cleanup()
+                Thread.sleep(cleanupPeriod.toMillis())
+            }
+        }
+    }
 
-                for (devicePath in Files.list(baseDirectory)) {
-                    val modules = Files.list(devicePath).asSequence()
-                        .mapNotNull { BackupToken.fromPath(it) }
-                        .groupBy { it.module }
+    private fun cleanup() {
+        if (!Files.isDirectory(baseDirectory)) {
+            return
+        }
 
-                    for ((_, backups) in modules) {
-                        val outdatedBackups = backups
-                            .sortedBy { it.dateTime }
-                            .dropLast(1)
-                            .filter { it.dateTime + backupRetention < now }
+        val now = OffsetDateTime.now()
 
-                        for (backup in outdatedBackups) {
-                            val path = backup.toPath(baseDirectory)
-                            log.info("Cleaning up an outdated backup ${baseDirectory.relativize(path)}")
-                            try {
-                                Files.delete(path)
-                            } catch (e: Exception) {
-                                log.error("Failed to clean up and outdated backup ${baseDirectory.relativize(path)}", e)
-                            }
-                        }
+        for (devicePath in Files.list(baseDirectory)) {
+            val modules = Files.list(devicePath).asSequence()
+                .mapNotNull { BackupToken.fromPath(it) }
+                .groupBy { it.module }
+
+            for ((_, backups) in modules) {
+                val outdatedBackups = backups
+                    .sortedBy { it.dateTime }
+                    .dropLast(1)
+                    .filter { it.dateTime + backupRetention < now }
+
+                for (backup in outdatedBackups) {
+                    val path = backup.toPath(baseDirectory)
+                    log.info("Cleaning up an outdated backup ${baseDirectory.relativize(path)}")
+                    try {
+                        Files.delete(path)
+                    } catch (e: Exception) {
+                        log.error("Failed to clean up and outdated backup ${baseDirectory.relativize(path)}", e)
                     }
                 }
-
-                Thread.sleep(cleanupPeriod.toMillis())
             }
         }
     }
