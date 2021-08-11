@@ -1,6 +1,7 @@
 package ru.dyatel.inuyama.pairing
 
 import android.content.Context
+import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -19,6 +20,7 @@ import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.common.utilities.MediaTypes
 import ru.sibwaf.inuyama.common.utilities.await
+import ru.sibwaf.inuyama.common.utilities.humanReadable
 import sibwaf.inuyama.app.common.NetworkManager
 import sibwaf.inuyama.app.common.RemoteService
 import java.net.ConnectException
@@ -31,6 +33,8 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
 
     private data class ServerConnection(val address: String, val key: PublicKey, var session: Session?)
 
+    private val logTag = javaClass.simpleName
+
     private val gson by instance<Gson>()
 
     private val networkManager by instance<NetworkManager>()
@@ -41,7 +45,11 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
     private val lock = Mutex()
 
     private suspend fun discoverServer(): ServerConnection {
+        Log.d(logTag, "Discovering server")
+
         val server = pairingManager.findPairedServer() ?: throw PairedServerNotAvailableException()
+        Log.d(logTag, "Discovered server @ ${server.address.hostAddress}:${server.port} (${server.key.humanReadable})")
+
         return ServerConnection(
             address = "http://${server.address.hostAddress}:${server.port}",
             key = server.key,
@@ -50,6 +58,8 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
     }
 
     private suspend fun createSession(): Session {
+        Log.d(logTag, "Creating a new session")
+
         val serverConnection = serverConnection ?: throw PairedServerNotAvailableException("Can't create a session without a connection")
         val deviceKeyPair = pairingManager.deviceKeyPair
 
@@ -95,24 +105,29 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
 
         requestBuilder.init(session)
 
-        val request = networkManager.getHttpClient(true)
-            .newCall(requestBuilder.build())
+        val request = requestBuilder.build()
+        Log.d(logTag, "Request ${request.method} ${request.url}")
 
+        val client = networkManager.getHttpClient(true)
         val awaitedResponse = try {
-            request.await()
+            client.newCall(request).await()
         } catch (e: ConnectException) {
             throw PairedServerNotAvailableException("Failed to connect to server")
         }
 
         return awaitedResponse.use { response ->
+            Log.d(logTag, "Response ${response.code} ${request.method} ${request.url}")
             when (response.code) {
                 200 -> {
                     var body = response.body!!.string()
+                    Log.v(logTag, "Response body: $body")
+
                     if (requiresSession) {
                         body = body
                             .let { Encoding.decodeBase64(it) }
                             .let { Cryptography.decryptAES(it, session!!.key) }
                             .let { Encoding.bytesToString(it) }
+                        Log.v(logTag, "Decrypted response body: $body")
                     }
 
                     gson.fromJson(body, responseType)
