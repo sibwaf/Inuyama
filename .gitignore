@@ -11,3 +11,4 @@ local.properties
 Server/*.key
 Server/configuration.json
 Server/backups
+Server/logs

@@ -9,7 +9,7 @@ dependencies {
 
     implementation project(":Common")
 
-    implementation "org.slf4j:slf4j-simple:1.7.25"
+    implementation "ch.qos.logback:logback-classic:1.2.5"
 
     implementation "org.kodein.di:kodein-di-generic-jvm:$kodeinVersion"
 
