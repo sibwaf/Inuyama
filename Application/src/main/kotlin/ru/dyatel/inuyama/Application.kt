@@ -127,5 +127,8 @@ class Application : Application(), KodeinAware {
 
         val migrationRunner by instance<MigrationRunner>()
         migrationRunner.migrate()
+
+        val backgroundServiceManager by instance<BackgroundServiceManager>()
+        backgroundServiceManager.onApplicationStart(applicationContext)
     }
 }

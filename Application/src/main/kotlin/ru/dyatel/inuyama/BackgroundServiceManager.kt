@@ -12,6 +12,8 @@ import androidx.work.WorkerParameters
 import org.kodein.di.android.closestKodein
 import org.kodein.di.direct
 import org.kodein.di.generic.allInstances
+import ru.dyatel.inuyama.utilities.debugOnly
+import ru.dyatel.inuyama.utilities.releaseOnly
 import sibwaf.inuyama.app.common.BackgroundService
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -41,15 +43,22 @@ class BackgroundServiceManager : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (BuildConfig.DEBUG) {
-            return
-        }
-
-        when (intent.action) {
-            Intent.ACTION_BOOT_COMPLETED -> {
-                for (service in context.extractServices()) {
-                    context.createJob(service, replacing = false)
+        releaseOnly {
+            when (intent.action) {
+                Intent.ACTION_BOOT_COMPLETED,
+                Intent.ACTION_MY_PACKAGE_REPLACED -> {
+                    for (service in context.extractServices()) {
+                        context.createJob(service, replacing = true)
+                    }
                 }
+            }
+        }
+    }
+
+    fun onApplicationStart(context: Context) {
+        releaseOnly {
+            for (service in context.extractServices()) {
+                context.createJob(service, replacing = false)
             }
         }
     }
@@ -61,12 +70,10 @@ class BackgroundServiceManager : BroadcastReceiver() {
     }
 
     fun onActivityStop(context: Context) {
-        if (!BuildConfig.DEBUG) {
-            return
-        }
-
-        for (service in context.extractServices()) {
-            context.removeJob(service)
+        debugOnly {
+            for (service in context.extractServices()) {
+                context.removeJob(service)
+            }
         }
     }
 

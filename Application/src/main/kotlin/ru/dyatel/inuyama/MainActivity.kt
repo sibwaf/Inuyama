@@ -33,6 +33,7 @@ import ru.dyatel.inuyama.screens.DirectoryScreen
 import ru.dyatel.inuyama.screens.HomeScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
 import ru.dyatel.inuyama.screens.ProxyScreen
+import ru.dyatel.inuyama.utilities.debugOnly
 import ru.dyatel.inuyama.utilities.grantPermissions
 import sibwaf.inuyama.app.common.ModuleScreenProvider
 import java.util.concurrent.atomic.AtomicLong
@@ -84,7 +85,7 @@ class MainActivity : SingleActivity(), KodeinAware {
             .apply { generateDrawerItems() }
             .build()
 
-        if (BuildConfig.DEBUG) {
+        debugOnly {
             val boxStore by instance<BoxStore>()
             AndroidObjectBrowser(boxStore).start(applicationContext)
         }

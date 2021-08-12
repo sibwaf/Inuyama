@@ -30,7 +30,6 @@ import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.allInstances
 import org.kodein.di.generic.instance
-import ru.dyatel.inuyama.BuildConfig
 import ru.dyatel.inuyama.DASHBOARD_UPDATE_COUNT
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.Watcher
@@ -44,6 +43,7 @@ import ru.dyatel.inuyama.overseer.OverseerListener
 import ru.dyatel.inuyama.overseer.OverseerService
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.buildFastAdapter
+import ru.dyatel.inuyama.utilities.debugOnly
 import ru.dyatel.inuyama.utilities.prettyTime
 import ru.sibwaf.inuyama.common.utilities.asDate
 import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
@@ -319,7 +319,7 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
 
     override fun getTitle(context: Context): String {
         var title = context.getString(R.string.screen_home)
-        if (BuildConfig.DEBUG) {
+        debugOnly {
             title += " / Debug"
         }
         return title
