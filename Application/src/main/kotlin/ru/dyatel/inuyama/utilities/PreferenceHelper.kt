@@ -22,6 +22,7 @@ private const val CONFIGURATION_TRANSMISSION = "transmission_configuration"
 private const val CONFIGURATION_RUTRACKER = "rutracker_configuration"
 private const val CONFIGURATION_DISCOVERY_PORT = "discovery_port"
 
+private const val DATA_LAST_USED_VERSION = "last_used_version"
 private const val DATA_LAST_CHECK = "overseer_last_check"
 private const val DATA_DEVICE_KEYPAIR = "rsa_keypair"
 private const val DATA_DEVICE_IDENTIFIER = "device_identifier"
@@ -33,6 +34,10 @@ class PreferenceHelper(context: Context) : KodeinAware {
     private val gson by instance<Gson>()
 
     private val preferences = context.defaultSharedPreferences
+
+    var lastUsedVersion: Int
+        get() = preferences.getInt(DATA_LAST_USED_VERSION, -1)
+        set(value) = preferences.editAndApply { putInt(DATA_LAST_USED_VERSION, value) }
 
     var overseer: OverseerConfiguration
         get() = OverseerConfiguration(preferences.getInt(CONFIGURATION_OVERSEER_PERIOD, 30))
