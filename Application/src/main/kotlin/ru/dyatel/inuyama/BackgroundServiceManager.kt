@@ -15,23 +15,26 @@ import org.kodein.di.generic.allInstances
 import ru.dyatel.inuyama.utilities.debugOnly
 import ru.dyatel.inuyama.utilities.releaseOnly
 import sibwaf.inuyama.app.common.BackgroundService
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 class BackgroundServiceManager : BroadcastReceiver() {
 
     private companion object {
-        val serviceRegistry = ConcurrentHashMap<UUID, BackgroundService>()
+
+        private fun Context.extractServices(): Collection<BackgroundService> {
+            val kodein by closestKodein(this)
+            return kodein.direct.allInstances()
+        }
     }
 
     class ServiceWorker(
-        context: Context,
+        private val context: Context,
         workerParams: WorkerParameters
     ) : CoroutineWorker(context, workerParams) {
 
         override suspend fun doWork(): Result {
-            val service = serviceRegistry.getValue(id)
+            val service = context.extractServices().single { it.name in tags }
+
             return try {
                 service.execute()
                 Result.success()
@@ -77,13 +80,9 @@ class BackgroundServiceManager : BroadcastReceiver() {
         }
     }
 
-    private fun Context.extractServices(): Collection<BackgroundService> {
-        val kodein by closestKodein(this)
-        return kodein.direct.allInstances()
-    }
-
     private fun Context.createJob(service: BackgroundService, replacing: Boolean) {
         val work = PeriodicWorkRequestBuilder<ServiceWorker>(service.period.toLong(), TimeUnit.MINUTES)
+            .addTag(service.name)
             .build()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
@@ -91,8 +90,6 @@ class BackgroundServiceManager : BroadcastReceiver() {
             if (replacing) ExistingPeriodicWorkPolicy.REPLACE else ExistingPeriodicWorkPolicy.KEEP,
             work
         )
-
-        serviceRegistry[work.id] = service
     }
 
     private fun Context.removeJob(service: BackgroundService) {
