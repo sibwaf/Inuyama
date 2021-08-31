@@ -2,9 +2,9 @@ package ru.sibwaf.inuyama.http
 
 import com.google.gson.Gson
 import io.javalin.Javalin
-import io.javalin.json.FromJsonMapper
-import io.javalin.json.JavalinJson
-import io.javalin.json.ToJsonMapper
+import io.javalin.plugin.json.FromJsonMapper
+import io.javalin.plugin.json.JavalinJson
+import io.javalin.plugin.json.ToJsonMapper
 import org.kodein.di.Kodein
 import org.kodein.di.generic.allInstances
 import org.kodein.di.generic.bind
@@ -65,7 +65,7 @@ private class HttpModule(
 
         Javalin
             .create()
-            .port(config.serverPort)
+            .start(config.serverPort)
             .apply {
                 // todo: filter ordering
 
@@ -92,6 +92,5 @@ private class HttpModule(
                     ctx.status(500)
                 }
             }
-            .start()
     }
 }

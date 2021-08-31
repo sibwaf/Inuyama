@@ -1,7 +1,7 @@
 package ru.sibwaf.inuyama.http
 
-import io.javalin.Context
-import io.javalin.json.JavalinJson
+import io.javalin.http.Context
+import io.javalin.plugin.json.JavalinJson
 import ru.sibwaf.inuyama.Session
 import ru.sibwaf.inuyama.SessionException
 import ru.sibwaf.inuyama.SessionManager

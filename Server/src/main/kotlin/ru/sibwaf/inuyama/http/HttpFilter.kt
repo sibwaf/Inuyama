@@ -1,6 +1,6 @@
 package ru.sibwaf.inuyama.http
 
-import io.javalin.Context
+import io.javalin.http.Context
 
 interface HttpFilter {
 
