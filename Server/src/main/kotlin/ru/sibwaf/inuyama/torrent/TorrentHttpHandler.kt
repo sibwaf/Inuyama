@@ -2,10 +2,10 @@ package ru.sibwaf.inuyama.torrent
 
 import io.javalin.Javalin
 import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
-import ru.sibwaf.inuyama.web.SecurityFilter.Companion.decryptBodyAs
-import ru.sibwaf.inuyama.web.WebHandler
+import ru.sibwaf.inuyama.http.HttpHandler
+import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptBodyAs
 
-class TorrentWebHandler(private val torrentClient: TorrentClient) : WebHandler {
+class TorrentHttpHandler(private val torrentClient: TorrentClient) : HttpHandler {
 
     override fun install(javalin: Javalin) {
         javalin.apply {

@@ -8,7 +8,7 @@ import org.kodein.di.generic.singleton
 val torrentModule = Kodein.Module("torrent") {
     bind<TorrentClient>() with singleton { QBittorrentClient(kodein) }
 
-    bind<TorrentWebHandler>() with singleton {
-        TorrentWebHandler(instance())
+    bind<TorrentHttpHandler>() with singleton {
+        TorrentHttpHandler(instance())
     }
 }

@@ -10,7 +10,7 @@ val backupModule = Kodein.Module("backup") {
         BackupManager()
     }
 
-    bind<BackupWebHandler>() with singleton {
-        BackupWebHandler(instance())
+    bind<BackupHttpHandler>() with singleton {
+        BackupHttpHandler(instance())
     }
 }

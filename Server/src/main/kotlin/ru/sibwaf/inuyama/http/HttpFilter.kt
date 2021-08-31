@@ -1,8 +1,8 @@
-package ru.sibwaf.inuyama.web
+package ru.sibwaf.inuyama.http
 
 import io.javalin.Context
 
-interface WebFilter {
+interface HttpFilter {
 
     fun before(ctx: Context) = Unit
 

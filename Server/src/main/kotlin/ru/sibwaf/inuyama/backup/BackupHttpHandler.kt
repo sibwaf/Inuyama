@@ -3,11 +3,11 @@ package ru.sibwaf.inuyama.backup
 import io.javalin.Javalin
 import ru.sibwaf.inuyama.common.BackupPrepareResponse
 import ru.sibwaf.inuyama.exception
-import ru.sibwaf.inuyama.web.SecurityFilter.Companion.decryptedBody
-import ru.sibwaf.inuyama.web.SecurityFilter.Companion.requireSession
-import ru.sibwaf.inuyama.web.WebHandler
+import ru.sibwaf.inuyama.http.HttpHandler
+import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptedBody
+import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.requireSession
 
-class BackupWebHandler(private val backupManager: BackupManager) : WebHandler {
+class BackupHttpHandler(private val backupManager: BackupManager) : HttpHandler {
 
     override fun install(javalin: Javalin) {
         javalin.apply {

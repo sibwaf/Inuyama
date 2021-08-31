@@ -1,4 +1,4 @@
-package ru.sibwaf.inuyama.web
+package ru.sibwaf.inuyama.http
 
 import io.javalin.Javalin
 import ru.sibwaf.inuyama.KeyKeeper
@@ -7,12 +7,12 @@ import ru.sibwaf.inuyama.common.BindSessionApiRequest
 import ru.sibwaf.inuyama.common.BindSessionApiResponse
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
-import ru.sibwaf.inuyama.web.SecurityFilter.Companion.decryptBodyAs
+import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptBodyAs
 
-class MainWebHandler(
+class MainHttpHandler(
     private val keyKeeper: KeyKeeper,
     private val sessionManager: SessionManager
-) : WebHandler {
+) : HttpHandler {
 
     override val insecurePaths = setOf("/ping", "/bind-session")
 

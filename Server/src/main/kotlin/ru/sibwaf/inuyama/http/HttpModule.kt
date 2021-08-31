@@ -1,4 +1,4 @@
-package ru.sibwaf.inuyama.web
+package ru.sibwaf.inuyama.http
 
 import com.google.gson.Gson
 import io.javalin.Javalin
@@ -16,27 +16,27 @@ import ru.sibwaf.inuyama.Module
 import ru.sibwaf.inuyama.SessionException
 import ru.sibwaf.inuyama.exception
 
-val webModule = Kodein.Module("web") {
-    bind<SecurityFilter>() with singleton {
-        val insecurePaths = allInstances<WebHandler>()
+val httpModule = Kodein.Module("http") {
+    bind<SecurityHttpFilter>() with singleton {
+        val insecurePaths = allInstances<HttpHandler>()
             .flatMap { it.insecurePaths }
             .toSet()
 
-        SecurityFilter(
+        SecurityHttpFilter(
             sessionManager = instance(),
             insecurePaths = insecurePaths
         )
     }
 
-    bind<MainWebHandler>() with singleton {
-        MainWebHandler(
+    bind<MainHttpHandler>() with singleton {
+        MainHttpHandler(
             keyKeeper = instance(),
             sessionManager = instance()
         )
     }
 
-    bind<WebModule>() with singleton {
-        WebModule(
+    bind<HttpModule>() with singleton {
+        HttpModule(
             config = instance(),
             gson = instance(),
             filters = allInstances(),
@@ -45,12 +45,12 @@ val webModule = Kodein.Module("web") {
     }
 }
 
-private class WebModule(
+private class HttpModule(
     private val config: InuyamaConfiguration,
     private val gson: Gson,
 
-    private val filters: Collection<WebFilter>,
-    private val handlers: Collection<WebHandler>
+    private val filters: Collection<HttpFilter>,
+    private val handlers: Collection<HttpHandler>
 ) : Module {
 
     private val logger = LoggerFactory.getLogger(javaClass)

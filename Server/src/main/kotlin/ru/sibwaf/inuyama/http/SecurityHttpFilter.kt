@@ -1,4 +1,4 @@
-package ru.sibwaf.inuyama.web
+package ru.sibwaf.inuyama.http
 
 import io.javalin.Context
 import io.javalin.json.JavalinJson
@@ -8,10 +8,10 @@ import ru.sibwaf.inuyama.SessionManager
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
 
-class SecurityFilter(
+class SecurityHttpFilter(
     private val sessionManager: SessionManager,
     private val insecurePaths: Set<String>
-) : WebFilter {
+) : HttpFilter {
 
     companion object {
         private const val ATTRIBUTE_SESSION = "sibwaf.inuyama.session"

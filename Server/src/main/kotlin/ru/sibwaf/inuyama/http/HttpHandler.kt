@@ -1,8 +1,8 @@
-package ru.sibwaf.inuyama.web
+package ru.sibwaf.inuyama.http
 
 import io.javalin.Javalin
 
-interface WebHandler {
+interface HttpHandler {
 
     val insecurePaths: Set<String> get() = emptySet()
 
