@@ -16,16 +16,25 @@ import ru.sibwaf.inuyama.Module
 import ru.sibwaf.inuyama.SessionException
 import ru.sibwaf.inuyama.exception
 
+private const val SUBROUTE_PATH_PAIRED = "/paired"
+private const val SUBROUTE_PATH_WEB = "/web"
+
 val httpModule = Kodein.Module("http") {
     bind<SecurityHttpFilter>() with singleton {
-        val insecurePaths = allInstances<HttpHandler>()
-            .flatMap { it.insecurePaths }
-            .toSet()
+        val config = securityConfig(SecurityStrategy.DenyAll) {
+            subroute(SUBROUTE_PATH_PAIRED) {
+                strategy = SecurityStrategy.PairedAuth(instance())
 
-        SecurityHttpFilter(
-            sessionManager = instance(),
-            insecurePaths = insecurePaths
-        )
+                subroute("/ping") { strategy = SecurityStrategy.AllowAll }
+                subroute("/bind-session") { strategy = SecurityStrategy.AllowAll }
+            }
+
+            subroute(SUBROUTE_PATH_WEB) {
+                strategy = SecurityStrategy.AllowAll
+            }
+        }
+
+        SecurityHttpFilter(config)
     }
 
     bind<MainHttpHandler>() with singleton {
@@ -94,3 +103,7 @@ private class HttpModule(
             }
     }
 }
+
+fun Javalin.pairedSubroute(block: HttpSubroute.() -> Unit) = subroute(SUBROUTE_PATH_PAIRED, block)
+
+fun Javalin.webSubroute(block: HttpSubroute.() -> Unit) = subroute(SUBROUTE_PATH_WEB, block)

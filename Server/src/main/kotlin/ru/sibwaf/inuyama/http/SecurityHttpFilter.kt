@@ -4,64 +4,36 @@ import io.javalin.http.Context
 import io.javalin.plugin.json.JavalinJson
 import ru.sibwaf.inuyama.Session
 import ru.sibwaf.inuyama.SessionException
-import ru.sibwaf.inuyama.SessionManager
-import ru.sibwaf.inuyama.common.utilities.Cryptography
-import ru.sibwaf.inuyama.common.utilities.Encoding
 
-class SecurityHttpFilter(
-    private val sessionManager: SessionManager,
-    private val insecurePaths: Set<String>
-) : HttpFilter {
+class SecurityHttpFilter(private val config: SecurityConfig) : HttpFilter {
 
     companion object {
         private const val ATTRIBUTE_SESSION = "sibwaf.inuyama.session"
-        private const val ATTRIBUTE_DECRYPTED_BODY = "sibwaf.inuyama.request-body"
+        private const val ATTRIBUTE_DECRYPTED_BODY_PROVIDER = "sibwaf.inuyama.decrypted-body-provider"
 
-        fun Context.session(): Session? = attribute(ATTRIBUTE_SESSION)
+        var Context.session: Session?
+            get() = attribute(ATTRIBUTE_SESSION)
+            set(value) = attribute(ATTRIBUTE_SESSION, value)
 
-        fun Context.requireSession(): Session = attribute(ATTRIBUTE_SESSION) ?: throw SessionException()
+        var Context.decryptedBodyProvider: () -> String
+            get() = attribute(ATTRIBUTE_DECRYPTED_BODY_PROVIDER) ?: { body() }
+            set(value) = attribute(ATTRIBUTE_DECRYPTED_BODY_PROVIDER, value)
 
-        fun Context.decryptedBody(): String = attribute<() -> String>(ATTRIBUTE_DECRYPTED_BODY)!!.invoke()
+        fun Context.requireSession(): Session = session ?: throw SessionException()
 
-        inline fun <reified T> Context.decryptBodyAs() = JavalinJson.fromJsonMapper.map(decryptedBody(), T::class.java)
+        fun Context.decryptBody(): String = decryptedBodyProvider()
+
+        inline fun <reified T> Context.decryptBodyAs() = JavalinJson.fromJsonMapper.map(decryptBody(), T::class.java)
     }
 
     override fun before(ctx: Context) {
-        if (!isSecured(ctx.path())) {
-            ctx.attribute(ATTRIBUTE_DECRYPTED_BODY, { ctx.body() })
-            return
+        val strategy = config.getStrategy(ctx.path())
+        if (!strategy.authenticate(ctx)) {
+            throw SessionException()
         }
-
-        val session = ctx.header("Authorization")
-            ?.takeIf { it.startsWith("Bearer ") }
-            ?.removePrefix("Bearer ")
-            ?.let { sessionManager.findSession(it) }
-            ?: throw SessionException()
-
-        ctx.attribute(ATTRIBUTE_SESSION, session)
-
-        val bodyDecryptor: () -> String = {
-            ctx.body()
-                .let { Encoding.decodeBase64(it) }
-                .let { Cryptography.decryptAES(it, session.key) }
-                .let { Encoding.bytesToString(it) }
-        }
-
-        ctx.attribute(ATTRIBUTE_DECRYPTED_BODY, bodyDecryptor)
     }
 
     override fun after(ctx: Context) {
-        val session = ctx.session() ?: return
-
-        val response = ctx.resultString() ?: return
-        response
-            .let { Encoding.stringToBytes(it) }
-            .let { Cryptography.encryptAES(it, session.key) }
-            .let { Encoding.encodeBase64(it) }
-            .let { ctx.result(it) }
-
-        ctx.contentType("text/plain")
+        config.getStrategy(ctx.path()).postProcess(ctx)
     }
-
-    private fun isSecured(path: String): Boolean = insecurePaths.none { path.startsWith(it) }
 }

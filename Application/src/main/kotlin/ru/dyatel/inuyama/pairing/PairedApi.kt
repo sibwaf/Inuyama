@@ -54,7 +54,7 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
         Log.d(logTag, "Discovered server @ ${server.address.hostAddress}:${server.port} (${server.key.humanReadable})")
 
         return ServerConnection(
-            address = "http://${server.address.hostAddress}:${server.port}",
+            address = "http://${server.address.hostAddress}:${server.port}/paired",
             key = server.key,
             session = null
         )
