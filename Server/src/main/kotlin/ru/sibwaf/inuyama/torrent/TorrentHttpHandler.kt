@@ -8,13 +8,11 @@ import ru.sibwaf.inuyama.http.pairedSubroute
 
 class TorrentHttpHandler(private val torrentClient: TorrentClient) : HttpHandler {
 
-    override fun install(javalin: Javalin) {
-        javalin.apply {
-            pairedSubroute {
-                post("/download-torrent") { ctx ->
-                    val request = ctx.decryptBodyAs<TorrentDownloadApiRequest>()
-                    torrentClient.download(request.magnet, request.path)
-                }
+    override fun Javalin.install() {
+        pairedSubroute {
+            post("/download-torrent") { ctx ->
+                val request = ctx.decryptBodyAs<TorrentDownloadApiRequest>()
+                torrentClient.download(request.magnet, request.path)
             }
         }
     }

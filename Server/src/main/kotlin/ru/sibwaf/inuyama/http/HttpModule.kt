@@ -89,7 +89,9 @@ private class HttpModule(
                 exception<InterruptFilterChainException> { _, _ -> }
 
                 for (handler in handlers) {
-                    handler.install(this)
+                    with(handler) {
+                        install()
+                    }
                 }
 
                 exception<SessionException> { _, ctx ->

@@ -11,35 +11,33 @@ import ru.sibwaf.inuyama.http.subroute
 
 class BackupHttpHandler(private val backupManager: BackupManager) : HttpHandler {
 
-    override fun install(javalin: Javalin) {
-        javalin.apply {
-            pairedSubroute {
-                subroute("/backup") {
-                    get("/:module") { ctx ->
-                        val session = ctx.requireSession()
+    override fun Javalin.install() {
+        pairedSubroute {
+            subroute("/backup") {
+                get("/:module") { ctx ->
+                    val session = ctx.requireSession()
 
-                        val isReady = backupManager.prepareBackup(
-                            deviceId = session.deviceId,
-                            module = ctx.pathParam("module")
-                        )
+                    val isReady = backupManager.prepareBackup(
+                        deviceId = session.deviceId,
+                        module = ctx.pathParam("module")
+                    )
 
-                        ctx.json(BackupPrepareResponse(isReady))
-                    }
+                    ctx.json(BackupPrepareResponse(isReady))
+                }
 
-                    post("/:module") { ctx ->
-                        val session = ctx.requireSession()
-                        backupManager.makeBackup(
-                            deviceId = session.deviceId,
-                            module = ctx.pathParam("module"),
-                            data = ctx.decryptBody().byteInputStream()
-                        )
-                    }
+                post("/:module") { ctx ->
+                    val session = ctx.requireSession()
+                    backupManager.makeBackup(
+                        deviceId = session.deviceId,
+                        module = ctx.pathParam("module"),
+                        data = ctx.decryptBody().byteInputStream()
+                    )
                 }
             }
+        }
 
-            exception<BackupNotReadyException> { _, ctx ->
-                ctx.status(425)
-            }
+        exception<BackupNotReadyException> { _, ctx ->
+            ctx.status(425)
         }
     }
 }
