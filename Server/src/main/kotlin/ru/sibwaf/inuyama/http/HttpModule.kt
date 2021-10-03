@@ -15,6 +15,7 @@ import ru.sibwaf.inuyama.InuyamaConfiguration
 import ru.sibwaf.inuyama.Module
 import ru.sibwaf.inuyama.SessionException
 import ru.sibwaf.inuyama.exception
+import java.net.InetAddress
 
 private const val SUBROUTE_PATH_PAIRED = "/paired"
 private const val SUBROUTE_PATH_WEB = "/web"
@@ -30,7 +31,9 @@ val httpModule = Kodein.Module("http") {
             }
 
             subroute(SUBROUTE_PATH_WEB) {
-                strategy = SecurityStrategy.AllowAll
+                strategy = SecurityStrategy.AddressWhitelist(
+                    setOf(InetAddress.getLoopbackAddress(), InetAddress.getLocalHost())
+                )
             }
         }
 

@@ -7,6 +7,7 @@ import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptedBodyProvider
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.requireSession
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.session
+import java.net.InetAddress
 
 fun interface SecurityStrategy {
 
@@ -47,6 +48,13 @@ fun interface SecurityStrategy {
                 .let { ctx.result(it) }
 
             ctx.contentType("text/plain")
+        }
+    }
+
+    class AddressWhitelist(private val whitelist: Set<InetAddress>) : SecurityStrategy {
+        override fun authenticate(ctx: Context): Boolean {
+            val sender = InetAddress.getByName(ctx.req.remoteAddr)
+            return sender in whitelist
         }
     }
 
