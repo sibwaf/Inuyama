@@ -1,9 +1,11 @@
-package ru.sibwaf.inuyama
+package ru.sibwaf.inuyama.pairing
 
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import org.slf4j.LoggerFactory
+import ru.sibwaf.inuyama.InuyamaConfiguration
+import ru.sibwaf.inuyama.KeyKeeper
 import ru.sibwaf.inuyama.common.DiscoverResponse
 import ru.sibwaf.inuyama.common.Pairing
 import ru.sibwaf.inuyama.common.utilities.humanReadable

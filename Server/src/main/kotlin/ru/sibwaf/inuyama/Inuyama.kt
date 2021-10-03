@@ -14,6 +14,7 @@ import org.kodein.di.generic.singleton
 import org.slf4j.LoggerFactory
 import ru.sibwaf.inuyama.backup.backupModule
 import ru.sibwaf.inuyama.http.httpModule
+import ru.sibwaf.inuyama.pairing.pairingModule
 import ru.sibwaf.inuyama.torrent.torrentModule
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -50,8 +51,8 @@ private val kodein = Kodein.lazy {
 
     bind<KeyKeeper>() with singleton { KeyKeeper() }
     bind<SessionManager>() with singleton { SessionManager() }
-    bind<PairingManager>() with singleton { PairingManager(kodein) }
 
+    import(pairingModule)
     import(httpModule)
     import(torrentModule)
     import(backupModule)
@@ -71,6 +72,4 @@ fun main() {
     for (module in kodein.direct.allInstances<Module>()) {
         module.install()
     }
-
-    kodein.direct.instance<PairingManager>().start()
 }
