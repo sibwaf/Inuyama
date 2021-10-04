@@ -32,7 +32,7 @@ val httpModule = Kodein.Module("http") {
 
             subroute(SUBROUTE_PATH_WEB) {
                 strategy = SecurityStrategy.AddressWhitelist(
-                    setOf(InetAddress.getLoopbackAddress(), InetAddress.getLocalHost())
+                    InetAddress.getAllByName("localhost").toSet()
                 )
             }
         }
