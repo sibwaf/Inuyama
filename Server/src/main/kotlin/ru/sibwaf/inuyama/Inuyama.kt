@@ -16,12 +16,19 @@ import ru.sibwaf.inuyama.backup.backupModule
 import ru.sibwaf.inuyama.http.httpModule
 import ru.sibwaf.inuyama.pairing.pairingModule
 import ru.sibwaf.inuyama.torrent.torrentModule
+import ru.sibwaf.inuyama.utilities.registerJavaTimeAdapters
+import ru.sibwaf.inuyama.utilities.withCaseInsensitiveEnums
 import java.nio.file.Files
 import java.nio.file.Paths
 import javax.sql.DataSource
 
 private val kodein = Kodein.lazy {
-    bind<Gson>() with singleton { Gson() }
+    bind<Gson>() with singleton {
+        GsonBuilder()
+            .registerJavaTimeAdapters()
+            .withCaseInsensitiveEnums()
+            .create()
+    }
     bind<JsonParser>() with singleton { JsonParser() }
 
     bind<InuyamaConfiguration>() with singleton {
