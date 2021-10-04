@@ -66,20 +66,14 @@ class Application : Application(), KodeinAware {
                     override fun shouldSkipField(f: FieldAttributes) = f.getAnnotation(NoJson::class.java) != null
                 })
                 .registerTypeAdapter(PublicKey::class.java, object : TypeAdapter<PublicKey>() {
-                    override fun write(writer: JsonWriter, value: PublicKey?) {
-                        if (value == null) {
-                            writer.nullValue()
-                            return
-                        }
-
+                    override fun write(writer: JsonWriter, value: PublicKey) {
                         writer.value(Encoding.encodeBase64(Encoding.encodeRSAPublicKey(value)))
                     }
 
-                    override fun read(reader: JsonReader): PublicKey? {
-                        val value = reader.nextString() ?: return null
-                        return Encoding.decodeRSAPublicKey(Encoding.decodeBase64(value))
+                    override fun read(reader: JsonReader): PublicKey {
+                        return Encoding.decodeRSAPublicKey(Encoding.decodeBase64(reader.nextString()))
                     }
-                })
+                }.nullSafe())
                 .setPrettyPrinting()
                 .create()
         }
