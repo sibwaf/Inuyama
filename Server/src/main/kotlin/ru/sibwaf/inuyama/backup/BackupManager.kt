@@ -112,6 +112,15 @@ class BackupManager {
         log.info("Successfully written a backup: $deviceId / $module")
     }
 
+    fun getLatestBackup(deviceId: String, module: String): Path? {
+        val path = getDirectory(deviceId).takeIf { Files.isDirectory(it) } ?: return null
+        return Files.list(path).asSequence()
+            .mapNotNull { BackupToken.fromPath(it) }
+            .filter { it.module == module }
+            .maxByOrNull { it.dateTime }
+            ?.toPath(baseDirectory)
+    }
+
     private fun getDirectory(deviceId: String) = baseDirectory.resolve(deviceId)
 }
 

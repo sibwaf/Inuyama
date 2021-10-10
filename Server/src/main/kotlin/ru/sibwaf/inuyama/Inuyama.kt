@@ -13,6 +13,7 @@ import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
 import org.slf4j.LoggerFactory
 import ru.sibwaf.inuyama.backup.backupModule
+import ru.sibwaf.inuyama.finance.financeModule
 import ru.sibwaf.inuyama.http.httpModule
 import ru.sibwaf.inuyama.pairing.pairingModule
 import ru.sibwaf.inuyama.torrent.torrentModule
@@ -63,6 +64,7 @@ private val kodein = Kodein.lazy {
     import(httpModule)
     import(torrentModule)
     import(backupModule)
+    import(financeModule)
 }
 
 fun main() {
