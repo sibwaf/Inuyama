@@ -17,14 +17,20 @@
             </div>
         </nav>
         <div class="columns">
-            <div class="column is-3 menu-wrapper">
+            <div class="column is-2 menu-wrapper">
                 <aside class="menu">
                     <p class="menu-label">Menu</p>
                     <ul class="menu-list">
+                        <li>
+                            <span>Finance</span>
+                            <ul>
+                                <li><router-link to="/finance/compare">Compare</router-link></li>
+                            </ul>
+                        </li>
                     </ul>
                 </aside>
             </div>
-            <div class="column is-9">
+            <div class="column is-10">
                 <router-view />
             </div>
         </div>

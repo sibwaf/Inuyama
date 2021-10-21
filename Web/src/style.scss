@@ -1,2 +1,15 @@
 @charset "utf-8";
+
 @import "~bulma/bulma";
+
+$--font-path: "~element-ui/lib/theme-chalk/fonts";
+
+@import "~element-ui/packages/theme-chalk/src/index";
+
+.responsive-chart {
+    position: relative;
+}
+
+.is-fullwidth {
+    width: 100% !important;
+}
