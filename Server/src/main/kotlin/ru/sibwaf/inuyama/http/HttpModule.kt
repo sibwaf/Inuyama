@@ -17,6 +17,8 @@ import ru.sibwaf.inuyama.Module
 import ru.sibwaf.inuyama.SessionException
 import ru.sibwaf.inuyama.exception
 import java.net.InetAddress
+import java.nio.file.Files
+import java.nio.file.Paths
 
 private const val SUBROUTE_PATH_PAIRED = "/paired"
 private const val SUBROUTE_PATH_WEB = "/web"
@@ -76,7 +78,12 @@ private class HttpModule(
 
         Javalin
             .create {
-                it.addStaticFiles("frontend", Location.EXTERNAL)
+                val path = "frontend"
+                if (Files.isDirectory(Paths.get(path))) {
+                    it.addStaticFiles("frontend", Location.EXTERNAL)
+                } else {
+                    logger.warn("[$path] not found, static resources won't be served")
+                }
             }
             .start(config.serverPort)
             .apply {
