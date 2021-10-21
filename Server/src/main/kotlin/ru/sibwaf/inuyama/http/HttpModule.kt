@@ -2,6 +2,7 @@ package ru.sibwaf.inuyama.http
 
 import com.google.gson.Gson
 import io.javalin.Javalin
+import io.javalin.http.staticfiles.Location
 import io.javalin.plugin.json.FromJsonMapper
 import io.javalin.plugin.json.JavalinJson
 import io.javalin.plugin.json.ToJsonMapper
@@ -22,18 +23,16 @@ private const val SUBROUTE_PATH_WEB = "/web"
 
 val httpModule = Kodein.Module("http") {
     bind<SecurityHttpFilter>() with singleton {
-        val config = securityConfig(SecurityStrategy.DenyAll) {
+        val allowLocalhost = SecurityStrategy.AddressWhitelist(
+            InetAddress.getAllByName("localhost").toSet()
+        )
+
+        val config = securityConfig(allowLocalhost) {
             subroute(SUBROUTE_PATH_PAIRED) {
                 strategy = SecurityStrategy.PairedAuth(instance())
 
                 subroute("/ping") { strategy = SecurityStrategy.AllowAll }
                 subroute("/bind-session") { strategy = SecurityStrategy.AllowAll }
-            }
-
-            subroute(SUBROUTE_PATH_WEB) {
-                strategy = SecurityStrategy.AddressWhitelist(
-                    InetAddress.getAllByName("localhost").toSet()
-                )
             }
         }
 
@@ -76,7 +75,9 @@ private class HttpModule(
         }
 
         Javalin
-            .create()
+            .create {
+                it.addStaticFiles("frontend", Location.EXTERNAL)
+            }
             .start(config.serverPort)
             .apply {
                 // todo: filter ordering
