@@ -169,9 +169,14 @@ export default class FinanceComparisonScreen extends Vue {
             const inFirst = (await firstData).get(categoryId) ?? 0;
             const inSecond = (await secondData).get(categoryId) ?? 0;
 
+            const diff = Math.abs(inSecond) - Math.abs(inFirst);
+            if (diff == 0) {
+                continue;
+            }
+
             result.push([
                 getCategoryById(categoryId)?.name ?? categoryId,
-                Math.abs(inSecond) - Math.abs(inFirst),
+                diff
             ]);
         }
 
