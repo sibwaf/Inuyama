@@ -199,7 +199,7 @@ export default class FinanceComparisonScreen extends Vue {
 
     @Watch("granularityMonths")
     private onGranularityMonthsChanged(granularityMonths: number) {
-        this.secondMonth = moment().subtract(granularityMonths, "months");
+        this.secondMonth = moment().subtract(granularityMonths - 1, "months");
         this.firstMonth = moment(this.secondMonth).subtract(
             granularityMonths,
             "months"
