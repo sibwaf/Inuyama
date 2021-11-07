@@ -5,12 +5,12 @@ import Vue from "vue";
 import ElementUI from "element-ui";
 import locale from "element-ui/lib/locale/lang/en";
 
-import { Chart, CategoryScale, LinearScale, Tooltip, BarController, BarElement } from "chart.js";
+import { Chart, CategoryScale, LinearScale, Tooltip, BarController, BarElement, DoughnutController, ArcElement } from "chart.js";
 
 import App from "./App.vue";
 import router from "./router";
 
-Chart.register(CategoryScale, LinearScale, Tooltip, BarController, BarElement);
+Chart.register(CategoryScale, LinearScale, Tooltip, BarController, BarElement, DoughnutController, ArcElement);
 
 Vue.use(ElementUI, { locale });
 Vue.config.productionTip = false;
