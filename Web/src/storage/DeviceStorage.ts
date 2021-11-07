@@ -13,12 +13,14 @@ export class DeviceStorage {
         this._availableDevices = await this.api.listDevices();
     }
 
-    get selectedDevice() { return localStorage.getItem("storage.devices.selected-device"); }
+    private _selectedDevice: string | null = localStorage.getItem("storage.devices.selected-device");;
+    get selectedDevice() { return this._selectedDevice; }
     set selectedDevice(value) {
         if (value == null) {
             localStorage.removeItem("storage.devices.selected-device");
         } else {
             localStorage.setItem("storage.devices.selected-device", value);
         }
+        this._selectedDevice = value;
     }
 }

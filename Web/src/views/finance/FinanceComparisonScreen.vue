@@ -43,7 +43,6 @@ import moment, { Moment } from "moment";
 import {
     FinanceAnalyticGrouping,
     FinanceApi,
-    FinanceCategory,
     FinanceOperationDirection,
 } from "@/api/FinanceApi";
 import Storage from "@/storage/Storage";
@@ -72,8 +71,6 @@ export default class FinanceComparisonScreen extends Vue {
     @Inject()
     private storage!: Storage;
 
-    private categories: FinanceCategory[] = [];
-
     private granularity: Granularity = Granularity.MONTHLY;
     private firstMonth: Moment = moment();
     private secondMonth: Moment = moment();
@@ -81,31 +78,10 @@ export default class FinanceComparisonScreen extends Vue {
     private direction: FinanceOperationDirection | null =
         FinanceOperationDirection.EXPENSE;
 
-    private chartData: [string, number][] = [];
+    private rawChartData: [string, number][] = [];
 
     created() {
         this.secondMonth = moment().startOf("month");
-
-        this.$nextTick(async () => {
-            const deviceId = this.storage.devices.selectedDevice;
-            if (deviceId != null) {
-                this.categories = await this.getCategories(deviceId);
-
-                this.$watch(
-                    "chartParameters",
-                    async (chartParameters: ChartParameters) => {
-                        if (chartParameters != null) {
-                            this.chartData = await this.getChartData(
-                                chartParameters
-                            );
-                        }
-                    },
-                    {
-                        immediate: true,
-                    }
-                );
-            }
-        });
     }
 
     get granularityOptions() {
@@ -132,11 +108,39 @@ export default class FinanceComparisonScreen extends Vue {
         }
     }
 
-    getCategories(deviceId: string): Promise<FinanceCategory[]> {
-        return new FinanceApi().getCategories(deviceId);
+    private get categories() {
+        return this.storage.ofCurrentDevice()?.finance?.categories ?? [];
     }
 
-    async getChartData(
+    private get chartParameters() {
+        const deviceId = this.storage.devices.selectedDevice;
+        if (deviceId == null) {
+            return null;
+        }
+
+        return {
+            deviceId,
+
+            firstMonth: moment(this.firstMonth).startOf("month"),
+            secondMonth: moment(this.secondMonth).startOf("month"),
+            granularityMonths: this.granularityMonths,
+
+            grouping: FinanceAnalyticGrouping.CATEGORY,
+            direction: this.direction,
+        } as ChartParameters;
+    }
+
+    private get chartData() {
+        return this.rawChartData.map((point) => {
+            const [categoryId, value] = point;
+            const categoryName = this.categories.find(
+                (it) => it.id == categoryId
+            )?.name;
+            return [categoryName ?? categoryId, value];
+        });
+    }
+
+    async getRawChartData(
         parameters: ChartParameters
     ): Promise<[string, number][]> {
         const getDataForPeriod = async (start: Moment) => {
@@ -152,9 +156,6 @@ export default class FinanceComparisonScreen extends Vue {
                 }
             );
         };
-
-        const getCategoryById = (id: string) =>
-            this.categories.find((it) => it.id == id);
 
         const firstData = getDataForPeriod(moment(parameters.firstMonth));
         const secondData = getDataForPeriod(moment(parameters.secondMonth));
@@ -174,32 +175,11 @@ export default class FinanceComparisonScreen extends Vue {
                 continue;
             }
 
-            result.push([
-                getCategoryById(categoryId)?.name ?? categoryId,
-                diff
-            ]);
+            result.push([categoryId, diff]);
         }
 
         result.sort((first, second) => first[1] - second[1]);
         return result;
-    }
-
-    private get chartParameters() {
-        const deviceId = this.storage.devices.selectedDevice;
-        if (deviceId == null) {
-            return null;
-        }
-
-        return {
-            deviceId,
-
-            firstMonth: moment(this.firstMonth).startOf("month"),
-            secondMonth: moment(this.secondMonth).startOf("month"),
-            granularityMonths: this.granularityMonths,
-
-            grouping: FinanceAnalyticGrouping.CATEGORY,
-            direction: this.direction,
-        } as ChartParameters;
     }
 
     @Watch("granularityMonths")
@@ -227,6 +207,18 @@ export default class FinanceComparisonScreen extends Vue {
                 .startOf("month")
                 .subtract(this.granularityMonths, "months");
         }
+    }
+
+    @Watch("chartParameters", { immediate: true })
+    private async onChartParametersChanged(
+        chartParameters: ChartParameters | null
+    ) {
+        if (chartParameters == null) {
+            this.rawChartData = [];
+            return;
+        }
+
+        this.rawChartData = await this.getRawChartData(chartParameters);
     }
 }
 </script>
