@@ -22,7 +22,7 @@
                     <p class="menu-label">Menu</p>
                     <ul class="menu-list">
                         <li>
-                            <span>Finance</span>
+                            <router-link to="/finance">Finance</router-link>
                             <ul>
                                 <li><router-link to="/finance/compare">Compare</router-link></li>
                             </ul>
