@@ -35,7 +35,7 @@ export default class HBarChart extends Vue {
                         indexAxis: "y",
                         data: [],
                         borderWidth: 1,
-                        backgroundColor: []
+                        borderColor: "#0005"
                     },
                 ],
             },
@@ -61,7 +61,6 @@ export default class HBarChart extends Vue {
         this.chart.data.labels = chartData.labels;
         this.chart.data.datasets[0].data = chartData.values;
         this.chart.data.datasets[0].backgroundColor = chartData.colors.map(it => rgbToHex(it, 170));
-        this.chart.data.datasets[0].borderColor = chartData.colors.map(it => rgbToHex(it, 255));
 
         (this.$refs["chart"] as Element).parentElement!.style.height = `${chartData.values.length * 2}em`;
 
