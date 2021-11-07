@@ -31,12 +31,12 @@ export function hsvToRgb(hue: number, saturation: number, value: number): [numbe
     ];
 }
 
-export function rgbToHex(red: number, green: number, blue: number, alpha: number = 1): string {
+export function rgbToHex(rgb: [number, number, number], alpha: number = 1): string {
     const convert = (it: number) => {
         const hex = it.toString(16);
         return hex.length >= 2 ? hex : `0${hex}`;
     };
-    return `#${convert(red)}${convert(green)}${convert(blue)}${convert(alpha)}`;
+    return `#${convert(rgb[0])}${convert(rgb[1])}${convert(rgb[2])}${convert(alpha)}`;
 }
 
 export function generatePalette(count: number): [number, number, number][] {

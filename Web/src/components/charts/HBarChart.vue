@@ -60,8 +60,8 @@ export default class HBarChart extends Vue {
     private onChartDataChanged(chartData: ChartData) {
         this.chart.data.labels = chartData.labels;
         this.chart.data.datasets[0].data = chartData.values;
-        this.chart.data.datasets[0].backgroundColor = chartData.colors.map(it => rgbToHex(it[0], it[1], it[2], 170));
-        this.chart.data.datasets[0].borderColor = chartData.colors.map(it => rgbToHex(it[0], it[1], it[2], 255));
+        this.chart.data.datasets[0].backgroundColor = chartData.colors.map(it => rgbToHex(it, 170));
+        this.chart.data.datasets[0].borderColor = chartData.colors.map(it => rgbToHex(it, 255));
 
         (this.$refs["chart"] as Element).parentElement!.style.height = `${chartData.values.length * 2}em`;
 
