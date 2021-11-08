@@ -42,9 +42,8 @@ export function rgbToHex(rgb: [number, number, number], alpha: number = 1): stri
 export function generatePalette(count: number): [number, number, number][] {
     const result: [number, number, number][] = [];
 
-    const huePadding = 10;
     for (let i = 0; i < count; i++) {
-        const rgb = hsvToRgb((360 - huePadding * 2) / (i + 1) + huePadding, 0.4, 1.0);
+        const rgb = hsvToRgb(360 / count * i, 0.4, 1.0);
         result.push(rgb);
     }
 
