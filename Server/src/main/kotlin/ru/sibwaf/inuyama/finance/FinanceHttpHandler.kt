@@ -8,6 +8,7 @@ import ru.sibwaf.inuyama.finance.analytics.FinanceAnalyticService
 import ru.sibwaf.inuyama.http.HttpHandler
 import ru.sibwaf.inuyama.http.subroute
 import ru.sibwaf.inuyama.http.webSubroute
+import java.time.ZoneOffset
 
 class FinanceHttpHandler(
     private val dataProvider: FinanceBackupDataProvider,
@@ -32,6 +33,19 @@ class FinanceHttpHandler(
                             .let { JavalinJson.fromJson(it, FinanceAnalyticFilter::class.java) }
 
                         ctx.json(financeAnalyticService.querySummary(deviceId, grouping, filter))
+                    }
+
+                    get("/series") { ctx ->
+                        val deviceId = ctx.queryParam("deviceId")!!
+
+                        val grouping = ctx.queryParam("grouping")
+                            ?.let { FinanceAnalyticGrouping.valueOf(it.toUpperCase()) }
+                        val filter = ctx.queryParam("filter")!!
+                            .let { JavalinJson.fromJson(it, FinanceAnalyticFilter::class.java) }
+                        val zoneOffset = ctx.queryParam("zoneOffset")!!
+                            .let { ZoneOffset.ofTotalSeconds(it.toInt()) }
+
+                        ctx.json(financeAnalyticService.querySeries(deviceId, grouping, filter, zoneOffset))
                     }
                 }
             }
