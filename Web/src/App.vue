@@ -24,6 +24,7 @@
                         <li>
                             <router-link to="/finance">Finance</router-link>
                             <ul>
+                                <li><router-link to="/finance/overview">Overview</router-link></li>
                                 <li><router-link to="/finance/compare">Compare</router-link></li>
                             </ul>
                         </li>

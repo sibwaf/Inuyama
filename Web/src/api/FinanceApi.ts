@@ -22,6 +22,11 @@ export interface FinanceAnalyticFilter {
     direction: FinanceOperationDirection | null;
 }
 
+export interface FinanceAnalyticSeriesDto {
+    readonly timeline: Date[];
+    readonly data: Map<string, number[]>;
+}
+
 export class FinanceApi {
     async getCategories(deviceId: string): Promise<FinanceCategory[]> {
         return (await axios.get("/web/finance/categories", { params: { deviceId } })).data;
@@ -36,5 +41,21 @@ export class FinanceApi {
 
         const response = await axios.get("/web/finance/analytics/summary", { params });
         return new Map(Object.entries(response.data));
+    }
+
+    async getSeries(deviceId: string, grouping: FinanceAnalyticGrouping | null, filter: FinanceAnalyticFilter): Promise<FinanceAnalyticSeriesDto> {
+        const params = {
+            deviceId,
+            grouping,
+            filter: JSON.stringify(filter),
+            zoneOffset: new Date().getTimezoneOffset() * -60
+        };
+
+        const response = await axios.get("/web/finance/analytics/series", { params });
+
+        return {
+            timeline: response.data.timeline,
+            data: new Map(Object.entries(response.data.data))
+        };
     }
 }
