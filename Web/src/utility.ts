@@ -31,7 +31,7 @@ export function hsvToRgb(hue: number, saturation: number, value: number): [numbe
     ];
 }
 
-export function rgbToHex(rgb: [number, number, number], alpha: number = 1): string {
+export function rgbToHex(rgb: [number, number, number], alpha: number = 255): string {
     const convert = (it: number) => {
         const hex = it.toString(16);
         return hex.length >= 2 ? hex : `0${hex}`;
