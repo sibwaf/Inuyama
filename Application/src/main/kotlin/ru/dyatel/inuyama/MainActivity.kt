@@ -23,8 +23,11 @@ import io.objectbox.BoxStore
 import io.objectbox.android.AndroidObjectBrowser
 import org.jetbrains.anko.find
 import org.kodein.di.KodeinAware
-import org.kodein.di.android.closestKodein
+import org.kodein.di.android.kodein
+import org.kodein.di.android.subKodein
 import org.kodein.di.direct
+import org.kodein.di.generic.bind
+import org.kodein.di.generic.eagerSingleton
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.finance.FinanceDashboardScreen
 import ru.dyatel.inuyama.finance.FinanceStatisticsScreen
@@ -40,7 +43,9 @@ import java.util.concurrent.atomic.AtomicLong
 
 class MainActivity : SingleActivity(), KodeinAware {
 
-    override val kodein by closestKodein()
+    override val kodein by subKodein(kodein()) {
+        bind<QrReader>() with eagerSingleton { QrReader(this@MainActivity) }
+    }
 
     private val backgroundServiceManager by lazy { kodein.direct.instance<BackgroundServiceManager>() }
 
