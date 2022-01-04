@@ -97,7 +97,7 @@ class RuranobeProjectItem(
                 volumeCount, item.project.status
             )
 
-            val lastUpdateText = volumes.mapNotNull { it.updateDatetime }.max()
+            val lastUpdateText = volumes.mapNotNull { it.updateDatetime }.maxOrNull()
                 ?.let { prettyTime.format(it.asDate) }
                 ?: context.getString(R.string.const_never)
             lastUpdateView.text = context.getString(R.string.label_last_update, lastUpdateText)

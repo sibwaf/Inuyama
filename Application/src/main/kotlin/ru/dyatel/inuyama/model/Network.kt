@@ -4,6 +4,7 @@ import io.objectbox.Box
 import io.objectbox.annotation.Entity
 import io.objectbox.annotation.Id
 import io.objectbox.kotlin.query
+import io.objectbox.query.QueryBuilder.StringOrder.CASE_INSENSITIVE
 
 @Entity
 data class Network(
@@ -14,5 +15,5 @@ data class Network(
 )
 
 fun Box<Network>.findByBssid(bssid: String): Network? {
-    return query { equal(Network_.bssid, bssid) }.findUnique()
+    return query { equal(Network_.bssid, bssid, CASE_INSENSITIVE) }.findUnique()
 }

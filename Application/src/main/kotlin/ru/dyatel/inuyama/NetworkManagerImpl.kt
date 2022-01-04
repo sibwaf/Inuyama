@@ -6,6 +6,7 @@ import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import io.objectbox.Box
 import io.objectbox.kotlin.query
+import io.objectbox.query.QueryBuilder.StringOrder.CASE_INSENSITIVE
 import okhttp3.OkHttpClient
 import org.jsoup.Connection
 import org.jsoup.Jsoup
@@ -72,7 +73,7 @@ class NetworkManagerImpl(override val kodein: Kodein) : KodeinAware, NetworkMana
 
             if (current != null) {
                 and()
-                notEqual(Network_.bssid, current.bssid)
+                notEqual(Network_.bssid, current.bssid, CASE_INSENSITIVE)
             }
         }.remove()
 

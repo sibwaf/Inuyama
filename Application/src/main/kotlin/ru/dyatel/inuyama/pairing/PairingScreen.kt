@@ -172,7 +172,7 @@ class PairingScreen : InuScreen<PairingView>() {
         val list = servers.sortedBy { it.key.humanReadable }
         serverAdapter.set(list.map {
             PairingServerItem(it, pairingManager.compareWithPaired(it)).apply {
-                val id = serverItemIds.getOrPut(it) { (serverItemIds.values.max() ?: 0) + 1L }
+                val id = serverItemIds.getOrPut(it) { (serverItemIds.values.maxOrNull() ?: 0) + 1L }
                 withIdentifier(id)
             }
         })

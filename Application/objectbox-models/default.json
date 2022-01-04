@@ -10,19 +10,24 @@
       "properties": [
         {
           "id": "1:3126882769846634522",
-          "name": "name"
+          "name": "name",
+          "type": 9
         },
         {
           "id": "2:1927178190611708945",
-          "name": "bssid"
+          "name": "bssid",
+          "type": 9
         },
         {
           "id": "3:217362808025301447",
-          "name": "trusted"
+          "name": "trusted",
+          "type": 1
         },
         {
           "id": "4:3412778339792634108",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 1
         }
       ],
       "relations": []
@@ -34,11 +39,14 @@
       "properties": [
         {
           "id": "1:4980936097436274182",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 1
         },
         {
           "id": "2:5148139784103784025",
-          "name": "path"
+          "name": "path",
+          "type": 9
         }
       ],
       "relations": []
@@ -50,32 +58,42 @@
       "properties": [
         {
           "id": "1:8213389011847132086",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 1
         },
         {
           "id": "3:8244185578518102530",
-          "name": "description"
+          "name": "description",
+          "type": 9
         },
         {
           "id": "4:1579767115170702580",
+          "name": "directoryId",
           "indexId": "1:1416457098807159521",
-          "name": "directoryId"
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "Directory"
         },
         {
           "id": "5:6333435736085490811",
-          "name": "lastUpdate"
+          "name": "lastUpdate",
+          "type": 6
         },
         {
           "id": "6:5619804435969886684",
-          "name": "updateDispatched"
+          "name": "updateDispatched",
+          "type": 1
         },
         {
           "id": "7:7166280106849270424",
-          "name": "magnet"
+          "name": "magnet",
+          "type": 9
         },
         {
           "id": "8:1834225924890320662",
-          "name": "topic"
+          "name": "topic",
+          "type": 6
         }
       ],
       "relations": []
@@ -87,28 +105,37 @@
       "properties": [
         {
           "id": "1:8660257505533490749",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 129
         },
         {
           "id": "2:8411510385602965556",
-          "name": "title"
+          "name": "title",
+          "type": 9
         },
         {
           "id": "4:4313162907854358206",
-          "name": "hash"
+          "name": "hash",
+          "type": 9
         },
         {
           "id": "5:1596839204655219287",
-          "name": "updateDatetime"
+          "name": "updateDatetime",
+          "type": 9
         },
         {
           "id": "6:6194198507651329655",
-          "name": "dispatched"
+          "name": "dispatched",
+          "type": 1
         },
         {
           "id": "7:4009943839170008995",
+          "name": "watchId",
           "indexId": "3:8912563623407927918",
-          "name": "watchId"
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "NyaaWatch"
         }
       ],
       "relations": []
@@ -120,32 +147,42 @@
       "properties": [
         {
           "id": "1:8932629182547425106",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 1
         },
         {
           "id": "2:8029400304842347706",
-          "name": "description"
+          "name": "description",
+          "type": 9
         },
         {
           "id": "3:7801759267784352400",
-          "name": "query"
+          "name": "query",
+          "type": 9
         },
         {
           "id": "4:6793690132257872236",
-          "name": "startDatetime"
+          "name": "startDatetime",
+          "type": 9
         },
         {
           "id": "5:6329877719790903693",
-          "name": "collectPath"
+          "name": "collectPath",
+          "type": 9
         },
         {
           "id": "6:4406471412606469058",
-          "name": "lastUpdate"
+          "name": "lastUpdate",
+          "type": 6
         },
         {
           "id": "7:1029384321787936186",
+          "name": "directoryId",
           "indexId": "4:3480198537382979956",
-          "name": "directoryId"
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "Directory"
         }
       ],
       "relations": []
@@ -157,48 +194,62 @@
       "properties": [
         {
           "id": "1:3476544888533620111",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 129
         },
         {
           "id": "2:8839484974357975681",
-          "name": "title"
+          "name": "title",
+          "type": 9
         },
         {
           "id": "3:4657051873077870108",
-          "name": "author"
+          "name": "author",
+          "type": 9
         },
         {
           "id": "4:5778665689393010114",
-          "name": "works"
+          "name": "works",
+          "type": 1
         },
         {
           "id": "5:320599720807498218",
-          "name": "status"
+          "name": "status",
+          "type": 9
         },
         {
           "id": "6:7457111520240375766",
-          "name": "issueStatus"
+          "name": "issueStatus",
+          "type": 9
         },
         {
           "id": "7:4362877862621660230",
-          "name": "translationStatus"
+          "name": "translationStatus",
+          "type": 9
         },
         {
           "id": "8:1062211230482584897",
-          "name": "watching"
+          "name": "watching",
+          "type": 1
         },
         {
           "id": "9:1241377724491423297",
-          "name": "titleRomaji"
+          "name": "titleRomaji",
+          "type": 9
         },
         {
           "id": "10:3444870517717800072",
+          "name": "directoryId",
           "indexId": "6:3513579292692193570",
-          "name": "directoryId"
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "Directory"
         },
         {
           "id": "12:4899095283073520618",
-          "name": "url"
+          "name": "url",
+          "type": 9
         }
       ],
       "relations": []
@@ -210,40 +261,52 @@
       "properties": [
         {
           "id": "1:3498347921107808505",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 129
         },
         {
           "id": "2:5584013846151414334",
-          "name": "order"
+          "name": "order",
+          "type": 5
         },
         {
           "id": "3:2424244815866718090",
-          "name": "url"
+          "name": "url",
+          "type": 9
         },
         {
           "id": "4:4690721791359750504",
-          "name": "coverUrl"
+          "name": "coverUrl",
+          "type": 9
         },
         {
           "id": "5:3581820511969398487",
-          "name": "title"
+          "name": "title",
+          "type": 9
         },
         {
           "id": "6:6583456495036693122",
-          "name": "status"
+          "name": "status",
+          "type": 9
         },
         {
           "id": "7:2388195235568045795",
-          "name": "updateDatetime"
+          "name": "updateDatetime",
+          "type": 9
         },
         {
           "id": "8:8481442839404716326",
-          "name": "dispatched"
+          "name": "dispatched",
+          "type": 1
         },
         {
           "id": "9:648865879513795281",
+          "name": "projectId",
           "indexId": "5:6922854573612349812",
-          "name": "projectId"
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "RuranobeProject"
         }
       ],
       "relations": []
@@ -255,15 +318,19 @@
       "properties": [
         {
           "id": "1:6080736637035419722",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 1
         },
         {
           "id": "2:4376024441628922866",
-          "name": "host"
+          "name": "host",
+          "type": 9
         },
         {
           "id": "3:4754810569760171001",
-          "name": "port"
+          "name": "port",
+          "type": 5
         }
       ],
       "relations": []
@@ -275,12 +342,17 @@
       "properties": [
         {
           "id": "1:4534649711353975042",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 129
         },
         {
           "id": "2:7575337680994973635",
+          "name": "proxyId",
           "indexId": "7:8859066697585114891",
-          "name": "proxyId"
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "Proxy"
         }
       ],
       "relations": []
@@ -292,19 +364,24 @@
       "properties": [
         {
           "id": "1:6803450174986787270",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 1
         },
         {
           "id": "2:2374148162666998934",
-          "name": "name"
+          "name": "name",
+          "type": 9
         },
         {
           "id": "3:1069436717442855519",
-          "name": "initialBalance"
+          "name": "initialBalance",
+          "type": 8
         },
         {
           "id": "4:5013334627035476159",
-          "name": "balance"
+          "name": "balance",
+          "type": 8
         }
       ],
       "relations": []
@@ -316,11 +393,14 @@
       "properties": [
         {
           "id": "1:3407086180927951376",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 1
         },
         {
           "id": "2:2736687525299537937",
-          "name": "name"
+          "name": "name",
+          "type": 9
         }
       ],
       "relations": []
@@ -332,40 +412,55 @@
       "properties": [
         {
           "id": "1:3284770469465744313",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 1
         },
         {
           "id": "2:2146125001752545720",
-          "name": "amount"
+          "name": "amount",
+          "type": 8
         },
         {
           "id": "3:5521232294234292746",
-          "name": "datetime"
+          "name": "datetime",
+          "type": 9
         },
         {
           "id": "4:5000836963808703305",
+          "name": "accountId",
           "indexId": "8:4670512478172324848",
-          "name": "accountId"
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "FinanceAccount"
         },
         {
           "id": "5:5072582747955169778",
+          "name": "categoryId",
           "indexId": "9:7728774810140342089",
-          "name": "categoryId"
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "FinanceCategory"
         },
         {
           "id": "6:3493630955869960752",
-          "name": "description"
+          "name": "description",
+          "type": 9
         },
         {
           "id": "7:3188628072407411011",
+          "name": "receiptId",
           "indexId": "14:8259441571424187444",
-          "name": "receiptId"
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "FinanceReceipt"
         }
       ],
       "relations": [
         {
           "id": "1:2322591001484335646",
-          "name": "categories"
+          "name": "categories",
+          "targetId": "12:4427468492615995702"
         }
       ]
     },
@@ -376,25 +471,35 @@
       "properties": [
         {
           "id": "1:1596363770239025290",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 1
         },
         {
           "id": "2:2406385660042858204",
-          "name": "amount"
+          "name": "amount",
+          "type": 8
         },
         {
           "id": "3:1428143620438479198",
-          "name": "datetime"
+          "name": "datetime",
+          "type": 9
         },
         {
           "id": "4:8594639711404119920",
+          "name": "fromId",
           "indexId": "12:4344727850525824420",
-          "name": "fromId"
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "FinanceAccount"
         },
         {
           "id": "5:7386468994988094192",
+          "name": "toId",
           "indexId": "13:4906101377821633750",
-          "name": "toId"
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "FinanceAccount"
         }
       ],
       "relations": []
@@ -406,16 +511,22 @@
       "properties": [
         {
           "id": "1:7975829739079496958",
-          "name": "id"
+          "name": "id",
+          "type": 6,
+          "flags": 1
         },
         {
           "id": "2:5946204333504165860",
-          "name": "datetime"
+          "name": "datetime",
+          "type": 9
         },
         {
           "id": "3:8454362276309682696",
+          "name": "accountId",
           "indexId": "15:8680761005097987369",
-          "name": "accountId"
+          "type": 11,
+          "flags": 520,
+          "relationTarget": "FinanceAccount"
         }
       ],
       "relations": []
@@ -425,8 +536,8 @@
   "lastIndexId": "15:8680761005097987369",
   "lastRelationId": "1:2322591001484335646",
   "lastSequenceId": "0:0",
-  "modelVersion": 4,
-  "modelVersionParserMinimum": 4,
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
   "retiredEntityUids": [
     1881962175478644957,
     5786096165469442601
