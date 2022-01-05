@@ -6,17 +6,19 @@ import io.objectbox.BoxStore
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.finance.dto.FinanceOperationInfo
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceOperation
+import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.model.FinanceTransfer
-import java.util.TimeZone
 
 class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 
     private val boxStore by instance<BoxStore>()
 
     private val accountBox by instance<Box<FinanceAccount>>()
+    private val receiptBox by instance<Box<FinanceReceipt>>()
     private val operationBox by instance<Box<FinanceOperation>>()
     private val transferBox by instance<Box<FinanceTransfer>>()
 
@@ -42,20 +44,27 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 //        }
 //    }
 
-    fun createExpense(account: FinanceAccount, category: FinanceCategory, amount: Double, description: String?) {
-        account.balance -= amount
+    fun getCurrentBalance(account: FinanceAccount): Double {
+        return account.initialBalance + account.balance
+    }
 
-        val operation = FinanceOperation(
-            amount = -amount,
-            datetime = DateTime.now(TimeZone.getDefault()),
-            description = description?.takeIf { it.isNotBlank() }
-        )
-        operation.account.target = account
-        operation.categories.add(category)
+    fun getAmount(receipt: FinanceReceipt): Double {
+        return receipt.operations.sumByDouble { it.amount }
+    }
+
+    fun createReceipt(account: FinanceAccount, operations: List<FinanceOperationInfo>) {
+        val receipt = FinanceReceipt()
+        receipt.account.target = account
+
+        for (operationInfo in operations) {
+            receipt.operations.add(operationInfo.asFinanceOperation(account, receipt.datetime))
+        }
+
+        account.balance += getAmount(receipt)
 
         boxStore.runInTx {
             accountBox.put(account)
-            operationBox.put(operation)
+            receiptBox.put(receipt)
         }
     }
 
@@ -73,26 +82,20 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         }
     }
 
-    fun createIncome(account: FinanceAccount, category: FinanceCategory, amount: Double, description: String?) {
-        account.balance += amount
-
-        val operation = FinanceOperation(
-            amount = amount,
-            datetime = DateTime.now(TimeZone.getDefault()),
-            description = description?.takeIf { it.isNotBlank() }
-        )
-        operation.account.target = account
-        operation.categories.add(category)
-
+    fun cancel(receipt: FinanceReceipt) {
         boxStore.runInTx {
+            val account = receipt.account.target
+            account.balance -= getAmount(receipt)
             accountBox.put(account)
-            operationBox.put(operation)
+
+            operationBox.remove(receipt.operations)
+            receiptBox.remove(receipt)
         }
     }
 
     fun cancel(operation: FinanceOperation) {
         boxStore.runInTx {
-            val account = operation.account.target
+            val account = operation.receipt.target.account.target
             account.balance -= operation.amount
             accountBox.put(account)
 
@@ -101,30 +104,63 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
     }
 
     fun update(
-        operation: FinanceOperation,
+        receipt: FinanceReceipt,
         account: FinanceAccount,
+        operations: List<FinanceOperationInfo>
+    ) {
+        boxStore.runInTx {
+            val oldAccount = accountBox[receipt.account.targetId]
+            oldAccount.balance -= getAmount(receipt)
+            accountBox.put(oldAccount)
+
+            operationBox.remove(receipt.operations)
+            receipt.operations.clear()
+
+            for (operationInfo in operations) {
+                receipt.operations.add(operationInfo.asFinanceOperation(account, receipt.datetime))
+            }
+
+            receipt.account.targetId = account.id
+
+            val newAccount = accountBox[account.id]
+            newAccount.balance += getAmount(receipt)
+            accountBox.put(newAccount)
+
+            receiptBox.put(receipt)
+        }
+    }
+
+    fun update(
+        operation: FinanceOperation,
         category: FinanceCategory,
         amount: Double,
         description: String?
     ) {
         boxStore.runInTx {
-            var oldAccount = operation.account.target
-            if (oldAccount.id == account.id) {
-                oldAccount = account
-            }
-
-            oldAccount.balance -= operation.amount
-            accountBox.put(oldAccount)
-
+            val account = operation.receipt.target.account.target
+            account.balance -= operation.amount
             account.balance += amount
             accountBox.put(account)
 
-            operation.account.target = account
             operation.categories.clear()
             operation.categories.add(category)
             operation.amount = amount
-            operation.description = description?.takeIf { it.isNotBlank() }
+            operation.description = description
             operationBox.put(operation)
         }
+    }
+
+    private fun FinanceOperationInfo.asFinanceOperation(account: FinanceAccount, datetime: DateTime): FinanceOperation {
+        val operation = FinanceOperation(
+            amount = amount,
+            datetime = datetime,
+            description = description
+        )
+
+        @Suppress("DEPRECATION")
+        operation.account.target = account
+        operation.categories.add(category)
+
+        return operation
     }
 }

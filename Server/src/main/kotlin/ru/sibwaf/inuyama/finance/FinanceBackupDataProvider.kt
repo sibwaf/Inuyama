@@ -43,15 +43,17 @@ class FinanceBackupDataProvider(
     }
 
     fun getOperations(deviceId: String): Sequence<FinanceOperationDto> {
-        return getDeviceData(deviceId)?.operations
+        return getDeviceData(deviceId)?.receipts
             .orEmpty()
             .asSequence()
-            .map {
-                FinanceOperationDto(
-                    amount = it.amount,
-                    categoryId = it.categoryIds.single(),
-                    datetime = LocalDateTime.parse(it.datetime).atOffset(systemZoneOffset)
-                )
+            .flatMap { receipt ->
+                receipt.operations.map {
+                    FinanceOperationDto(
+                        amount = it.amount,
+                        categoryId = it.categoryIds.single(),
+                        datetime = LocalDateTime.parse(receipt.datetime).atOffset(systemZoneOffset)
+                    )
+                }
             }
     }
 }
@@ -59,7 +61,7 @@ class FinanceBackupDataProvider(
 private data class BackupData(
     val accounts: Collection<BackupFinanceAccount>,
     val categories: Collection<BackupFinanceCategory>,
-    val operations: Collection<BackupFinanceOperation>,
+    val receipts: Collection<BackupFinanceReceipt>,
     val transfers: Collection<BackupFinanceTransfer>
 )
 
@@ -75,12 +77,17 @@ private data class BackupFinanceCategory(
     val name: String
 )
 
+private data class BackupFinanceReceipt(
+    val id: String,
+    val accountId: String,
+    val datetime: String,
+    val operations: Collection<BackupFinanceOperation>
+)
+
 private data class BackupFinanceOperation(
     val id: String,
     val amount: Double,
-    val datetime: String,
     val description: String?,
-    val accountId: String,
     val categoryIds: List<String>
 )
 

@@ -166,7 +166,8 @@ class FinanceStatisticsScreen : InuScreen<FinanceStatisticsView>() {
                 .minusMonths(period - 1)
                 .truncate(DateTime.Unit.MONTH)
 
-            val operations = operationBox.query { filter { it.datetime >= start } }
+            val operations = operationBox
+                .query { filter { it.receipt.target.datetime >= start } } // todo: very inefficient
                 .find()
                 .groupBy { it.categories.first() }
                 .mapKeys { (key, _) -> key.name }

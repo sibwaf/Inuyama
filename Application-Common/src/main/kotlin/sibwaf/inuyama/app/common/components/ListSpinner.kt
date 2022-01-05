@@ -19,7 +19,7 @@ open class ListSpinner<T>(context: Context) : AppCompatSpinner(context) {
                 return selectedItemPosition.takeIf { it != 0 }?.let { items[it - 1] }
             }
 
-            return items[selectedItemPosition]
+            return items.getOrNull(selectedItemPosition)
         }
         set(value) {
             if (allowDefaultSelection) {

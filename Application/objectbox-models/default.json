@@ -327,7 +327,7 @@
     },
     {
       "id": "13:3485297411382379919",
-      "lastPropertyId": "6:3493630955869960752",
+      "lastPropertyId": "7:3188628072407411011",
       "name": "FinanceOperation",
       "properties": [
         {
@@ -355,6 +355,11 @@
         {
           "id": "6:3493630955869960752",
           "name": "description"
+        },
+        {
+          "id": "7:3188628072407411011",
+          "indexId": "14:8259441571424187444",
+          "name": "receiptId"
         }
       ],
       "relations": [
@@ -393,10 +398,31 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "16:7866044625984457580",
+      "lastPropertyId": "3:8454362276309682696",
+      "name": "FinanceReceipt",
+      "properties": [
+        {
+          "id": "1:7975829739079496958",
+          "name": "id"
+        },
+        {
+          "id": "2:5946204333504165860",
+          "name": "datetime"
+        },
+        {
+          "id": "3:8454362276309682696",
+          "indexId": "15:8680761005097987369",
+          "name": "accountId"
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "15:8468445278664187785",
-  "lastIndexId": "13:4906101377821633750",
+  "lastEntityId": "16:7866044625984457580",
+  "lastIndexId": "15:8680761005097987369",
   "lastRelationId": "1:2322591001484335646",
   "lastSequenceId": "0:0",
   "modelVersion": 4,

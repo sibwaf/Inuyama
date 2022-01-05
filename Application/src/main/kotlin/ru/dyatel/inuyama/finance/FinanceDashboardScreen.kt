@@ -5,15 +5,20 @@ import android.view.Menu
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import io.objectbox.Box
 import io.objectbox.kotlin.query
+import org.jetbrains.anko.alignParentBottom
+import org.jetbrains.anko.alignParentRight
+import org.jetbrains.anko.alignParentTop
 import org.jetbrains.anko.cardview.v7.themedCardView
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.padding
 import org.jetbrains.anko.recyclerview.v7.recyclerView
+import org.jetbrains.anko.relativeLayout
 import org.jetbrains.anko.support.v4.nestedScrollView
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
@@ -21,62 +26,99 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.FinanceAccountItem
-import ru.dyatel.inuyama.layout.FinanceOperationItem
+import ru.dyatel.inuyama.layout.FinanceReceiptItem
 import ru.dyatel.inuyama.model.FinanceAccount
-import ru.dyatel.inuyama.model.FinanceOperation
-import ru.dyatel.inuyama.model.FinanceOperation_
+import ru.dyatel.inuyama.model.FinanceReceipt
+import ru.dyatel.inuyama.model.FinanceReceipt_
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
+import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
 import sibwaf.inuyama.app.common.DIM_LARGE
 import sibwaf.inuyama.app.common.components.OptionalView
 import sibwaf.inuyama.app.common.components.createOptionalView
+import sibwaf.inuyama.app.common.components.floatingActionButton
+import sibwaf.inuyama.app.common.components.nestedFloatingActionButton
+import sibwaf.inuyama.app.common.components.withIcon
 
 class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardScreen>(context) {
 
     lateinit var accountRecyclerView: RecyclerView
         private set
 
-    lateinit var operationRecyclerView: RecyclerView
+    lateinit var receiptRecyclerView: RecyclerView
         private set
 
     private val optionalView: OptionalView
 
     init {
-        val regularView = context.nestedScrollView {
-            descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
+        val regularView = context.relativeLayout {
+            lparams(width = matchParent, height = matchParent)
 
-            verticalLayout {
-                lparams(width = matchParent, height = wrapContent) {
-                    padding = DIM_LARGE
-                }
+            val mainView = nestedScrollView {
+                id = generateViewId()
+                descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
 
-                themedCardView {
+                verticalLayout {
                     lparams(width = matchParent, height = wrapContent) {
-                        bottomMargin = DIM_LARGE
+                        padding = DIM_LARGE
                     }
 
-                    setCardBackgroundColor(context.getColor(R.color.color_primary))
-
-                    accountRecyclerView = recyclerView {
+                    themedCardView {
                         lparams(width = matchParent, height = wrapContent) {
-                            margin = DIM_LARGE
+                            bottomMargin = DIM_LARGE
                         }
 
+                        setCardBackgroundColor(context.getColor(R.color.color_primary))
+
+                        accountRecyclerView = recyclerView {
+                            lparams(width = matchParent, height = wrapContent) {
+                                margin = DIM_LARGE
+                            }
+
+                            layoutManager = LinearLayoutManager(context)
+                        }
+                    }
+
+                    receiptRecyclerView = recyclerView {
+                        lparams(width = matchParent, height = wrapContent)
                         layoutManager = LinearLayoutManager(context)
                     }
                 }
 
-                operationRecyclerView = recyclerView {
-                    lparams(width = matchParent, height = wrapContent)
-                    layoutManager = LinearLayoutManager(context)
+                setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+                    // TODO: rework
+                    if (scrollY > oldScrollY && !canScrollVertically(1)) {
+                        screen.loadMore()
+                    }
                 }
             }
 
-            setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
-                // TODO: rework
-                if (scrollY > oldScrollY && !canScrollVertically(1)) {
-                    screen.loadMore()
+            val buttonView = nestedFloatingActionButton {
+                id = generateViewId()
+
+                setMainButton {
+                    floatingActionButton {
+                        withIcon(CommunityMaterial.Icon2.cmd_plus)
+                    }
                 }
+
+                onMainButtonClick { screen.createReceipt() }
+
+                addExtraButton {
+                    floatingActionButton {
+                        withIcon(CommunityMaterial.Icon.cmd_arrow_expand)
+                        setOnClickListener { screen.createTransfer() }
+                    }
+                }
+            }
+
+            mainView.lparams(width = matchParent) {
+                alignParentTop()
+            }
+            buttonView.lparams {
+                margin = DIM_EXTRA_LARGE
+                alignParentRight()
+                alignParentBottom()
             }
         }
 
@@ -94,23 +136,25 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
 
     override val titleResource = R.string.screen_finance_dashboard
 
+    private val operationManager by instance<FinanceOperationManager>()
+
     private val accountStore by instance<Box<FinanceAccount>>()
     private val accountAdapter = ItemAdapter<FinanceAccountItem>()
     private val accountFastAdapter = accountAdapter.buildFastAdapter()
 
-    private val operationStore by instance<Box<FinanceOperation>>()
-    private val operationAdapter = ItemAdapter<FinanceOperationItem>()
-    private val operationFastAdapter = operationAdapter.buildFastAdapter()
+    private val receiptStore by instance<Box<FinanceReceipt>>()
+    private val receiptAdapter = ItemAdapter<FinanceReceiptItem>()
+    private val receiptFastAdapter = receiptAdapter.buildFastAdapter()
 
-    private var operationListOffset = 0
+    private var receiptListOffset = 0
 
     init {
         accountFastAdapter.withOnClickListener { _, _, item, _ ->
             navigator.goTo(FinanceAccountScreen(item.account))
             true
         }
-        operationFastAdapter.withOnClickListener { _, _, item, _ ->
-            navigator.goTo(FinanceOperationScreen(item.operation))
+        receiptFastAdapter.withOnClickListener { _, _, item, _ ->
+            navigator.goTo(FinanceReceiptScreen(item.receipt))
             true
         }
     }
@@ -118,7 +162,7 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     override fun createView(context: Context): FinanceDashboardView {
         return FinanceDashboardView(context).apply {
             accountRecyclerView.adapter = accountFastAdapter
-            operationRecyclerView.adapter = operationFastAdapter
+            receiptRecyclerView.adapter = receiptFastAdapter
         }
     }
 
@@ -128,31 +172,39 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
         reloadAccounts()
         observeChanges<FinanceAccount>(::reloadAccounts)
 
-        reloadOperations()
-        observeChanges<FinanceOperation>(::reloadOperations)
+        reloadReceipts()
+        observeChanges<FinanceReceipt>(::reloadReceipts)
     }
 
     private fun reloadAccounts() {
         view.isEmpty = accountStore.isEmpty
         accountStore.all
-            .map { FinanceAccountItem(it) }
+            .map { FinanceAccountItem(operationManager, it) }
             .let { accountAdapter.set(it) }
     }
 
-    private fun reloadOperations() {
-        operationListOffset = 0
-        operationAdapter.clear()
+    private fun reloadReceipts() {
+        receiptListOffset = 0
+        receiptAdapter.clear()
         loadMore()
     }
 
     fun loadMore() {
-        val operations = operationStore
-            .query { orderDesc(FinanceOperation_.datetime) }
-            .find(operationListOffset.toLong(), AMOUNT_PER_SCROLL.toLong())
-            .map { FinanceOperationItem(it) }
+        val receipts = receiptStore
+            .query { orderDesc(FinanceReceipt_.datetime) }
+            .find(receiptListOffset.toLong(), AMOUNT_PER_SCROLL.toLong())
+            .map { FinanceReceiptItem(operationManager, it) }
 
-        operationListOffset += operations.size
-        operationAdapter.add(operations)
+        receiptListOffset += receipts.size
+        receiptAdapter.add(receipts)
+    }
+
+    fun createReceipt() {
+        navigator.goTo(FinanceReceiptScreen(null))
+    }
+
+    fun createTransfer() {
+        navigator.goTo(FinanceTransferScreen())
     }
 
     override fun onUpdateMenu(menu: Menu) {

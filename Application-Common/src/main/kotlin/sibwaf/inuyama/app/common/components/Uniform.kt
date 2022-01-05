@@ -6,15 +6,20 @@ import android.text.InputType
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.mikepenz.iconics.IconicsDrawable
+import com.mikepenz.iconics.typeface.IIcon
 import org.jetbrains.anko._LinearLayout
 import org.jetbrains.anko.appcompat.v7.tintedButton
 import org.jetbrains.anko.cardview.v7.cardView
 import org.jetbrains.anko.design._TextInputLayout
 import org.jetbrains.anko.design.textInputEditText
 import org.jetbrains.anko.frameLayout
+import org.jetbrains.anko.imageButton
 import org.jetbrains.anko.leftPadding
 import org.jetbrains.anko.linearLayout
 import org.jetbrains.anko.margin
@@ -37,6 +42,18 @@ import sibwaf.inuyama.app.common.utilities.disableUiExtraction
 inline fun ViewGroup.uniformTextView(init: TextView.() -> Unit = {}): TextView {
     return textView {
         textSize = SP_MEDIUM
+        init()
+    }
+}
+
+inline fun ViewGroup.uniformIconButton(icon: IIcon, init: ImageButton.() -> Unit = {}): ImageButton {
+    val drawable = IconicsDrawable(context)
+        .icon(icon)
+        .sizeDp(24)
+        .colorRes(R.color.md_dark_primary_text)
+
+    // todo: make this a square
+    return imageButton(drawable) {
         init()
     }
 }
@@ -192,4 +209,12 @@ fun Context.uniformEmptyView(): View {
             text = KAOMOJI.random()
         }
     }
+}
+
+fun FloatingActionButton.withIcon(icon: IIcon) {
+    val drawable = IconicsDrawable(context)
+        .icon(icon)
+        .colorRes(R.color.md_dark_primary_text)
+
+    setImageDrawable(drawable)
 }

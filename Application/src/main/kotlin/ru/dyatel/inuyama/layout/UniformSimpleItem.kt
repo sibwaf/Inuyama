@@ -7,16 +7,17 @@ import hirondelle.date4j.DateTime
 import org.jetbrains.anko.frameLayout
 import ru.dyatel.inuyama.ITEM_TYPE_FINANCE_ACCOUNT
 import ru.dyatel.inuyama.ITEM_TYPE_FINANCE_CATEGORY
-import ru.dyatel.inuyama.ITEM_TYPE_FINANCE_OPERATION
+import ru.dyatel.inuyama.ITEM_TYPE_FINANCE_RECEIPT
 import ru.dyatel.inuyama.ITEM_TYPE_HOME_UPDATE
 import ru.dyatel.inuyama.ITEM_TYPE_NETWORK
 import ru.dyatel.inuyama.ITEM_TYPE_PAIRING_SERVER
 import ru.dyatel.inuyama.ITEM_TYPE_PROXY
 import ru.dyatel.inuyama.ITEM_TYPE_SERVICE_STATE
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.finance.FinanceOperationManager
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
-import ru.dyatel.inuyama.model.FinanceOperation
+import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.Update
@@ -75,10 +76,14 @@ class PairingServerItem(val server: DiscoveredServer, paired: Boolean) : Uniform
     override fun getType() = ITEM_TYPE_PAIRING_SERVER
 }
 
-class FinanceAccountItem(val account: FinanceAccount) : UniformSimpleItem() {
+class FinanceAccountItem(
+    private val financeOperationManager: FinanceOperationManager,
+    val account: FinanceAccount
+) : UniformSimpleItem() {
+
     override fun getTitle(context: Context) = account.name
     override fun getSubtitle(context: Context) =
-        context.getString(R.string.label_finance_amount, account.initialBalance + account.balance)!!
+        context.getString(R.string.label_finance_amount, financeOperationManager.getCurrentBalance(account))
 
     override fun getType() = ITEM_TYPE_FINANCE_ACCOUNT
 }
@@ -88,31 +93,40 @@ class FinanceCategoryItem(val category: FinanceCategory) : UniformSimpleItem() {
     override fun getType() = ITEM_TYPE_FINANCE_CATEGORY
 }
 
-class FinanceOperationItem(val operation: FinanceOperation) : UniformSimpleItem() {
-    override val markerColorResource = if (operation.amount < 0) R.color.color_fail else R.color.color_ok
+class FinanceReceiptItem(
+    private val financeOperationManager: FinanceOperationManager,
+    val receipt: FinanceReceipt
+) : UniformSimpleItem() {
+
+    private val amount by lazy { financeOperationManager.getAmount(receipt) }
+
+    override val markerColorResource = if (amount < 0) R.color.color_fail else R.color.color_ok
 
     override fun getTitle(context: Context): String {
         val builder = StringBuilder()
 
-        val account = operation.account.target
-        val categories = operation.categories.joinToString(", ") { it.name }
+        val account = receipt.account.target
+        val categories = receipt.operations
+            .flatMap { it.categories }
+            .distinctBy { it.id }
+            .joinToString(", ") { it.name }
 
-        if (categories.isNotEmpty() && operation.amount > 0) {
+        if (categories.isNotEmpty() && amount > 0) {
             builder.append(categories, " > ")
         }
 
         builder.append(account.name)
 
-        if (categories.isNotEmpty() && operation.amount < 0) {
+        if (categories.isNotEmpty() && amount < 0) {
             builder.append(" > ", categories)
         }
 
-        builder.append(", ", context.getString(R.string.label_finance_amount, abs(operation.amount)))
+        builder.append(", ", context.getString(R.string.label_finance_amount, abs(amount)))
 
         return builder.toString()
     }
 
-    override fun getSubtitle(context: Context) = operation.datetime.format("DD.MM.YYYY, hh:mm")!!
+    override fun getSubtitle(context: Context) = receipt.datetime.format("DD.MM.YYYY, hh:mm")!!
 
-    override fun getType() = ITEM_TYPE_FINANCE_OPERATION
+    override fun getType() = ITEM_TYPE_FINANCE_RECEIPT
 }

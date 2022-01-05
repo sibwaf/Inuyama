@@ -7,6 +7,7 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.model.FinanceOperation
+import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 
 class MigrationRunner(override val kodein: Kodein) : KodeinAware {
@@ -33,6 +34,22 @@ class MigrationRunner(override val kodein: Kodein) : KodeinAware {
                     it.category.target = null
                     financeOperationBox.put(it)
                 }
+            }
+        }
+
+        if (lastUsedVersion < 5) {
+            store.runInTx {
+                val financeOperationBox = store.boxFor<FinanceOperation>()
+                val financeReceiptBox = store.boxFor<FinanceReceipt>()
+
+                financeOperationBox
+                    .query { filter { it.receipt.isNull } }
+                    .forEach {
+                        val receipt = FinanceReceipt(datetime = it.datetime)
+                        receipt.account = it.account
+                        receipt.operations.add(it)
+                        financeReceiptBox.put(receipt)
+                    }
             }
         }
 

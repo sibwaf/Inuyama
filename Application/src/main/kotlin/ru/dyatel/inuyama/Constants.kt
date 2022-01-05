@@ -11,7 +11,7 @@ const val ITEM_TYPE_RURANOBE_VOLUME = 8
 const val ITEM_TYPE_PROXY = 9
 const val ITEM_TYPE_FINANCE_ACCOUNT = 10
 const val ITEM_TYPE_FINANCE_CATEGORY = 11
-const val ITEM_TYPE_FINANCE_OPERATION = 12
+const val ITEM_TYPE_FINANCE_RECEIPT = 12
 const val ITEM_TYPE_PAIRING_SERVER = 13
 
 @Deprecated("Not used anymore", level = DeprecationLevel.ERROR)
