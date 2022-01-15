@@ -103,25 +103,21 @@ class FinanceReceiptItem(
     override val markerColorResource = if (amount < 0) R.color.color_fail else R.color.color_ok
 
     override fun getTitle(context: Context): String {
-        val builder = StringBuilder()
-
         val account = receipt.account.target
         val categories = receipt.operations
             .flatMap { it.categories }
             .distinctBy { it.id }
             .joinToString(", ") { it.name }
 
-        if (categories.isNotEmpty() && amount > 0) {
-            builder.append(categories, " > ")
-        }
-
+        val builder = StringBuilder()
         builder.append(account.name)
+        builder.append(", ")
+        builder.append(context.getString(R.string.label_finance_amount, abs(amount)))
 
-        if (categories.isNotEmpty() && amount < 0) {
-            builder.append(" > ", categories)
+        if (categories.isNotEmpty()) {
+            builder.append("\n")
+            builder.append(categories)
         }
-
-        builder.append(", ", context.getString(R.string.label_finance_amount, abs(amount)))
 
         return builder.toString()
     }
