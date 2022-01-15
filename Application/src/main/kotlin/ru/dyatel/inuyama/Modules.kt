@@ -8,9 +8,11 @@ import org.kodein.di.Kodein
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.inSet
 import org.kodein.di.generic.instance
+import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
 import ru.dyatel.inuyama.finance.FinanceBackupProvider
 import ru.dyatel.inuyama.finance.FinanceOperationManager
+import ru.dyatel.inuyama.finance.FinanceQrService
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceOperation
@@ -34,6 +36,7 @@ import ru.dyatel.inuyama.rutracker.RutrackerScreen
 import ru.dyatel.inuyama.rutracker.RutrackerWatcher
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
+import ru.sibwaf.inuyama.common.api.FirstOfdApi
 import sibwaf.inuyama.app.common.ModuleScreenProvider
 
 abstract class Watcher {
@@ -110,7 +113,16 @@ val financeModule = Kodein.Module("finance") {
     bind<Box<FinanceOperation>>() with singleton { instance<BoxStore>().boxFor<FinanceOperation>() }
     bind<Box<FinanceTransfer>>() with singleton { instance<BoxStore>().boxFor<FinanceTransfer>() }
 
+    bind<FirstOfdApi>() with singleton { FirstOfdApi() }
+
     bind<FinanceOperationManager>() with singleton { FinanceOperationManager(kodein) }
+    bind<FinanceQrService>() with provider {
+        FinanceQrService(
+            qrReader = instance(),
+            firstOfdApi = instance(),
+            networkManager = instance()
+        )
+    }
 
     bind<FinanceBackupProvider>() with singleton {
         FinanceBackupProvider(

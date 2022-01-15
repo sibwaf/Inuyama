@@ -87,4 +87,6 @@
 
     <string name="hint_finance_account_balance">Начальный баланс</string>
     <string name="hint_finance_amount">Сумма</string>
+
+    <string name="message_finance_qr_failed">Не удалось получить содержимое чека</string>
 </resources>

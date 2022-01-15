@@ -60,32 +60,48 @@ class FinanceReceiptView(context: Context) : BaseScreenView<FinanceReceiptScreen
     }
 }
 
-class FinanceReceiptScreen(private val receipt: FinanceReceipt?) : InuScreen<FinanceReceiptView>() {
-
-    override val titleResource = if (receipt == null) R.string.screen_finance_new_receipt else R.string.screen_finance_edit_receipt
+class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
 
     private val operationManager by instance<FinanceOperationManager>()
 
     private val accountBox by instance<Box<FinanceAccount>>()
     private val categoryBox by instance<Box<FinanceCategory>>()
 
+    private val receipt: FinanceReceipt?
+    private val receiptInfo: FinanceReceiptInfo?
+
+    constructor() {
+        receipt = null
+        receiptInfo = null
+    }
+
+    constructor(receipt: FinanceReceipt) {
+        this.receipt = receipt
+        receiptInfo = FinanceReceiptInfo(
+            account = receipt.account.target,
+            operations = receipt.operations.map {
+                FinanceOperationInfo(
+                    category = it.categories.first(),
+                    amount = it.amount,
+                    description = it.description
+                )
+            }
+        )
+    }
+
+    constructor(receiptInfo: FinanceReceiptInfo) {
+        receipt = null
+        this.receiptInfo = receiptInfo
+    }
+
+    override val titleResource get() = if (receipt == null) R.string.screen_finance_new_receipt else R.string.screen_finance_edit_receipt
+
     override fun createView(context: Context): FinanceReceiptView {
         return FinanceReceiptView(context).apply {
             editor.bindAccounts(accountBox.all)
             editor.bindCategories(categoryBox.all)
 
-            if (receipt != null) {
-                val receiptInfo = FinanceReceiptInfo(
-                    account = receipt.account.target,
-                    operations = receipt.operations.map {
-                        FinanceOperationInfo(
-                            category = it.categories.first(),
-                            amount = it.amount,
-                            description = it.description
-                        )
-                    }
-                )
-
+            if (receiptInfo != null) {
                 editor.fillFrom(receiptInfo)
             }
 

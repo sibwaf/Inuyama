@@ -5,11 +5,14 @@ import android.view.Menu
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import io.objectbox.Box
 import io.objectbox.kotlin.query
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jetbrains.anko.alignParentBottom
 import org.jetbrains.anko.alignParentRight
 import org.jetbrains.anko.alignParentTop
@@ -28,6 +31,7 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.layout.FinanceAccountItem
 import ru.dyatel.inuyama.layout.FinanceReceiptItem
 import ru.dyatel.inuyama.model.FinanceAccount
+import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.model.FinanceReceipt_
 import ru.dyatel.inuyama.screens.InuScreen
@@ -110,6 +114,12 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                         setOnClickListener { screen.createTransfer() }
                     }
                 }
+                addExtraButton {
+                    floatingActionButton {
+                        withIcon(CommunityMaterial.Icon2.cmd_qrcode_scan)
+                        setOnClickListener { screen.createReceiptFromQr() }
+                    }
+                }
             }
 
             mainView.lparams(width = matchParent) {
@@ -137,10 +147,13 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     override val titleResource = R.string.screen_finance_dashboard
 
     private val operationManager by instance<FinanceOperationManager>()
+    private val qrService by instance<FinanceQrService>()
 
     private val accountStore by instance<Box<FinanceAccount>>()
     private val accountAdapter = ItemAdapter<FinanceAccountItem>()
     private val accountFastAdapter = accountAdapter.buildFastAdapter()
+
+    private val categoryStore by instance<Box<FinanceCategory>>()
 
     private val receiptStore by instance<Box<FinanceReceipt>>()
     private val receiptAdapter = ItemAdapter<FinanceReceiptItem>()
@@ -200,7 +213,27 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     }
 
     fun createReceipt() {
-        navigator.goTo(FinanceReceiptScreen(null))
+        navigator.goTo(FinanceReceiptScreen())
+    }
+
+    fun createReceiptFromQr() {
+        launchJob {
+            val account = accountStore.all.first()
+            val category = categoryStore.all.first()
+
+            val receipt = try {
+                qrService.scanQrIntoReceipt(account, category) ?: return@launchJob
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Snackbar.make(view, R.string.message_finance_qr_failed, Snackbar.LENGTH_LONG).show()
+                }
+                return@launchJob
+            }
+
+            withContext(Dispatchers.Main) {
+                navigator.goTo(FinanceReceiptScreen(receipt))
+            }
+        }
     }
 
     fun createTransfer() {
