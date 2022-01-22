@@ -16,6 +16,14 @@
                 :data="splitChartData"
             />
         </div>
+        <div class="section">
+            <h2 class="subtitle">Top expense categories</h2>
+            <line-chart
+                class="finance-overview-chart"
+                v-if="categoryTopChartData"
+                :data="categoryTopChartData"
+            />
+        </div>
     </div>
 </template>
 
@@ -34,6 +42,8 @@ import LineChart, {
     ChartData,
     ChartLine,
 } from "@/components/charts/LineChart.vue";
+
+import { getWeightedAverage } from "@/utility/Magic";
 
 interface ChartParameters {
     readonly deviceId: string;
@@ -56,6 +66,11 @@ export default class FinanceOverviewScreen extends Vue {
 
     private rawTotalChartData: FinanceAnalyticSeriesDto | null = null;
     private rawSplitChartData: FinanceAnalyticSeriesDto | null = null;
+    private rawCategoryTopChartData: FinanceAnalyticSeriesDto | null = null;
+
+    private get categories() {
+        return this.storage.ofCurrentDevice()?.finance?.categories ?? [];
+    }
 
     private get periodStart() {
         return moment(this.rawPeriodStart).startOf("month");
@@ -124,6 +139,42 @@ export default class FinanceOverviewScreen extends Vue {
         } as ChartData<Date>;
     }
 
+    private get categoryTopChartData() {
+        const rawCategoryTopChartData = this.rawCategoryTopChartData;
+        if (rawCategoryTopChartData == null) {
+            return null;
+        }
+
+        const lines: ChartLine[] = [...rawCategoryTopChartData.data].map(
+            ([categoryId, values]) => {
+                const category = this.categories.find(
+                    (it) => it.id == categoryId
+                );
+
+                return {
+                    name: category?.name ?? categoryId,
+                    values: values.map((it) => Math.abs(it)),
+                };
+            }
+        );
+
+        function calculateAverage(data: number[]): number {
+            return getWeightedAverage(data, (_: number, index: number) =>
+                Math.pow(index + 1, 2)
+            );
+        }
+
+        lines.sort(
+            (first, second) =>
+                calculateAverage(second.values) - calculateAverage(first.values)
+        );
+
+        return {
+            xs: rawCategoryTopChartData.timeline,
+            lines: lines.slice(0, 6),
+        } as ChartData<Date>;
+    }
+
     @Watch("chartParameters", { immediate: true })
     private async onChartParametersChanged(
         chartParameters: ChartParameters | null
@@ -150,8 +201,19 @@ export default class FinanceOverviewScreen extends Vue {
             filter
         );
 
+        const rawCategoryTopChartDataAsync = this.api.getSeries(
+            chartParameters.deviceId,
+            FinanceAnalyticGrouping.CATEGORY,
+            {
+                start: chartParameters.periodStart.toDate(),
+                end: chartParameters.periodEnd.toDate(),
+                direction: FinanceOperationDirection.EXPENSE,
+            }
+        );
+
         this.rawTotalChartData = await rawTotalChartDataAsync;
         this.rawSplitChartData = await rawSplitChartDataAsync;
+        this.rawCategoryTopChartData = await rawCategoryTopChartDataAsync;
     }
 }
 </script>
