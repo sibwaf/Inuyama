@@ -25,11 +25,20 @@ private const val SUBROUTE_PATH_WEB = "/web"
 
 val httpModule = Kodein.Module("http") {
     bind<SecurityHttpFilter>() with singleton {
-        val allowLocalhost = SecurityStrategy.AddressWhitelist(
-            InetAddress.getAllByName("localhost").toSet()
-        )
+        val inuyamaConfiguration = instance<InuyamaConfiguration>()
 
-        val config = securityConfig(allowLocalhost) {
+        val mainStrategy = if (inuyamaConfiguration.webAuth != null) {
+            val (username, password) = inuyamaConfiguration.webAuth
+            SecurityStrategy.BasicAuth(
+                InMemoryHttpAuthenticator(username to password)
+            )
+        } else {
+            SecurityStrategy.AddressWhitelist(
+                InetAddress.getAllByName("localhost").toSet()
+            )
+        }
+
+        val config = securityConfig(mainStrategy) {
             subroute(SUBROUTE_PATH_PAIRED) {
                 strategy = SecurityStrategy.PairedAuth(instance())
 

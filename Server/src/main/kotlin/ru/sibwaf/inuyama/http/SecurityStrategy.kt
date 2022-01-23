@@ -19,6 +19,40 @@ fun interface SecurityStrategy {
         override fun authenticate(ctx: Context): Boolean = false
     }
 
+    class BasicAuth(private val authenticator: HttpAuthenticator) : SecurityStrategy {
+
+        private companion object {
+            const val ATTRIBUTE_BASIC_AUTH_SUCCEEDED = "sibwaf.inuyama.basic-auth-succeeded"
+        }
+
+        override fun authenticate(ctx: Context): Boolean {
+            val credentials = ctx.header("Authorization")
+                ?.takeIf { it.startsWith("Basic ") }
+                ?.removePrefix("Basic ")
+                ?.let { Encoding.decodeBase64(it) }
+                ?.let { Encoding.bytesToString(it) }
+                ?.takeIf { ":" in it }
+
+            val result = if (credentials != null) {
+                val username = credentials.substringBefore(":")
+                val password = credentials.substringAfter(":")
+
+                authenticator.checkCredentials(username, password)
+            } else {
+                false
+            }
+
+            ctx.attribute(ATTRIBUTE_BASIC_AUTH_SUCCEEDED, result)
+            return result
+        }
+
+        override fun postProcess(ctx: Context) {
+            if (ctx.attribute<Boolean>(ATTRIBUTE_BASIC_AUTH_SUCCEEDED) != true) {
+                ctx.header("WWW-Authenticate", "Basic realm=\"master\", charset=\"UTF-8\"")
+            }
+        }
+    }
+
     class PairedAuth(private val sessionManager: SessionManager) : SecurityStrategy {
         override fun authenticate(ctx: Context): Boolean {
             val session = ctx.header("Authorization")
