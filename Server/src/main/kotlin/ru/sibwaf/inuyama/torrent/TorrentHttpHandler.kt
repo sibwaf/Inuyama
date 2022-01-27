@@ -1,6 +1,7 @@
 package ru.sibwaf.inuyama.torrent
 
 import io.javalin.Javalin
+import kotlinx.coroutines.runBlocking
 import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
 import ru.sibwaf.inuyama.http.HttpHandler
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptBodyAs
@@ -12,7 +13,9 @@ class TorrentHttpHandler(private val torrentClient: TorrentClient) : HttpHandler
         pairedSubroute {
             post("/download-torrent") { ctx ->
                 val request = ctx.decryptBodyAs<TorrentDownloadApiRequest>()
-                torrentClient.download(request.magnet, request.path)
+                runBlocking {
+                    torrentClient.download(request.magnet, request.path)
+                }
             }
         }
     }

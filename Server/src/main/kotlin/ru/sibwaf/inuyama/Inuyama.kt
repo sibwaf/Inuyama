@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import com.zaxxer.hikari.HikariDataSource
+import okhttp3.OkHttpClient
 import org.kodein.di.Kodein
 import org.kodein.di.direct
 import org.kodein.di.generic.allInstances
@@ -59,6 +60,8 @@ private val kodein = Kodein.lazy {
 
     bind<KeyKeeper>() with singleton { KeyKeeper() }
     bind<SessionManager>() with singleton { SessionManager() }
+
+    bind<OkHttpClient>() with singleton { OkHttpClient() }
 
     import(pairingModule)
     import(httpModule)

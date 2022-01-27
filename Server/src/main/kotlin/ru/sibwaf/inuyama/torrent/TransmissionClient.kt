@@ -2,98 +2,72 @@ package ru.sibwaf.inuyama.torrent
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
-import org.jsoup.Connection
-import org.jsoup.Jsoup
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.generic.instance
-import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.URI
-import java.util.Base64
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import ru.sibwaf.inuyama.TorrentClientConfiguration
+import ru.sibwaf.inuyama.common.utilities.Encoding
+import ru.sibwaf.inuyama.common.utilities.MediaTypes
+import ru.sibwaf.inuyama.common.utilities.await
+import ru.sibwaf.inuyama.common.utilities.successOrThrow
+import ru.sibwaf.inuyama.fromJson
+import java.util.concurrent.atomic.AtomicReference
 
 private const val SESSION_HEADER = "X-Transmission-Session-Id"
 
-class TransmissionClient(override val kodein: Kodein) : KodeinAware, TorrentClient {
+class TransmissionClient(
+    private val configuration: TorrentClientConfiguration,
+    private val httpClient: OkHttpClient,
+    private val gson: Gson
+) : TorrentClient {
 
-    private val gson by instance<Gson>()
-    private val parser by instance<JsonParser>()
+    private val credentials = with(configuration) { Encoding.encodeBase64(Encoding.stringToBytes("$username:$password")) }
 
-    private val configuration by instance<TransmissionConfiguration>()
+    private val session = AtomicReference<String>()
 
-    private var session: String? = null
+    private suspend fun executeRaw(request: TransmissionRequest): JsonObject? {
+        val requestBuilder = Request.Builder()
+            .url(configuration.url)
+            .post(gson.toJson(request).toRequestBody(MediaTypes.APPLICATION_JSON))
+            .header("Authorization", "Basic $credentials")
 
-    private fun connect(): Connection {
-        val url = with(configuration) { URI.create("http://$host:$port/$path").normalize().toString() }
-
-        val connection = Jsoup.connect(url)
-            .ignoreHttpErrors(true)
-            .ignoreContentType(true)
-            .method(Connection.Method.POST)
-
-        val username = configuration.username
-        val password = configuration.password
-
-        val credentials = Base64.getEncoder().encodeToString("$username:$password".toByteArray())
-        connection.header("Authorization", "Basic $credentials")
-
-        session?.let { connection.header(SESSION_HEADER, it) }
-
-        return connection
-    }
-
-    fun executeRaw(request: TransmissionRequest): JsonObject? {
-        try {
-            val connection = connect()
-            connection.requestBody(gson.toJson(request))
-
-            var response = try {
-                connection.execute()
-            } catch (e: IOException) {
-                throw TransmissionException("Failed to connect")
+        var canRefreshSession = true
+        while (true) {
+            val session = session.get()
+            if (session != null) {
+                requestBuilder.header(SESSION_HEADER, session)
+            } else {
+                requestBuilder.removeHeader(SESSION_HEADER)
             }
 
-            if (response.statusCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                throw TransmissionAuthorizationException()
+            val response = httpClient
+                .newCall(requestBuilder.build())
+                .await()
+
+            if (response.code == 409 && canRefreshSession) {
+                canRefreshSession = false
+                this.session.compareAndSet(session, response.header(SESSION_HEADER))
+                continue
             }
 
-            if (response.statusCode() == HttpURLConnection.HTTP_CONFLICT) {
-                session = response.header(SESSION_HEADER)
-                    ?: throw TransmissionException("Failed to get session ID after authorization!")
+            return response.successOrThrow().use {
+                val body = it.body?.let { body -> gson.fromJson<JsonObject>(body.charStream()) }
 
-                response = try {
-                    connection.header(SESSION_HEADER, session).execute()
-                } catch (e: IOException) {
-                    throw TransmissionException("Failed to connect")
+                val result = body?.get("result")?.asString
+                if (result != "success") {
+                    throw TorrentClientException("Non-successful request result: $result")
                 }
-            }
 
-            if (response.statusCode() != HttpURLConnection.HTTP_OK) {
-                throw TransmissionException("Request failed with HTTP code ${response.statusCode()}")
+                body["arguments"]?.asJsonObject
             }
-
-            val data = parser.parse(response.body()).asJsonObject
-
-            val result = data["result"]?.asString ?: throw TransmissionException("Unexpected response")
-            if (result != "success") {
-                throw TransmissionMethodException(result)
-            }
-
-            return data["arguments"]?.asJsonObject
-        } catch (e: Exception) {
-            if (e is TransmissionException) {
-                throw e
-            }
-            throw TransmissionException(e)
         }
     }
 
-    override fun download(magnet: String, directory: String?) {
+    override suspend fun download(magnet: String, directory: String) {
         val arguments = mapOf("filename" to magnet, "download-dir" to directory)
         executeRaw(TransmissionRequest("torrent-add", arguments))
     }
 
 }
 
-data class TransmissionRequest(val method: String, val arguments: Map<String, String?>? = null)
+private data class TransmissionRequest(val method: String, val arguments: Map<String, String?>? = null)

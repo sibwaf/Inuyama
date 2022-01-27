@@ -1,28 +1,31 @@
 package ru.sibwaf.inuyama.torrent
 
-import org.jsoup.Connection
-import org.jsoup.Jsoup
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import java.net.URLEncoder
+import okhttp3.FormBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import ru.sibwaf.inuyama.TorrentClientConfiguration
+import ru.sibwaf.inuyama.common.utilities.await
+import ru.sibwaf.inuyama.common.utilities.successOrThrow
 
-class QBittorrentClient(override val kodein: Kodein) : TorrentClient, KodeinAware {
+class QBittorrentClient(
+    private val configuration: TorrentClientConfiguration,
+    private val httpClient: OkHttpClient
+) : TorrentClient {
 
-    // TODO: configuration
-    override fun download(magnet: String, directory: String?) {
-        Jsoup.connect("http://localhost:9091/api/v2/torrents/add")
-            .method(Connection.Method.POST)
-            .apply {
-                val charset = request().postDataCharset()
+    override suspend fun download(magnet: String, directory: String) {
+        val request = Request.Builder()
+            .url(configuration.url)
+            .post(
+                FormBody.Builder()
+                    .addEncoded("urls", magnet)
+                    .addEncoded("savepath", directory)
+                    .build()
+            )
+            .build()
 
-                var body = "urls=${URLEncoder.encode(magnet, charset)}"
-
-                if (directory != null) {
-                    body += "&savepath=${URLEncoder.encode(directory, charset).replace("+", "%20")}"
-                }
-
-                requestBody(body)
-            }
-            .execute()
+        httpClient
+            .newCall(request)
+            .await()
+            .successOrThrow()
     }
 }
