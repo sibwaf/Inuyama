@@ -49,16 +49,15 @@ class RutrackerWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
 
             for ((watch, magnet) in data) {
                 val oldHash = watch.magnet?.let { MagnetParser.extractHash(it) }
-                if (oldHash == null || oldHash != MagnetParser.extractHash(magnet)) {
-                    watch.magnet = magnet
-                    continue
+                watch.magnet = magnet
+
+                if (oldHash != MagnetParser.extractHash(magnet)) {
+                    watch.lastUpdate = System.currentTimeMillis()
+                    watch.updateDispatched = false
+                    updates += watch.description
                 }
 
-                watch.lastUpdate = System.currentTimeMillis()
-                watch.updateDispatched = false
                 watchBox.put(watch)
-
-                updates += watch.description
             }
         }
         return updates
