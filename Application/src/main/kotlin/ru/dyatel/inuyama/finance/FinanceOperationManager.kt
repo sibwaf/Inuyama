@@ -113,7 +113,7 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
             oldAccount.balance -= getAmount(receipt)
             accountBox.put(oldAccount)
 
-            operationBox.remove(receipt.operations)
+            val oldOperations = receipt.operations.toList()
             receipt.operations.clear()
 
             for (operationInfo in operations) {
@@ -127,6 +127,7 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
             accountBox.put(newAccount)
 
             receiptBox.put(receipt)
+            operationBox.remove(oldOperations)
         }
     }
 

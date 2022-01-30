@@ -53,6 +53,18 @@ class MigrationRunner(override val kodein: Kodein) : KodeinAware {
             }
         }
 
+        if (lastUsedVersion < 6) {
+            store.runInTx {
+                val financeOperationBox = store.boxFor<FinanceOperation>()
+
+                val orphanedOperations = financeOperationBox
+                    .query { filter { it.receipt.isNull } }
+                    .find()
+
+                financeOperationBox.remove(orphanedOperations)
+            }
+        }
+
         preferenceHelper.lastUsedVersion = currentVersion
         return
     }
