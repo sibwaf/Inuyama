@@ -97,7 +97,7 @@ class Application : Application(), KodeinAware {
         bind<BackupService>() with singleton {
             BackupService(
                 pairedApi = instance(),
-                backupProviders = allInstances()
+                backupHandlers = allInstances()
             )
         }
         bind<OverseerService>() with singleton {

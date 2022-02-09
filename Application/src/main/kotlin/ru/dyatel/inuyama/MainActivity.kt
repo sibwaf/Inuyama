@@ -3,6 +3,7 @@ package ru.dyatel.inuyama
 //import androidx.biometric.BiometricManager
 import android.Manifest
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.widget.SearchView
 import androidx.appcompat.widget.Toolbar
@@ -21,6 +22,13 @@ import com.wealthfront.magellan.ScreenLifecycleListener
 import com.wealthfront.magellan.support.SingleActivity
 import io.objectbox.BoxStore
 import io.objectbox.android.AndroidObjectBrowser
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.jetbrains.anko.contentView
+import org.jetbrains.anko.design.indefiniteSnackbar
+import org.jetbrains.anko.design.snackbar
 import org.jetbrains.anko.find
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.kodein
@@ -29,6 +37,7 @@ import org.kodein.di.direct
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.eagerSingleton
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.backup.BackupService
 import ru.dyatel.inuyama.finance.FinanceDashboardScreen
 import ru.dyatel.inuyama.finance.FinanceStatisticsScreen
 import ru.dyatel.inuyama.pairing.PairingScreen
@@ -39,6 +48,7 @@ import ru.dyatel.inuyama.screens.ProxyScreen
 import ru.dyatel.inuyama.utilities.debugOnly
 import ru.dyatel.inuyama.utilities.grantPermissions
 import sibwaf.inuyama.app.common.ModuleScreenProvider
+import sibwaf.inuyama.app.common.components.showConfirmationDialog
 import java.util.concurrent.atomic.AtomicLong
 
 class MainActivity : SingleActivity(), KodeinAware {
@@ -48,6 +58,7 @@ class MainActivity : SingleActivity(), KodeinAware {
     }
 
     private val backgroundServiceManager by lazy { kodein.direct.instance<BackgroundServiceManager>() }
+    private val backupService by instance<BackupService>()
 
     private val menuIdGenerator = AtomicLong(1)
     private val menuItemRegistry = mutableMapOf<Class<out Screen<*>>, Long>()
@@ -175,6 +186,46 @@ class MainActivity : SingleActivity(), KodeinAware {
         createMenuItem<PairingScreen>(CommunityMaterial.Icon2.cmd_monitor_cellphone, getString(R.string.module_pairing))
         createMenuItem<ProxyScreen>(CommunityMaterial.Icon.cmd_cloud, getString(R.string.screen_proxy))
         createMenuItem<DirectoryScreen>(CommunityMaterial.Icon.cmd_folder, getString(R.string.screen_directories))
+
+        addDrawerItems(DividerDrawerItem())
+
+        // todo: a separate screen with checkboxes?
+        addDrawerItems(PrimaryDrawerItem()
+            .withIdentifier(-1000)
+            .withIcon(CommunityMaterial.Icon.cmd_backup_restore)
+            .withName(R.string.action_restore_backup)
+            .withSelectable(false)
+            .withOnDrawerItemClickListener { _, _, _ ->
+                showConfirmationDialog(
+                    title = getString(R.string.dialog_restore_backup_title),
+                    message = getString(R.string.dialog_restore_backup_full_message),
+                    action = getString(R.string.ok)
+                ) {
+                    // todo: no-leave waiting screen
+                    CoroutineScope(Dispatchers.Default).launch {
+                        val progressSnackbar = withContext(Dispatchers.Main) {
+                            contentView!!.indefiniteSnackbar(R.string.message_backup_restore_in_progress)
+                        }
+
+                        try {
+                            Log.i("MainActivity", "Restoring all modules from backups")
+                            backupService.restoreEverything()
+                            Log.i("MainActivity", "Restore from backup completed")
+                        } finally {
+                            withContext(Dispatchers.Main) {
+                                progressSnackbar.dismiss()
+                            }
+                        }
+
+                        withContext(Dispatchers.Main) {
+                            contentView!!.snackbar(R.string.message_backup_restore_finished)
+                        }
+                    }
+                }
+
+                true
+            }
+        )
     }
 
     @Suppress("UNCHECKED_CAST")

@@ -10,7 +10,7 @@ import org.kodein.di.generic.inSet
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.provider
 import org.kodein.di.generic.singleton
-import ru.dyatel.inuyama.finance.FinanceBackupProvider
+import ru.dyatel.inuyama.finance.FinanceBackupHandler
 import ru.dyatel.inuyama.finance.FinanceOperationManager
 import ru.dyatel.inuyama.finance.FinanceQrService
 import ru.dyatel.inuyama.model.FinanceAccount
@@ -124,12 +124,13 @@ val financeModule = Kodein.Module("finance") {
         )
     }
 
-    bind<FinanceBackupProvider>() with singleton {
-        FinanceBackupProvider(
-            accounts = instance(),
-            categories = instance(),
-            receipts = instance(),
-            transfers = instance(),
+    bind<FinanceBackupHandler>() with singleton {
+        FinanceBackupHandler(
+            accountRepository = instance(),
+            categoryRepository = instance(),
+            operationRepository = instance(),
+            receiptRepository = instance(),
+            transferRepository = instance(),
             gson = instance()
         )
     }

@@ -25,6 +25,20 @@ class BackupHttpHandler(private val backupManager: BackupManager) : HttpHandler 
                     ctx.json(BackupPrepareResponse(isReady))
                 }
 
+                get("/:module/content") { ctx ->
+                    val session = ctx.requireSession()
+                    val data = backupManager.useLatestBackup(
+                        deviceId = session.deviceId,
+                        module = ctx.pathParam("module")
+                    ) { it.readText() }
+
+                    if (data == null) {
+                        ctx.status(404)
+                    } else {
+                        ctx.result(data)
+                    }
+                }
+
                 post("/:module") { ctx ->
                     val session = ctx.requireSession()
                     backupManager.makeBackup(

@@ -141,6 +141,7 @@ private class PairedApiRequestManager(override val kodein: Kodein) : KodeinAware
                     @Suppress("UNCHECKED_CAST")
                     when (responseType) {
                         Unit::class.java -> Unit as T
+                        String::class.java -> body as T
                         else -> gson.fromJson(body!!, responseType)
                     }
                 }
@@ -226,6 +227,10 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
 
     suspend fun prepareBackup(module: String): Boolean {
         return get<BackupPrepareResponse>("/backup/$module").ready
+    }
+
+    suspend fun getBackupContent(module: String): String {
+        return get("/backup/$module/content")
     }
 
     suspend fun makeBackup(module: String, data: String) {

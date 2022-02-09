@@ -32,6 +32,8 @@
     <string name="dialog_remove_watch_title">Удаление отслеживания</string>
     <string name="dialog_remove_watch_message">Перестаём отслеживать %s?</string>
     <string name="dialog_select_proxy">Выбор прокси</string>
+    <string name="dialog_restore_backup_title">Восстановление из бэкапа</string>
+    <string name="dialog_restore_backup_full_message">Восстанавливаем всё из бэкапа? Существующие данные будут стёрты!</string>
 
     <string name="const_directory_default">[по умолчанию]</string>
     <string name="const_proxy_default">[прямое подключение]</string>
@@ -89,4 +91,6 @@
     <string name="hint_finance_amount">Сумма</string>
 
     <string name="message_finance_qr_failed">Не удалось получить содержимое чека</string>
+    <string name="message_backup_restore_in_progress">Восстанавливаемся из бэкапа…</string>
+    <string name="message_backup_restore_finished">Восстановление из бэкапа завершено</string>
 </resources>
