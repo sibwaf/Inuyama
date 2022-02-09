@@ -23,6 +23,11 @@ class FinanceHttpHandler(
                     ctx.json(dataProvider.getCategories(deviceId))
                 }
 
+                get("/accounts") { ctx ->
+                    val deviceId = ctx.queryParam("deviceId")!!
+                    ctx.json(dataProvider.getAccounts(deviceId))
+                }
+
                 subroute("/analytics") {
                     get("/summary") { ctx ->
                         val deviceId = ctx.queryParam("deviceId")!!

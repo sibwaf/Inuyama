@@ -42,6 +42,19 @@ class FinanceBackupDataProvider(
             .toSet()
     }
 
+    fun getAccounts(deviceId: String): Set<FinanceAccountDto> {
+        return getDeviceData(deviceId)?.accounts
+            .orEmpty()
+            .map {
+                FinanceAccountDto(
+                    id = it.id,
+                    name = it.name,
+                    balance = it.initialBalance + it.balance
+                )
+            }
+            .toSet()
+    }
+
     fun getOperations(deviceId: String): Sequence<FinanceOperationDto> {
         val data = getDeviceData(deviceId) ?: return emptySequence()
 

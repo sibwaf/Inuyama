@@ -1,4 +1,4 @@
-import { FinanceApi, FinanceCategory } from "@/api/FinanceApi";
+import { FinanceAccount, FinanceApi, FinanceCategory } from "@/api/FinanceApi";
 
 export class FinanceStorage {
 
@@ -15,6 +15,24 @@ export class FinanceStorage {
 
         (async () => await this.refreshCategories())();
         return [] as FinanceCategory[];
+    }
+
+    private _accountFetch = false;
+    private _accounts: FinanceAccount[] | null = null;
+    get accounts() {
+        const result = this._accounts;
+        if (result != null) {
+            return [...result];
+        }
+
+        if (!this._accountFetch) {
+            (async () => {
+                this._accountFetch = true;
+                this._accounts = await this.api.getAccounts(this.deviceId);
+                this._accountFetch = false;
+            })();
+        }
+        return [] as FinanceAccount[];
     }
 
     constructor(deviceId: string) {

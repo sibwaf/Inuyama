@@ -5,6 +5,7 @@ import Home from "@/views/Home.vue";
 import FinanceScreen from "@/views/finance/FinanceScreen.vue";
 import FinanceComparisonScreen from "@/views/finance/FinanceComparisonScreen.vue";
 import FinanceOverviewScreen from "@/views/finance/FinanceOverviewScreen.vue";
+import FinanceProphetScreen from "@/views/finance/FinanceProphetScreen.vue";
 
 Vue.use(VueRouter);
 
@@ -23,6 +24,11 @@ const routes: Array<RouteConfig> = [
         path: "/finance/overview",
         name: "FinanceOverview",
         component: FinanceOverviewScreen
+    },
+    {
+        path: "/finance/prophet",
+        name: "FinanceProphet",
+        component: FinanceProphetScreen
     },
     {
         path: "/finance/compare",

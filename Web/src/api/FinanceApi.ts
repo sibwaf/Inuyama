@@ -5,6 +5,12 @@ export interface FinanceCategory {
     name: string;
 }
 
+export interface FinanceAccount {
+    id: string;
+    name: string;
+    balance: number;
+}
+
 export enum FinanceOperationDirection {
     INCOME = "income",
     EXPENSE = "expense"
@@ -30,6 +36,10 @@ export interface FinanceAnalyticSeriesDto {
 export class FinanceApi {
     async getCategories(deviceId: string): Promise<FinanceCategory[]> {
         return (await axios.get("/web/finance/categories", { params: { deviceId } })).data;
+    }
+
+    async getAccounts(deviceId: string): Promise<FinanceAccount[]> {
+        return (await axios.get("/web/finance/accounts", { params: { deviceId } })).data;
     }
 
     async getSummary(deviceId: string, grouping: FinanceAnalyticGrouping | null, filter: FinanceAnalyticFilter): Promise<Map<string, number>> {
