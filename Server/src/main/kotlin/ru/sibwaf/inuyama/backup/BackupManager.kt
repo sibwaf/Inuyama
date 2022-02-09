@@ -1,6 +1,7 @@
 package ru.sibwaf.inuyama.backup
 
 import org.slf4j.LoggerFactory
+import java.io.BufferedReader
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
@@ -12,8 +13,10 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import kotlin.concurrent.thread
+import kotlin.io.path.listDirectoryEntries
 import kotlin.streams.asSequence
 
 class BackupManager {
@@ -112,13 +115,24 @@ class BackupManager {
         log.info("Successfully written a backup: $deviceId / $module")
     }
 
-    fun getLatestBackup(deviceId: String, module: String): Path? {
-        val path = getDirectory(deviceId).takeIf { Files.isDirectory(it) } ?: return null
-        return Files.list(path).asSequence()
+    fun <T> useLatestBackup(deviceId: String, module: String, block: (BufferedReader) -> T): T? {
+        val path = getDirectory(deviceId)
+            .takeIf { Files.isDirectory(it) }
+            ?.listDirectoryEntries()
+            .orEmpty()
+            .asSequence()
             .mapNotNull { BackupToken.fromPath(it) }
             .filter { it.module == module }
             .maxByOrNull { it.dateTime }
             ?.toPath(baseDirectory)
+            ?: return null
+
+        return Files.newInputStream(path).use { input ->
+            ZipInputStream(input).use { zip ->
+                zip.nextEntry ?: return@useLatestBackup null
+                zip.bufferedReader(charset = Charsets.UTF_8).use(block)
+            }
+        }
     }
 
     private fun getDirectory(deviceId: String) = baseDirectory.resolve(deviceId)

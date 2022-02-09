@@ -5,10 +5,8 @@ import com.google.gson.Gson
 import ru.sibwaf.inuyama.backup.BackupManager
 import ru.sibwaf.inuyama.fromJson
 import ru.sibwaf.inuyama.systemZoneOffset
-import java.nio.file.Files
 import java.time.Duration
 import java.time.LocalDateTime
-import java.util.zip.ZipInputStream
 
 class FinanceBackupDataProvider(
     private val backupManager: BackupManager,
@@ -21,16 +19,8 @@ class FinanceBackupDataProvider(
 
     private fun getDeviceData(deviceId: String): BackupData? {
         return dataCache.get(deviceId) { key ->
-            val backupPath = backupManager.getLatestBackup(key, "sibwaf.finance") ?: return@get null
-
-            Files.newInputStream(backupPath).use { input ->
-                ZipInputStream(input).use { zip ->
-                    zip.nextEntry ?: return@get null
-
-                    zip.bufferedReader(charset = Charsets.UTF_8).use {
-                        gson.fromJson(it)
-                    }
-                }
+            backupManager.useLatestBackup(key, "sibwaf.finance") {
+                gson.fromJson(it)
             }
         }
     }
