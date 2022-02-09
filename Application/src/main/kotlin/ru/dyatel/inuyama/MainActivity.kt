@@ -223,7 +223,7 @@ class MainActivity : SingleActivity(), KodeinAware {
                     }
                 }
 
-                true
+                false
             }
         )
     }
