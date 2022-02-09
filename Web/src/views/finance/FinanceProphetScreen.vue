@@ -156,6 +156,7 @@ export default class FinanceProphetScreen extends Vue {
             ...this.predictionSavingsLineValues,
         ];
         while (predictionSavingsLineValues.length < timeline.length) {
+            // @ts-ignore
             predictionSavingsLineValues.splice(0, 0, undefined); // todo: allow undefined
         }
 

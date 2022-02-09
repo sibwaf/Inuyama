@@ -66,6 +66,7 @@ export function makeAutoRegression(values: number[]): (depth: number) => number 
 export function makePolynomialRegression(values: Map<number, number>): (value: number) => number {
     const points = [...values];
     if (points.length == 0) {
+        // @ts-ignore
         return (_) => undefined;
     }
 
