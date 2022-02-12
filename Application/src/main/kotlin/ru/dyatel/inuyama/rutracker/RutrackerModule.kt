@@ -21,6 +21,14 @@ val rutrackerModule = Kodein.Module("rutracker") {
     bind<RutrackerApiService>() with singleton { RutrackerApiService(kodein) }
     bind<RutrackerWatcher>() with singleton { RutrackerWatcher(kodein) }
 
+    bind<RutrackerBackupHandler>() with singleton {
+        RutrackerBackupHandler(
+            preferenceHelper = instance(),
+            watchRepository = instance(),
+            gson = instance()
+        )
+    }
+
     bind<ModuleScreenProvider>().inSet() with singleton {
         object : ModuleScreenProvider() {
             override fun getIcon() = CommunityMaterial.Icon.cmd_database
