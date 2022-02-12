@@ -25,6 +25,7 @@ import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.model.Update
 import ru.dyatel.inuyama.nyaa.NyaaApiService
+import ru.dyatel.inuyama.nyaa.NyaaBackupHandler
 import ru.dyatel.inuyama.nyaa.NyaaScreen
 import ru.dyatel.inuyama.nyaa.NyaaWatcher
 import ru.dyatel.inuyama.ruranobe.RuranobeApi
@@ -81,6 +82,14 @@ val nyaaModule = Kodein.Module("nyaa") {
     bind<Box<NyaaWatch>>() with singleton { instance<BoxStore>().boxFor<NyaaWatch>() }
     bind<NyaaApiService>() with singleton { NyaaApiService(kodein) }
     bind<NyaaWatcher>() with singleton { NyaaWatcher(kodein) }
+
+    bind<NyaaBackupHandler>() with singleton {
+        NyaaBackupHandler(
+            watchRepository = instance(),
+            torrentRepository = instance(),
+            gson = instance()
+        )
+    }
 
     bind<ModuleScreenProvider>().inSet() with singleton {
         object : ModuleScreenProvider() {
