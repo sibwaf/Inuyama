@@ -22,6 +22,7 @@ import org.kodein.di.generic.provider
 import org.kodein.di.generic.setBinding
 import org.kodein.di.generic.singleton
 import ru.dyatel.inuyama.backup.BackupService
+import ru.dyatel.inuyama.backup.MainBackupHandler
 import ru.dyatel.inuyama.finance.financeModule
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.MyObjectBox
@@ -84,6 +85,16 @@ class Application : Application(), KodeinAware {
 
         bind<PreferenceHelper>() with singleton { PreferenceHelper(instance()) }
         bind<OverseerConfiguration>() with provider { instance<PreferenceHelper>().overseer }
+
+        bind<MainBackupHandler>() with singleton {
+            MainBackupHandler(
+                preferenceHelper = instance(),
+                proxyRepository = instance(),
+                proxyBindingRepository = instance(),
+                directoryRepository = instance(),
+                gson = instance()
+            )
+        }
 
         bind<BackgroundServiceManager>() with singleton { BackgroundServiceManager() }
 
