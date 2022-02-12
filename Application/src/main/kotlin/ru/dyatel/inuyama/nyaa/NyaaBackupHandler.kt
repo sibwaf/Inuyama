@@ -56,6 +56,7 @@ class NyaaBackupHandler(
             for (watch in backup.watches) {
                 val torrents = watch.torrents.map { torrent ->
                     NyaaTorrent(
+                        id = torrent.id.toLong(),
                         title = torrent.title,
                         hash = torrent.hash,
                         updateDatetime = DateTime(torrent.updateDatetime),
