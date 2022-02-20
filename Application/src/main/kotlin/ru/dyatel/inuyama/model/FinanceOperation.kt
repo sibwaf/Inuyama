@@ -7,7 +7,9 @@ import io.objectbox.annotation.Id
 import io.objectbox.relation.ToMany
 import io.objectbox.relation.ToOne
 import ru.dyatel.inuyama.utilities.DateTimeConverter
+import ru.dyatel.inuyama.utilities.UuidConverter
 import java.util.TimeZone
+import java.util.UUID
 
 @Entity
 data class FinanceOperation(
@@ -17,6 +19,10 @@ data class FinanceOperation(
     @Deprecated("use FinanceReceipt's datetime")
     @Convert(converter = DateTimeConverter::class, dbType = String::class)
     var datetime: DateTime = DateTime.now(TimeZone.getDefault()),
+
+    // objectbox refuses to insert multiple equal entities at the same time
+    @Convert(converter = UuidConverter::class, dbType = String::class)
+    var guid: UUID = UUID.randomUUID(),
 
     var description: String? = null
 ) {

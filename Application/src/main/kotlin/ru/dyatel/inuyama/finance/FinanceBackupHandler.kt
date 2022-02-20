@@ -10,6 +10,7 @@ import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.dyatel.inuyama.utilities.fromJson
 import sibwaf.inuyama.app.common.backup.ModuleBackupHandler
+import java.util.UUID
 
 class FinanceBackupHandler(
     private val accountRepository: Box<FinanceAccount>,
@@ -51,6 +52,7 @@ class FinanceBackupHandler(
                             id = operation.id.toString(),
                             amount = operation.amount,
                             description = operation.description,
+                            guid = operation.guid,
                             categoryIds = operation.categories.map { it.id.toString() }
                         )
                     }
@@ -106,6 +108,7 @@ class FinanceBackupHandler(
                     FinanceOperation(
                         amount = operation.amount,
                         datetime = datetime,
+                        guid = operation.guid ?: UUID.randomUUID(),
                         description = operation.description
                     ).also {
                         operationRepository.attach(it)
@@ -173,6 +176,7 @@ private data class BackupFinanceOperation(
     val id: String,
     val amount: Double,
     val description: String?,
+    val guid: UUID?,
     val categoryIds: List<String>
 )
 

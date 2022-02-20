@@ -7,10 +7,8 @@ import com.google.gson.JsonElement
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.IAdapter
 import com.mikepenz.fastadapter.IItem
-import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import io.objectbox.BoxStore
-import io.objectbox.converter.PropertyConverter
 import io.objectbox.reactive.SubscriptionBuilder
 import org.jetbrains.anko.inputMethodManager
 import org.ocpsoft.prettytime.PrettyTime
@@ -41,10 +39,5 @@ inline fun <reified T> BoxStore.boxFor(): Box<T> = boxFor(T::class.java)
 inline fun <reified T> BoxStore.subscribeFor(): SubscriptionBuilder<Class<T>> = subscribe(T::class.java)
 
 fun <I : IItem<*, *>> IAdapter<I>.buildFastAdapter(): FastAdapter<I> = FastAdapter.with(this)
-
-class DateTimeConverter : PropertyConverter<DateTime?, String?> {
-    override fun convertToDatabaseValue(entityProperty: DateTime?) = entityProperty?.toString()
-    override fun convertToEntityProperty(databaseValue: String?) = databaseValue?.let { DateTime(it) }
-}
 
 val prettyTime by lazy { PrettyTime(Locale("ru", "RU")) }
