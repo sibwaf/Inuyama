@@ -6,6 +6,7 @@ import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -85,7 +86,7 @@ class BackupManager {
 
         log.debug("Writing a backup: $deviceId / $module")
 
-        Files.newOutputStream(path).use {
+        Files.newOutputStream(path, StandardOpenOption.CREATE_NEW).use {
             ZipOutputStream(it).use { zip ->
                 zip.putNextEntry(ZipEntry("data.bin"))
                 data.transferTo(zip)
