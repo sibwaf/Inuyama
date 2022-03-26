@@ -16,7 +16,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import kotlin.concurrent.thread
-import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.isDirectory
 import kotlin.streams.asSequence
 
 class BackupManager {
@@ -40,48 +40,29 @@ class BackupManager {
     }
 
     private fun cleanup() {
-        if (!Files.isDirectory(baseDirectory)) {
-            return
-        }
-
         val now = OffsetDateTime.now()
+        for ((_, backups) in listAllBackups().groupBy { it.deviceId to it.module }) {
+            val outdatedBackups = backups
+                .sortedBy { it.dateTime }
+                .dropLast(1)
+                .filter { it.dateTime + backupRetention < now }
 
-        for (devicePath in Files.list(baseDirectory)) {
-            val modules = Files.list(devicePath).asSequence()
-                .mapNotNull { BackupToken.fromPath(it) }
-                .groupBy { it.module }
-
-            for ((_, backups) in modules) {
-                val outdatedBackups = backups
-                    .sortedBy { it.dateTime }
-                    .dropLast(1)
-                    .filter { it.dateTime + backupRetention < now }
-
-                for (backup in outdatedBackups) {
-                    val path = backup.toPath(baseDirectory)
-                    log.info("Cleaning up an outdated backup ${baseDirectory.relativize(path)}")
-                    try {
-                        Files.delete(path)
-                    } catch (e: Exception) {
-                        log.error("Failed to clean up and outdated backup ${baseDirectory.relativize(path)}", e)
-                    }
+            for (backup in outdatedBackups) {
+                val path = backup.toPath(baseDirectory)
+                log.info("Cleaning up an outdated backup ${baseDirectory.relativize(path)}")
+                try {
+                    Files.delete(path)
+                } catch (e: Exception) {
+                    log.error("Failed to clean up and outdated backup ${baseDirectory.relativize(path)}", e)
                 }
             }
         }
     }
 
     fun prepareBackup(deviceId: String, module: String): Boolean {
-        val path = getDirectory(deviceId)
-        if (!Files.isDirectory(path)) {
-            return true
-        }
-
-        val latestVersion = Files.list(path).asSequence()
-            .mapNotNull { BackupToken.fromPath(it) }
+        val latestVersion = listAllBackups()
             .filter { it.deviceId == deviceId && it.module == module }
-            .sortedBy { it.dateTime }
-            .lastOrNull()
-            ?.dateTime
+            .maxOfOrNull { it.dateTime }
 
         return latestVersion == null ||
                 latestVersion + delayBetweenBackups < OffsetDateTime.now()
@@ -116,13 +97,8 @@ class BackupManager {
     }
 
     fun <T> useLatestBackup(deviceId: String, module: String, block: (BufferedReader) -> T): T? {
-        val path = getDirectory(deviceId)
-            .takeIf { Files.isDirectory(it) }
-            ?.listDirectoryEntries()
-            .orEmpty()
-            .asSequence()
-            .mapNotNull { BackupToken.fromPath(it) }
-            .filter { it.module == module }
+        val path = listAllBackups()
+            .filter { it.deviceId == deviceId && it.module == module }
             .maxByOrNull { it.dateTime }
             ?.toPath(baseDirectory)
             ?: return null
@@ -135,7 +111,14 @@ class BackupManager {
         }
     }
 
-    private fun getDirectory(deviceId: String) = baseDirectory.resolve(deviceId)
+    private fun listAllBackups(): Sequence<BackupToken> {
+        return baseDirectory
+            .takeIf { it.isDirectory() }
+            ?.let { Files.walk(it) }
+            ?.asSequence()
+            .orEmpty()
+            .mapNotNull { BackupToken.fromPath(it) }
+    }
 }
 
 private data class BackupToken(
@@ -148,7 +131,7 @@ private data class BackupToken(
         private val dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
 
         fun fromPath(path: Path): BackupToken? {
-            val deviceId = path.parent.fileName.toString()
+            val deviceId = path.toAbsolutePath().parent?.fileName?.toString() ?: return null
             val filename = path.fileName.toString().removeSuffix(".zip")
 
             val parts = filename.split("_")
