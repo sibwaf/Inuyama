@@ -65,7 +65,5 @@ object Cryptography {
     }
 }
 
-private val humanReadableCache = mutableMapOf<PublicKey, String>()
-
 val PublicKey.humanReadable: String
-    get() = humanReadableCache.getOrPut(this) { MD5.hash(encoded).takeLast(8) }
+    get() = MD5.hash(encoded).takeLast(8)
