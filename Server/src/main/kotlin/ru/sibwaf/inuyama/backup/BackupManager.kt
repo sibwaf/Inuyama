@@ -43,38 +43,41 @@ class BackupManager {
     private fun cleanup() {
         val now = OffsetDateTime.now()
         for ((_, backups) in listAllBackups().groupBy { it.deviceId to it.module }) {
-            val outdatedBackups = backups
+            val previousBackups = backups
                 .sortedBy { it.dateTime }
                 .dropLast(1)
-                .filter { it.dateTime + backupRetention < now }
 
+            val outdatedBackups = previousBackups.filter { it.dateTime + backupRetention < now }.toSet()
             for (backup in outdatedBackups) {
                 val path = backup.toPath(baseDirectory)
-                log.info("Cleaning up an outdated backup ${baseDirectory.relativize(path)}")
                 try {
                     Files.delete(path)
+                    log.info("Cleaned up an outdated backup ${baseDirectory.relativize(path)}")
                 } catch (e: Exception) {
-                    log.error("Failed to clean up and outdated backup ${baseDirectory.relativize(path)}", e)
+                    log.error("Failed to clean up an outdated backup ${baseDirectory.relativize(path)}", e)
+                }
+            }
+
+            val remainingBackups = previousBackups - outdatedBackups
+            var currentBackup = remainingBackups.firstOrNull() ?: continue
+            for (backup in remainingBackups.asSequence().drop(1)) {
+                if (currentBackup.dateTime + delayBetweenBackups > backup.dateTime) {
+                    val path = backup.toPath(baseDirectory)
+                    try {
+                        Files.delete(path)
+                        log.info("Cleaned up a surplus backup ${baseDirectory.relativize(path)}")
+                    } catch (e: Exception) {
+                        log.error("Failed to clean up a surplus backup ${baseDirectory.relativize(path)}", e)
+                    }
+                } else {
+                    currentBackup = backup
                 }
             }
         }
     }
 
-    fun prepareBackup(deviceId: String, module: String): Boolean {
-        val latestVersion = listAllBackups()
-            .filter { it.deviceId == deviceId && it.module == module }
-            .maxOfOrNull { it.dateTime }
-
-        return latestVersion == null ||
-                latestVersion + delayBetweenBackups < OffsetDateTime.now()
-    }
-
     // todo: deduplicate by hash
     fun makeBackup(deviceId: String, module: String, data: InputStream) {
-        if (!prepareBackup(deviceId, module)) {
-            throw BackupNotReadyException()
-        }
-
         val token = BackupToken(
             deviceId = deviceId,
             module = module,

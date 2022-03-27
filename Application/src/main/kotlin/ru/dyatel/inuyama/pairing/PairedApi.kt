@@ -14,7 +14,6 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
-import ru.sibwaf.inuyama.common.BackupPrepareResponse
 import ru.sibwaf.inuyama.common.BindSessionApiRequest
 import ru.sibwaf.inuyama.common.BindSessionApiResponse
 import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
@@ -223,10 +222,6 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
         runBlocking {
             post<Unit>("/download-torrent", TorrentDownloadApiRequest(magnet, path))
         }
-    }
-
-    suspend fun prepareBackup(module: String): Boolean {
-        return get<BackupPrepareResponse>("/backup/$module").ready
     }
 
     suspend fun getBackupContent(module: String): String {

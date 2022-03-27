@@ -5,5 +5,3 @@ data class BindSessionApiResponse(val challenge: String, val token: String, val 
 
 // TODO: replace directories with categories, map to directories on server
 data class TorrentDownloadApiRequest(val magnet: String, val path: String)
-
-data class BackupPrepareResponse(val ready: Boolean)

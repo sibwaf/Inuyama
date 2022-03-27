@@ -11,16 +11,11 @@ class BackupService(
     private val backupHandlers: Collection<ModuleBackupHandler>
 ) : BackgroundService(WORK_NAME_BACKUP) {
 
-    override val period = 60
+    override val period = 15
 
     override suspend fun execute() {
         for (provider in backupHandlers) {
             try {
-                val ready = pairedApi.prepareBackup(provider.moduleName)
-                if (!ready) {
-                    continue
-                }
-
                 val data = provider.provideData()
                 pairedApi.makeBackup(provider.moduleName, data)
             } catch (e: Exception) {

@@ -1,7 +1,6 @@
 package ru.sibwaf.inuyama.backup
 
 import io.javalin.Javalin
-import ru.sibwaf.inuyama.common.BackupPrepareResponse
 import ru.sibwaf.inuyama.exception
 import ru.sibwaf.inuyama.http.HttpHandler
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptBody
@@ -14,17 +13,6 @@ class BackupHttpHandler(private val backupManager: BackupManager) : HttpHandler 
     override fun Javalin.install() {
         pairedSubroute {
             subroute("/backup") {
-                get("/:module") { ctx ->
-                    val session = ctx.requireSession()
-
-                    val isReady = backupManager.prepareBackup(
-                        deviceId = session.deviceId,
-                        module = ctx.pathParam("module")
-                    )
-
-                    ctx.json(BackupPrepareResponse(isReady))
-                }
-
                 get("/:module/content") { ctx ->
                     val session = ctx.requireSession()
                     val data = backupManager.useLatestBackup(
