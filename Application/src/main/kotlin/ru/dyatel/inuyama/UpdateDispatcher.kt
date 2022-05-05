@@ -35,7 +35,7 @@ class UpdateDispatcher {
         transactions += TransactionImpl().apply(block)
     }
 
-    fun dispatchOn(executor: UpdateDispatchExecutor) {
+    suspend fun dispatchOn(executor: UpdateDispatchExecutor) {
         for (transaction in transactions) {
             try {
                 executor.dispatch(transaction)

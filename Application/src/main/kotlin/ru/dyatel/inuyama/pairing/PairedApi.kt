@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -218,10 +217,8 @@ class PairedApi(override val kodein: Kodein) : KodeinAware, RemoteService {
         }
     }
 
-    fun downloadTorrent(magnet: String, path: String) {
-        runBlocking {
-            post<Unit>("/download-torrent", TorrentDownloadApiRequest(magnet, path))
-        }
+    suspend fun downloadTorrent(magnet: String, path: String) {
+        post<Unit>("/download-torrent", TorrentDownloadApiRequest(magnet, path))
     }
 
     suspend fun getBackupContent(module: String): String {
