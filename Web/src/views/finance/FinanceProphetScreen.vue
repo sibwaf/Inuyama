@@ -123,7 +123,7 @@ export default class FinanceProphetScreen extends Vue {
         const end = moment(realTimeline[realTimeline.length - 1]);
         const timeline: Date[] = [];
         for (let i = 0; i < 12; i++) { // todo: customizable depth?
-            timeline.push(end.add(i + 1, "months").toDate()); // todo: unified date format
+            timeline.push(moment(end).add(i + 1, "months").toDate()); // todo: unified date format
         }
         return timeline;
     }
