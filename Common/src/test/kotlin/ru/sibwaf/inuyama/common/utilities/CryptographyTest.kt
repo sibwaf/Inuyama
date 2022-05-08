@@ -1,10 +1,13 @@
 package ru.sibwaf.inuyama.common.utilities
 
 import org.junit.jupiter.api.Test
+import strikt.api.expect
 import strikt.api.expectThat
 import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.isEqualTo
 import strikt.assertions.isNotEqualTo
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 
 class CryptographyTest {
 
@@ -65,5 +68,52 @@ class CryptographyTest {
 
         checkEncryptDecrypt(data, { Cryptography.encryptAES(it, key) }, { Cryptography.decryptAES(it, key) })
         checkEntropy { Cryptography.encryptAES(data, key) }
+    }
+
+    @Test
+    fun `Test AES encryption via InputStream`() {
+        val key = Cryptography.createAESKey()
+
+        val encrypted = Cryptography.encryptAES(ByteArrayInputStream(data), key).use {
+            it.readAllBytes()
+        }
+
+        val decrypted = Cryptography.decryptAES(ByteArrayInputStream(encrypted), key).use {
+            it.readAllBytes()
+        }
+
+        expect {
+            that(encrypted)
+                .describedAs("encrypted data")
+                .isNotEqualTo(data)
+
+            that(decrypted)
+                .describedAs("decrypted data")
+                .isEqualTo(data)
+        }
+    }
+
+    @Test
+    fun `Test AES encryption via OutputStream`() {
+        val key = Cryptography.createAESKey()
+
+        val encrypted = ByteArrayOutputStream()
+        Cryptography.encryptAES(encrypted, key).use {
+            it.write(data)
+        }
+
+        val decrypted = Cryptography.decryptAES(ByteArrayInputStream(encrypted.toByteArray()), key).use {
+            it.readAllBytes()
+        }
+
+        expect {
+            that(encrypted.toByteArray())
+                .describedAs("encrypted data")
+                .isNotEqualTo(data)
+
+            that(decrypted)
+                .describedAs("decrypted data")
+                .isEqualTo(data)
+        }
     }
 }

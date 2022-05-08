@@ -7,8 +7,8 @@ import ru.sibwaf.inuyama.common.BindSessionApiRequest
 import ru.sibwaf.inuyama.common.BindSessionApiResponse
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
-import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptBody
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptBodyAs
+import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptedBody
 
 class MainHttpHandler(
     private val keyKeeper: KeyKeeper,
@@ -36,7 +36,7 @@ class MainHttpHandler(
             }
 
             post("/echo") { ctx ->
-                ctx.result(ctx.decryptBody())
+                ctx.result(ctx.decryptedBody())
             }
         }
     }

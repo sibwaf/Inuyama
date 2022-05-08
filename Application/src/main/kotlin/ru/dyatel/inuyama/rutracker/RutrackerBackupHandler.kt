@@ -5,7 +5,10 @@ import io.objectbox.Box
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.fromJson
+import ru.sibwaf.inuyama.common.utilities.Encoding
 import sibwaf.inuyama.app.common.backup.ModuleBackupHandler
+import java.io.ByteArrayInputStream
+import java.io.InputStream
 
 class RutrackerBackupHandler(
     private val preferenceHelper: PreferenceHelper,
@@ -13,7 +16,8 @@ class RutrackerBackupHandler(
 
     private val gson: Gson
 ) : ModuleBackupHandler("sibwaf.rutracker") {
-    override fun provideData(): String {
+
+    override fun provideData(): InputStream {
         val data = BackupData(
             rutrackerConfiguration = BackupRutrackerConfiguration(
                 host = preferenceHelper.rutracker.host
@@ -30,11 +34,12 @@ class RutrackerBackupHandler(
             }
         )
 
-        return gson.toJson(data)
+        val result = Encoding.stringToBytes(gson.toJson(data))
+        return ByteArrayInputStream(result)
     }
 
-    override fun restoreData(data: String) {
-        val backup = gson.fromJson<BackupData>(data)
+    override fun restoreData(data: InputStream) {
+        val backup = data.reader().use { gson.fromJson<BackupData>(it) }
 
         preferenceHelper.rutracker = RutrackerConfiguration(
             host = backup.rutrackerConfiguration.host

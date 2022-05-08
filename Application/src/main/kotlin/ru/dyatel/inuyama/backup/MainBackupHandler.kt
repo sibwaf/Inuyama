@@ -8,7 +8,10 @@ import ru.dyatel.inuyama.model.ProxyBinding
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.fromJson
+import ru.sibwaf.inuyama.common.utilities.Encoding
 import sibwaf.inuyama.app.common.backup.ModuleBackupHandler
+import java.io.ByteArrayInputStream
+import java.io.InputStream
 
 class MainBackupHandler(
     private val preferenceHelper: PreferenceHelper,
@@ -19,7 +22,7 @@ class MainBackupHandler(
     private val gson: Gson
 ) : ModuleBackupHandler("sibwaf.inuyama") {
 
-    override fun provideData(): String {
+    override fun provideData(): InputStream {
         val data = BackupData(
             overseerConfiguration = BackupOverseerConfiguration(
                 period = preferenceHelper.overseer.period
@@ -45,11 +48,12 @@ class MainBackupHandler(
             }
         )
 
-        return gson.toJson(data)
+        val result = Encoding.stringToBytes(gson.toJson(data))
+        return ByteArrayInputStream(result)
     }
 
-    override fun restoreData(data: String) {
-        val backup = gson.fromJson<BackupData>(data)
+    override fun restoreData(data: InputStream) {
+        val backup = data.reader().use { gson.fromJson<BackupData>(it) }
 
         preferenceHelper.overseer = OverseerConfiguration(
             period = backup.overseerConfiguration.period

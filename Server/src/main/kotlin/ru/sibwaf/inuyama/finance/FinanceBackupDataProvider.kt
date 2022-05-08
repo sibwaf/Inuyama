@@ -19,7 +19,7 @@ class FinanceBackupDataProvider(
 
     private fun getDeviceData(deviceId: String): BackupData? {
         return dataCache.get(deviceId) { key ->
-            backupManager.useLatestBackup(key, "sibwaf.finance") {
+            backupManager.getLatestBackupContent(key, "sibwaf.finance")?.bufferedReader()?.use {
                 gson.fromJson(it)
             }
         }

@@ -4,6 +4,8 @@ import io.javalin.http.Context
 import io.javalin.plugin.json.JavalinJson
 import ru.sibwaf.inuyama.Session
 import ru.sibwaf.inuyama.SessionException
+import ru.sibwaf.inuyama.common.utilities.Encoding
+import java.io.InputStream
 
 class SecurityHttpFilter(private val config: SecurityConfig) : HttpFilter {
 
@@ -15,15 +17,19 @@ class SecurityHttpFilter(private val config: SecurityConfig) : HttpFilter {
             get() = attribute(ATTRIBUTE_SESSION)
             set(value) = attribute(ATTRIBUTE_SESSION, value)
 
-        var Context.decryptedBodyProvider: () -> String
-            get() = attribute(ATTRIBUTE_DECRYPTED_BODY_PROVIDER) ?: { body() }
+        var Context.decryptedBodyProvider: () -> InputStream
+            get() = attribute(ATTRIBUTE_DECRYPTED_BODY_PROVIDER) ?: { bodyAsInputStream() }
             set(value) = attribute(ATTRIBUTE_DECRYPTED_BODY_PROVIDER, value)
 
         fun Context.requireSession(): Session = session ?: throw SessionException()
 
-        fun Context.decryptBody(): String = decryptedBodyProvider()
+        fun Context.decryptedBody(): InputStream = decryptedBodyProvider()
 
-        inline fun <reified T> Context.decryptBodyAs() = JavalinJson.fromJsonMapper.map(decryptBody(), T::class.java)
+        inline fun <reified T> Context.decryptBodyAs(): T {
+            val bytes = decryptedBody().use { it.readAllBytes() }
+            val body = Encoding.bytesToString(bytes)
+            return JavalinJson.fromJsonMapper.map(body, T::class.java)
+        }
     }
 
     override fun before(ctx: Context) {

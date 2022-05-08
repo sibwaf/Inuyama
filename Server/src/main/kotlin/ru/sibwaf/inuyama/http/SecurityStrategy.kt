@@ -64,24 +64,20 @@ fun interface SecurityStrategy {
             ctx.session = session
 
             ctx.decryptedBodyProvider = {
-                ctx.body()
-                    .let { Encoding.decodeBase64(it) }
-                    .let { Cryptography.decryptAES(it, session.key) }
-                    .let { Encoding.bytesToString(it) }
+                Cryptography.decryptAES(ctx.bodyAsInputStream(), session.key)
             }
 
             return true
         }
 
         override fun postProcess(ctx: Context) {
-            val response = ctx.resultString() ?: return
+            val response = ctx.resultStream() ?: return
+
             response
-                .let { Encoding.stringToBytes(it) }
                 .let { Cryptography.encryptAES(it, ctx.requireSession().key) }
-                .let { Encoding.encodeBase64(it) }
                 .let { ctx.result(it) }
 
-            ctx.contentType("text/plain")
+            ctx.contentType("application/octet-stream")
         }
     }
 

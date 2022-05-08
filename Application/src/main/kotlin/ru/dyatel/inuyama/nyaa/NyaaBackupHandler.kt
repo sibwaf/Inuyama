@@ -6,7 +6,10 @@ import io.objectbox.Box
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.model.NyaaWatch
 import ru.dyatel.inuyama.utilities.fromJson
+import ru.sibwaf.inuyama.common.utilities.Encoding
 import sibwaf.inuyama.app.common.backup.ModuleBackupHandler
+import java.io.ByteArrayInputStream
+import java.io.InputStream
 
 class NyaaBackupHandler(
     private val watchRepository: Box<NyaaWatch>,
@@ -20,7 +23,7 @@ class NyaaBackupHandler(
         const val DATETIME_FORMAT = "YYYY-MM-DDThh:mm:ss"
     }
 
-    override fun provideData(): String {
+    override fun provideData(): InputStream {
         val data = BackupData(
             watches = watchRepository.all.map { watch ->
                 BackupWatch(
@@ -44,11 +47,12 @@ class NyaaBackupHandler(
             }
         )
 
-        return gson.toJson(data)
+        val result = Encoding.stringToBytes(gson.toJson(data))
+        return ByteArrayInputStream(result)
     }
 
-    override fun restoreData(data: String) {
-        val backup = gson.fromJson<BackupData>(data)
+    override fun restoreData(data: InputStream) {
+        val backup = data.reader().use { gson.fromJson<BackupData>(it) }
 
         watchRepository.store.runInTx {
             torrentRepository.removeAll()

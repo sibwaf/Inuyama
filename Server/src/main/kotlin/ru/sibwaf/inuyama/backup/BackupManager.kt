@@ -1,7 +1,6 @@
 package ru.sibwaf.inuyama.backup
 
 import org.slf4j.LoggerFactory
-import java.io.BufferedReader
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
@@ -100,18 +99,25 @@ class BackupManager {
         log.info("Successfully written a backup: $deviceId / $module")
     }
 
-    fun <T> useLatestBackup(deviceId: String, module: String, block: (BufferedReader) -> T): T? {
+    fun getLatestBackupContent(deviceId: String, module: String): InputStream? {
         val path = listAllBackups()
             .filter { it.deviceId == deviceId && it.module == module }
             .maxByOrNull { it.dateTime }
             ?.toPath(baseDirectory)
             ?: return null
 
-        return Files.newInputStream(path).use { input ->
-            ZipInputStream(input).use { zip ->
-                zip.nextEntry ?: return@useLatestBackup null
-                zip.bufferedReader(charset = Charsets.UTF_8).use(block)
+        val inputStream = Files.newInputStream(path)
+        try {
+            val zip = ZipInputStream(inputStream)
+            if (zip.nextEntry == null) {
+                zip.close()
+                return null
             }
+
+            return zip
+        } catch (e: Exception) {
+            inputStream.close()
+            throw e
         }
     }
 

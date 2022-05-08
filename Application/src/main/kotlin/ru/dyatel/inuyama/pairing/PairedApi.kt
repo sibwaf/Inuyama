@@ -3,7 +3,7 @@ package ru.dyatel.inuyama.pairing
 import android.content.Context
 import com.google.gson.Gson
 import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.RequestBody
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
 import ru.dyatel.inuyama.R
@@ -12,9 +12,12 @@ import ru.sibwaf.inuyama.common.utilities.CommonUtilities
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.common.utilities.MediaTypes
+import ru.sibwaf.inuyama.common.utilities.asRequestBody
 import ru.sibwaf.inuyama.common.utilities.await
 import sibwaf.inuyama.app.common.NetworkManager
 import sibwaf.inuyama.app.common.RemoteService
+import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.net.ConnectException
 
 class PairedApi(
@@ -28,29 +31,29 @@ class PairedApi(
 
         pairedConnectionHolder.withSession { server, session ->
             makeRequest {
-                post(encryptBody(gson.toJson(request), session).toRequestBody(MediaTypes.TEXT_PLAIN))
+                post(encryptBody(gson.toJson(request), session))
                 withUrl(server, "/download-torrent")
                 withAuth(session)
             }.close()
         }
     }
 
-    suspend fun getBackupContent(module: String): String {
+    suspend fun getBackupContent(module: String): InputStream {
         return pairedConnectionHolder.withSession { server, session ->
-            makeRequest {
+            val response = makeRequest {
                 get()
                 withUrl(server, "/backup/$module/content")
                 withAuth(session)
-            }.use {
-                decryptBody(it.body!!.string(), session)
             }
+
+            decryptBody(response.body!!.byteStream(), session)
         }
     }
 
-    suspend fun makeBackup(module: String, data: String) {
+    suspend fun makeBackup(module: String, data: InputStream) {
         pairedConnectionHolder.withSession { server, session ->
             makeRequest {
-                post(encryptBody(data, session).toRequestBody(MediaTypes.TEXT_PLAIN))
+                post(encryptBody(data, session))
                 withUrl(server, "/backup/$module")
                 withAuth(session)
             }.close()
@@ -65,11 +68,11 @@ class PairedApi(
 
             val response = pairedConnectionHolder.withSession { server, session ->
                 makeRequest {
-                    post(encryptBody(request, session).toRequestBody(MediaTypes.TEXT_PLAIN))
+                    post(encryptBody(request, session))
                     withUrl(server, "/echo")
                     withAuth(session)
                 }.use {
-                    decryptBody(it.body!!.string(), session)
+                    Encoding.bytesToString(decryptBody(it.body!!.byteStream(), session).readBytes())
                 }
             }
 
@@ -79,18 +82,19 @@ class PairedApi(
         }
     }
 
-    private fun encryptBody(text: String, session: PairedSession): String {
-        return text
-            .let { Encoding.stringToBytes(it) }
-            .let { Cryptography.encryptAES(it, session.key) }
-            .let { Encoding.encodeBase64(it) }
+    private fun encryptBody(body: InputStream, session: PairedSession): RequestBody {
+        return Cryptography.encryptAES(body, session.key).asRequestBody(MediaTypes.APPLICATION_OCTET_STREAM)
     }
 
-    private fun decryptBody(text: String, session: PairedSession): String {
-        return text
-            .let { Encoding.decodeBase64(it) }
-            .let { Cryptography.decryptAES(it, session.key) }
-            .let { Encoding.bytesToString(it) }
+    private fun encryptBody(body: String, session: PairedSession): RequestBody {
+        return body
+            .let { Encoding.stringToBytes(it) }
+            .let { ByteArrayInputStream(it) }
+            .let { encryptBody(it, session) }
+    }
+
+    private fun decryptBody(body: InputStream, session: PairedSession): InputStream {
+        return Cryptography.decryptAES(body, session.key)
     }
 
     private suspend fun makeRequest(customize: Request.Builder.() -> Unit): Response {
