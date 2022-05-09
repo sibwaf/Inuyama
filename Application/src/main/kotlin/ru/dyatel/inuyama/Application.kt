@@ -35,6 +35,7 @@ import ru.dyatel.inuyama.overseer.OverseerService
 import ru.dyatel.inuyama.overseer.UpdateDispatchExecutor
 import ru.dyatel.inuyama.pairing.DiscoveryService
 import ru.dyatel.inuyama.pairing.PairedApi
+import ru.dyatel.inuyama.pairing.PairedConnectionHolder
 import ru.dyatel.inuyama.pairing.PairingManager
 import ru.dyatel.inuyama.rutracker.rutrackerModule
 import ru.dyatel.inuyama.utilities.NoJson
@@ -104,7 +105,20 @@ class Application : Application(), KodeinAware {
 
         bind<DiscoveryService>() with singleton { DiscoveryService(kodein) }
         bind<PairingManager>() with singleton { PairingManager(kodein) }
-        bind<PairedApi>() with singleton { PairedApi(kodein) }
+        bind<PairedConnectionHolder>() with singleton {
+            PairedConnectionHolder(
+                networkManager = instance(),
+                pairingManager = instance(),
+                gson = instance(),
+            )
+        }
+        bind<PairedApi>() with singleton {
+            PairedApi(
+                pairedConnectionHolder = instance(),
+                networkManager = instance(),
+                gson = instance(),
+            )
+        }
 
         bind<UpdateDispatchExecutor>() with singleton { UpdateDispatchExecutor(instance()) }
 

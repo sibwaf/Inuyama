@@ -7,6 +7,7 @@ import ru.sibwaf.inuyama.common.BindSessionApiRequest
 import ru.sibwaf.inuyama.common.BindSessionApiResponse
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
+import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptBody
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptBodyAs
 
 class MainHttpHandler(
@@ -35,8 +36,7 @@ class MainHttpHandler(
             }
 
             post("/echo") { ctx ->
-                val request = ctx.decryptBodyAs<Any>()
-                ctx.json(request)
+                ctx.result(ctx.decryptBody())
             }
         }
     }

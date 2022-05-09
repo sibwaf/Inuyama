@@ -12,6 +12,7 @@ import io.objectbox.BoxStore
 import io.objectbox.reactive.SubscriptionBuilder
 import org.jetbrains.anko.inputMethodManager
 import org.ocpsoft.prettytime.PrettyTime
+import java.io.Reader
 import java.util.Locale
 
 fun Activity.grantPermissions(vararg permissions: String) {
@@ -31,6 +32,8 @@ fun Activity.hideKeyboard() {
 }
 
 inline fun <reified T> Gson.fromJson(json: String): T = fromJson(json, T::class.java)
+
+inline fun <reified T> Gson.fromJson(json: Reader): T = fromJson(json, T::class.java)
 
 inline fun <reified T> Gson.fromJson(json: JsonElement): T = fromJson(json, T::class.java)
 

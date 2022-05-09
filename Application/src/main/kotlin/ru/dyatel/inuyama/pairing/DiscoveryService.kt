@@ -9,13 +9,9 @@ import ru.sibwaf.inuyama.common.Pairing
 import sibwaf.inuyama.app.common.NetworkManager
 import java.net.DatagramPacket
 import java.net.DatagramSocket
-import java.net.InetAddress
-import java.security.PublicKey
 import kotlin.concurrent.thread
 
 private typealias Listener = (DiscoveredServer) -> Unit
-
-data class DiscoveredServer(val address: InetAddress, val port: Int, val key: PublicKey)
 
 class DiscoveryService(override val kodein: Kodein) : KodeinAware {
 
