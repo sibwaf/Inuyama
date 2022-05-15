@@ -134,6 +134,11 @@ class MainActivity : SingleActivity(), KodeinAware {
     }
 
     override fun onBackPressed() {
+        if (drawer.isDrawerOpen) {
+            drawer.closeDrawer()
+            return
+        }
+
         if (!searchView.isIconified) {
             closeSearchView()
             return
