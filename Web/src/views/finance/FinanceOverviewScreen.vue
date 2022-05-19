@@ -17,11 +17,10 @@
             />
         </div>
         <div class="section">
-            <h2 class="subtitle">Top expense categories</h2>
-            <line-chart
-                class="finance-overview-chart"
-                v-if="categoryTopChartData"
-                :data="categoryTopChartData"
+            <h2 class="subtitle">Expense overview</h2>
+            <bubble-chart
+                v-if="expenseOverviewChartData"
+                :data="expenseOverviewChartData"
             />
         </div>
     </div>
@@ -39,11 +38,12 @@ import {
 } from "@/api/FinanceApi";
 import Storage from "@/storage/Storage";
 import LineChart, {
-    ChartData,
+    ChartData as LineChartData,
     ChartLine,
 } from "@/components/charts/LineChart.vue";
-
-import { getWeightedAverage } from "@/utility/Magic";
+import BubbleChart, {
+    ChartData as BubbleChartData,
+} from "@/components/charts/BubbleChart.vue";
 
 interface ChartParameters {
     readonly deviceId: string;
@@ -51,7 +51,7 @@ interface ChartParameters {
     readonly periodEnd: Moment;
 }
 
-@Component({ components: { LineChart } })
+@Component({ components: { LineChart, BubbleChart } })
 export default class FinanceOverviewScreen extends Vue {
     @Inject()
     private readonly storage!: Storage;
@@ -66,7 +66,7 @@ export default class FinanceOverviewScreen extends Vue {
 
     private rawTotalChartData: FinanceAnalyticSeriesDto | null = null;
     private rawSplitChartData: FinanceAnalyticSeriesDto | null = null;
-    private rawCategoryTopChartData: FinanceAnalyticSeriesDto | null = null;
+    private rawExpenseOverviewChartData: FinanceAnalyticSeriesDto | null = null;
 
     private get categories() {
         return this.storage.ofCurrentDevice()?.finance?.categories ?? [];
@@ -105,7 +105,7 @@ export default class FinanceOverviewScreen extends Vue {
                 name,
                 values,
             })),
-        } as ChartData<Date>;
+        } as LineChartData<Date>;
     }
 
     private get splitChartData() {
@@ -136,43 +136,39 @@ export default class FinanceOverviewScreen extends Vue {
         return {
             xs: rawSplitChartData.timeline,
             lines,
-        } as ChartData<Date>;
+        } as LineChartData<Date>;
     }
 
-    private get categoryTopChartData() {
-        const rawCategoryTopChartData = this.rawCategoryTopChartData;
-        if (rawCategoryTopChartData == null) {
+    private get expenseOverviewChartData() {
+        const rawExpenseOverviewChartData = this.rawExpenseOverviewChartData;
+        if (rawExpenseOverviewChartData == null) {
             return null;
         }
 
-        const lines: ChartLine[] = [...rawCategoryTopChartData.data].map(
-            ([categoryId, values]) => {
-                const category = this.categories.find(
-                    (it) => it.id == categoryId
-                );
-
-                return {
-                    name: category?.name ?? categoryId,
-                    values: values.map((it) => Math.abs(it)),
-                };
-            }
+        const categories = [...rawExpenseOverviewChartData.data].map(
+            ([categoryId, _]) => categoryId
         );
 
-        function calculateAverage(data: number[]): number {
-            return getWeightedAverage(data, (_: number, index: number) =>
-                Math.pow(index + 1, 2)
+        const values: (number | null)[][] = [];
+        for (let i = 0; i < rawExpenseOverviewChartData.timeline.length; i++) {
+            values.push(
+                categories.map((categoryId) => {
+                    const value =
+                        rawExpenseOverviewChartData.data.get(categoryId)![i];
+                    return value != 0 ? Math.abs(value) : null;
+                })
             );
         }
 
-        lines.sort(
-            (first, second) =>
-                calculateAverage(second.values) - calculateAverage(first.values)
-        );
-
         return {
-            xs: rawCategoryTopChartData.timeline,
-            lines: lines.slice(0, 6),
-        } as ChartData<Date>;
+            horizontal: rawExpenseOverviewChartData.timeline,
+            vertical: categories.map(
+                (categoryId) =>
+                    this.categories.find((it) => it.id == categoryId)?.name ??
+                    categoryId
+            ),
+            values,
+        } as BubbleChartData;
     }
 
     @Watch("chartParameters", { immediate: true })
@@ -201,7 +197,7 @@ export default class FinanceOverviewScreen extends Vue {
             filter
         );
 
-        const rawCategoryTopChartDataAsync = this.api.getSeries(
+        const rawExpenseOverviewChartDataAsync = this.api.getSeries(
             chartParameters.deviceId,
             FinanceAnalyticGrouping.CATEGORY,
             {
@@ -213,7 +209,8 @@ export default class FinanceOverviewScreen extends Vue {
 
         this.rawTotalChartData = await rawTotalChartDataAsync;
         this.rawSplitChartData = await rawSplitChartDataAsync;
-        this.rawCategoryTopChartData = await rawCategoryTopChartDataAsync;
+        this.rawExpenseOverviewChartData =
+            await rawExpenseOverviewChartDataAsync;
     }
 }
 </script>

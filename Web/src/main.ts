@@ -15,6 +15,7 @@ import {
     LineController,
     BarController,
     DoughnutController,
+    BubbleController,
     
     LineElement,
     PointElement,
@@ -27,7 +28,7 @@ import router from "./router";
 
 Chart.register(Tooltip);
 Chart.register(CategoryScale, LinearScale);
-Chart.register(LineController, BarController, DoughnutController);
+Chart.register(LineController, BarController, DoughnutController, BubbleController);
 Chart.register(LineElement, PointElement, BarElement, ArcElement);
 
 Vue.use(ElementUI, { locale });
