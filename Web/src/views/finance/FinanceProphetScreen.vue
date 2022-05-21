@@ -27,7 +27,9 @@ interface RealDataParameters {
     readonly periodEnd: Moment;
 }
 
-const REGRESSION_SAMPLE_POINTS = 4; // todo: customizable depth
+// todo: customizable values
+const REGRESSION_SAMPLE_POINTS = 4;
+const PREDICTION_DEPTH = 4;
 
 @Component({ components: { LineChart } })
 export default class FinanceProphetScreen extends Vue {
@@ -112,8 +114,7 @@ export default class FinanceProphetScreen extends Vue {
 
         const end = moment(realTimeline[realTimeline.length - 1]);
         const timeline: Date[] = [];
-        for (let i = 0; i < 12; i++) {
-            // todo: customizable depth?
+        for (let i = 0; i < PREDICTION_DEPTH; i++) {
             timeline.push(
                 moment(end)
                     .add(i + 1, "months")
