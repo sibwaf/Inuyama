@@ -19,15 +19,15 @@ import { makeAutoRegression } from "@/utility/Magic";
 
 import { FinanceAnalyticSeriesDto, FinanceApi } from "@/api/FinanceApi";
 
-import LineChart, {
-    ChartData,
-} from "@/components/charts/LineChart.vue";
+import LineChart, { ChartData } from "@/components/charts/LineChart.vue";
 
 interface RealDataParameters {
     readonly deviceId: string;
     readonly periodStart: Moment;
     readonly periodEnd: Moment;
 }
+
+const REGRESSION_SAMPLE_POINTS = 4; // todo: customizable depth
 
 @Component({ components: { LineChart } })
 export default class FinanceProphetScreen extends Vue {
@@ -36,9 +36,7 @@ export default class FinanceProphetScreen extends Vue {
 
     private readonly api = new FinanceApi();
 
-    private rawPeriodStart = moment()
-        .subtract(1, "year")
-        .add(1, "month")
+    private rawPeriodStart = moment().subtract(1, "year").add(1, "month");
     private rawPeriodEnd = moment();
 
     private rawDynamicData: FinanceAnalyticSeriesDto | null = null;
@@ -106,14 +104,6 @@ export default class FinanceProphetScreen extends Vue {
         return line;
     }
 
-    private get realSavingsRegression() {
-        const realSavingsLineValues = (this.realSavingsLineValues ?? []).slice(
-            -6 // todo: customizable depth
-        );
-        realSavingsLineValues.pop(); // latest month is unreliable
-        return makeAutoRegression(realSavingsLineValues);
-    }
-
     private get predictionTimeline() {
         const realTimeline = this.realTimeline;
         if (realTimeline == null || realTimeline.length == 0) {
@@ -122,17 +112,41 @@ export default class FinanceProphetScreen extends Vue {
 
         const end = moment(realTimeline[realTimeline.length - 1]);
         const timeline: Date[] = [];
-        for (let i = 0; i < 12; i++) { // todo: customizable depth?
-            timeline.push(moment(end).add(i + 1, "months").toDate()); // todo: unified date format
+        for (let i = 0; i < 12; i++) {
+            // todo: customizable depth?
+            timeline.push(
+                moment(end)
+                    .add(i + 1, "months")
+                    .toDate()
+            ); // todo: unified date format
         }
         return timeline;
     }
 
     private get predictionSavingsLineValues() {
-        const regression = this.realSavingsRegression;
-        const timelineLength = this.predictionTimeline.length + 1; // also include current month
+        const realSavingsLineValues = (this.realSavingsLineValues ?? []).slice(
+            0,
+            -1
+        );
 
         const result: number[] = [];
+
+        for (
+            let i = 0;
+            i < realSavingsLineValues.length - REGRESSION_SAMPLE_POINTS;
+            i++
+        ) {
+            const regression = makeAutoRegression(
+                realSavingsLineValues.slice(i, i + REGRESSION_SAMPLE_POINTS)
+            );
+            result.push(regression(0));
+        }
+
+        const regression = makeAutoRegression(
+            realSavingsLineValues.slice(-REGRESSION_SAMPLE_POINTS)
+        );
+
+        const timelineLength = this.predictionTimeline.length + 1; // also include current month
         for (let i = 0; i < timelineLength; i++) {
             result.push(regression(i));
         }
