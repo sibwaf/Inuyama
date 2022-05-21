@@ -7,6 +7,7 @@
                 v-if="totalChartData"
                 :data="totalChartData"
             />
+            <no-data-view v-else />
         </div>
         <div class="section">
             <h2 class="subtitle">Income/expense dynamic</h2>
@@ -15,6 +16,7 @@
                 v-if="splitChartData"
                 :data="splitChartData"
             />
+            <no-data-view v-else />
         </div>
         <div class="section">
             <h2 class="subtitle">Expense overview</h2>
@@ -22,6 +24,7 @@
                 v-if="expenseOverviewChartData"
                 :data="expenseOverviewChartData"
             />
+            <no-data-view v-else />
         </div>
     </div>
 </template>
@@ -44,6 +47,7 @@ import LineChart, {
 import BubbleChart, {
     ChartData as BubbleChartData,
 } from "@/components/charts/BubbleChart.vue";
+import NoDataView from "@/components/NoDataView.vue";
 
 interface ChartParameters {
     readonly deviceId: string;
@@ -51,7 +55,7 @@ interface ChartParameters {
     readonly periodEnd: Moment;
 }
 
-@Component({ components: { LineChart, BubbleChart } })
+@Component({ components: { LineChart, BubbleChart, NoDataView } })
 export default class FinanceOverviewScreen extends Vue {
     @Inject()
     private readonly storage!: Storage;

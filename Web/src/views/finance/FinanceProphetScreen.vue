@@ -6,6 +6,7 @@
                 v-if="chartData"
                 :data="chartData"
             />
+            <no-data-view v-else />
         </div>
     </div>
 </template>
@@ -20,6 +21,7 @@ import { makeAutoRegression } from "@/utility/Magic";
 import { FinanceAnalyticSeriesDto, FinanceApi } from "@/api/FinanceApi";
 
 import LineChart, { ChartData } from "@/components/charts/LineChart.vue";
+import NoDataView from "@/components/NoDataView.vue";
 
 interface RealDataParameters {
     readonly deviceId: string;
@@ -31,7 +33,7 @@ interface RealDataParameters {
 const REGRESSION_SAMPLE_POINTS = 4;
 const PREDICTION_DEPTH = 4;
 
-@Component({ components: { LineChart } })
+@Component({ components: { LineChart, NoDataView } })
 export default class FinanceProphetScreen extends Vue {
     @Inject()
     private readonly storage!: Storage;

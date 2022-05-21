@@ -11,15 +11,27 @@
             <div class="columns is-centered">
                 <div class="column is-3">
                     <h2 class="subtitle has-text-centered">Totals</h2>
-                    <doughnut-chart :data="byDirectionData" />
+                    <doughnut-chart
+                        v-if="byDirectionData"
+                        :data="byDirectionData"
+                    />
+                    <no-data-view v-else />
                 </div>
                 <div class="column is-3">
                     <h2 class="subtitle has-text-centered">Income</h2>
-                    <doughnut-chart :data="incomeByCategoryData" />
+                    <doughnut-chart
+                        v-if="incomeByCategoryData"
+                        :data="incomeByCategoryData"
+                    />
+                    <no-data-view v-else />
                 </div>
                 <div class="column is-3">
                     <h2 class="subtitle has-text-centered">Expenses</h2>
-                    <doughnut-chart :data="expenseByCategoryData" />
+                    <doughnut-chart
+                        v-if="expenseByCategoryData"
+                        :data="expenseByCategoryData"
+                    />
+                    <no-data-view v-else />
                 </div>
             </div>
         </div>
@@ -31,6 +43,7 @@ import { Component, Inject, Vue, Watch } from "vue-property-decorator";
 import moment, { Moment } from "moment";
 
 import DoughnutChart from "@/components/charts/DoughnutChart.vue";
+import NoDataView from "@/components/NoDataView.vue";
 
 import Storage from "@/storage/Storage";
 import {
@@ -49,7 +62,7 @@ interface ByCategoryParameters {
     readonly month: Moment;
 }
 
-@Component({ components: { DoughnutChart } })
+@Component({ components: { DoughnutChart, NoDataView } })
 export default class FinanceScreen extends Vue {
     @Inject()
     private storage!: Storage;
@@ -58,9 +71,9 @@ export default class FinanceScreen extends Vue {
 
     private rawSelectedMonth = moment();
 
-    private rawByDirectionData: [string, number][] = [];
-    private rawIncomeByCategoryData: [string, number][] = [];
-    private rawExpenseByCategoryData: [string, number][] = [];
+    private rawByDirectionData: [string, number][] | null = null;
+    private rawIncomeByCategoryData: [string, number][] | null = null;
+    private rawExpenseByCategoryData: [string, number][] | null = null;
 
     get selectedMonth() {
         return moment(this.rawSelectedMonth).startOf("month");
@@ -80,7 +93,8 @@ export default class FinanceScreen extends Vue {
     }
 
     get byDirectionData() {
-        return this.rawByDirectionData;
+        const data = this.rawByDirectionData;
+        return data != null && data.length > 0 ? data : null;
     }
 
     get byCategoryParameters() {
@@ -93,17 +107,27 @@ export default class FinanceScreen extends Vue {
     }
 
     get incomeByCategoryData() {
-        return this.rawIncomeByCategoryData.map(([categoryId, value]) => {
-            const category = this.categories.find((it) => it.id == categoryId);
-            return [category?.name ?? categoryId, value];
-        });
+        const data = this.rawIncomeByCategoryData?.map(
+            ([categoryId, value]) => {
+                const category = this.categories.find(
+                    (it) => it.id == categoryId
+                );
+                return [category?.name ?? categoryId, value];
+            }
+        );
+        return data != null && data.length > 0 ? data : null;
     }
 
     get expenseByCategoryData() {
-        return this.rawExpenseByCategoryData.map(([categoryId, value]) => {
-            const category = this.categories.find((it) => it.id == categoryId);
-            return [category?.name ?? categoryId, value];
-        });
+        const data = this.rawExpenseByCategoryData?.map(
+            ([categoryId, value]) => {
+                const category = this.categories.find(
+                    (it) => it.id == categoryId
+                );
+                return [category?.name ?? categoryId, value];
+            }
+        );
+        return data != null && data.length > 0 ? data : null;
     }
 
     @Watch("byDirectionParameters", { immediate: true })

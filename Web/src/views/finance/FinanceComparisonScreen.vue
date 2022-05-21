@@ -30,7 +30,8 @@
                 </div>
             </div>
             <div class="column is-10">
-                <h-bar-chart :data="chartData" />
+                <h-bar-chart v-if="chartData" :data="chartData" />
+                <no-data-view v-else />
             </div>
         </div>
     </div>
@@ -45,8 +46,11 @@ import {
     FinanceApi,
     FinanceOperationDirection,
 } from "@/api/FinanceApi";
+
 import Storage from "@/storage/Storage";
+
 import HBarChart from "@/components/charts/HBarChart.vue";
+import NoDataView from "@/components/NoDataView.vue";
 
 enum Granularity {
     MONTHLY,
@@ -66,7 +70,7 @@ interface ChartParameters {
     readonly direction: FinanceOperationDirection | null;
 }
 
-@Component({ components: { HBarChart } })
+@Component({ components: { HBarChart, NoDataView } })
 export default class FinanceComparisonScreen extends Vue {
     @Inject()
     private storage!: Storage;
@@ -78,7 +82,7 @@ export default class FinanceComparisonScreen extends Vue {
     private direction: FinanceOperationDirection | null =
         FinanceOperationDirection.EXPENSE;
 
-    private rawChartData: [string, number][] = [];
+    private rawChartData: [string, number][] | null = null;
 
     created() {
         this.secondMonth = moment().startOf("month");
@@ -131,7 +135,12 @@ export default class FinanceComparisonScreen extends Vue {
     }
 
     private get chartData() {
-        return this.rawChartData.map((point) => {
+        const rawChartData = this.rawChartData;
+        if (rawChartData == null || rawChartData.length == 0) {
+            return null;
+        }
+
+        return rawChartData.map((point) => {
             const [categoryId, value] = point;
             const categoryName = this.categories.find(
                 (it) => it.id == categoryId
