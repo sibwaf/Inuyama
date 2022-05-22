@@ -14,7 +14,6 @@ import org.kodein.di.generic.singleton
 import org.slf4j.LoggerFactory
 import ru.sibwaf.inuyama.InuyamaConfiguration
 import ru.sibwaf.inuyama.Module
-import ru.sibwaf.inuyama.SessionException
 import ru.sibwaf.inuyama.exception
 import java.net.InetAddress
 import java.nio.file.Files

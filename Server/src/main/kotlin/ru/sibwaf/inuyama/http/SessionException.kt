@@ -1,4 +1,4 @@
-package ru.sibwaf.inuyama
+package ru.sibwaf.inuyama.http
 
 class SessionException : RuntimeException {
     constructor() : super()

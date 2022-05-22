@@ -2,7 +2,6 @@ package ru.sibwaf.inuyama.http
 
 import io.javalin.http.Context
 import io.javalin.plugin.json.JavalinJson
-import ru.sibwaf.inuyama.SessionException
 import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.pairing.Session
 import java.io.InputStream
