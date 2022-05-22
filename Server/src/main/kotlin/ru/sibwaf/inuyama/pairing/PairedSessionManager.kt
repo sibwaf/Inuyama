@@ -1,4 +1,4 @@
-package ru.sibwaf.inuyama
+package ru.sibwaf.inuyama.pairing
 
 import ru.sibwaf.inuyama.common.utilities.CommonUtilities
 import ru.sibwaf.inuyama.common.utilities.Cryptography
@@ -15,7 +15,7 @@ data class Session(
     val createdAt: OffsetDateTime,
 )
 
-class SessionManager {
+class PairedSessionManager {
 
     private companion object {
         const val TOKEN_LENGTH = 64

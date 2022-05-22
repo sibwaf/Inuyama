@@ -59,7 +59,6 @@ private val kodein = Kodein.lazy {
     }
 
     bind<KeyKeeper>() with singleton { KeyKeeper() }
-    bind<SessionManager>() with singleton { SessionManager() }
 
     bind<OkHttpClient>() with singleton { OkHttpClient() }
 

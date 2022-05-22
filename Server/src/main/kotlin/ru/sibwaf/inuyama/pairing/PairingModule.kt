@@ -9,6 +9,7 @@ import ru.sibwaf.inuyama.Module
 val pairingModule = Kodein.Module("pairing") {
     bind<PairingManager>() with singleton { PairingManager(kodein) }
     bind<DeviceManager>() with singleton { DeviceManager() }
+    bind<PairedSessionManager>() with singleton { PairedSessionManager() }
 
     bind<PairingHttpHandler>() with singleton { PairingHttpHandler(instance()) }
 

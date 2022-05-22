@@ -53,7 +53,7 @@ val httpModule = Kodein.Module("http") {
     bind<MainHttpHandler>() with singleton {
         MainHttpHandler(
             keyKeeper = instance(),
-            sessionManager = instance()
+            pairedSessionManager = instance()
         )
     }
 

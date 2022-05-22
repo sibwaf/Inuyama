@@ -1,12 +1,12 @@
 package ru.sibwaf.inuyama.http
 
 import io.javalin.http.Context
-import ru.sibwaf.inuyama.SessionManager
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptedBodyProvider
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.requireSession
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.session
+import ru.sibwaf.inuyama.pairing.PairedSessionManager
 import java.net.InetAddress
 
 fun interface SecurityStrategy {
@@ -53,12 +53,12 @@ fun interface SecurityStrategy {
         }
     }
 
-    class PairedAuth(private val sessionManager: SessionManager) : SecurityStrategy {
+    class PairedAuth(private val pairedSessionManager: PairedSessionManager) : SecurityStrategy {
         override fun authenticate(ctx: Context): Boolean {
             val session = ctx.header("Authorization")
                 ?.takeIf { it.startsWith("Bearer ") }
                 ?.removePrefix("Bearer ")
-                ?.let { sessionManager.findSession(it) }
+                ?.let { pairedSessionManager.findSession(it) }
                 ?: return false
 
             ctx.session = session
