@@ -64,7 +64,7 @@ class NyaaApi(val host: String = "https://nyaa.si") {
         val response = httpClient.newCall(request).await()
         response.use {
             val body = it.successOrThrow().parseBody()
-            body.getElementById("comments").remove()
+            body.getElementById("comments")?.remove()
             return body.select("[href^='magnet:']").single().attr("href")
         }
     }

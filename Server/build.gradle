@@ -9,20 +9,20 @@ dependencies {
 
     implementation project(":Common")
 
-    implementation "ch.qos.logback:logback-classic:1.2.5"
+    implementation "ch.qos.logback:logback-classic:1.2.11"
 
     implementation "org.kodein.di:kodein-di-generic-jvm:$kodeinVersion"
 
-    implementation 'io.javalin:javalin:3.13.11'
+    implementation "io.javalin:javalin:4.6.0"
 
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation "com.google.code.gson:gson:$gsonVersion"
 
-    implementation "com.github.ben-manes.caffeine:caffeine:3.0.4"
+    implementation "com.github.ben-manes.caffeine:caffeine:3.1.1"
 
     implementation "org.postgresql:postgresql:42.2.16"
-    implementation "com.zaxxer:HikariCP:4.0.3"
-    implementation "org.jetbrains.exposed:exposed-core:0.31.1"
+    implementation "com.zaxxer:HikariCP:5.0.1"
+    implementation "org.jetbrains.exposed:exposed-core:0.38.2"
 }
 
 evaluationDependsOn(":Web")

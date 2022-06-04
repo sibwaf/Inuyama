@@ -1,8 +1,7 @@
 package ru.sibwaf.inuyama.http
 
 import io.javalin.http.Context
-import io.javalin.plugin.json.JavalinJson
-import ru.sibwaf.inuyama.common.utilities.Encoding
+import io.javalin.plugin.json.jsonMapper
 import ru.sibwaf.inuyama.pairing.Session
 import java.io.InputStream
 
@@ -25,9 +24,7 @@ class SecurityHttpFilter(private val config: SecurityConfig) : HttpFilter {
         fun Context.decryptedBody(): InputStream = decryptedBodyProvider()
 
         inline fun <reified T> Context.decryptBodyAs(): T {
-            val bytes = decryptedBody().use { it.readAllBytes() }
-            val body = Encoding.bytesToString(bytes)
-            return JavalinJson.fromJsonMapper.map(body, T::class.java)
+            return jsonMapper().fromJsonStream(decryptedBody(), T::class.java)
         }
     }
 

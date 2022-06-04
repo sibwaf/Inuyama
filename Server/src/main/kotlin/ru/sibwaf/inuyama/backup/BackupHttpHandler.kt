@@ -13,7 +13,7 @@ class BackupHttpHandler(private val backupManager: BackupManager) : HttpHandler 
     override fun Javalin.install() {
         pairedSubroute {
             subroute("/backup") {
-                get("/:module/content") { ctx ->
+                get("/{module}/content") { ctx ->
                     val session = ctx.requireSession()
                     val data = backupManager.getLatestBackupContent(
                         deviceId = session.deviceId,
@@ -27,7 +27,7 @@ class BackupHttpHandler(private val backupManager: BackupManager) : HttpHandler 
                     }
                 }
 
-                post("/:module") { ctx ->
+                post("/{module}") { ctx ->
                     val session = ctx.requireSession()
                     ctx.decryptedBody().use {
                         backupManager.makeBackup(

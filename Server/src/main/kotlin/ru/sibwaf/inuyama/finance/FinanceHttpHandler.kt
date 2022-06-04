@@ -1,7 +1,7 @@
 package ru.sibwaf.inuyama.finance
 
 import io.javalin.Javalin
-import io.javalin.plugin.json.JavalinJson
+import io.javalin.plugin.json.jsonMapper
 import ru.sibwaf.inuyama.finance.analytics.FinanceAnalyticFilter
 import ru.sibwaf.inuyama.finance.analytics.FinanceAnalyticGrouping
 import ru.sibwaf.inuyama.finance.analytics.FinanceAnalyticService
@@ -33,9 +33,9 @@ class FinanceHttpHandler(
                         val deviceId = ctx.queryParam("deviceId")!!
 
                         val grouping = ctx.queryParam("grouping")
-                            ?.let { FinanceAnalyticGrouping.valueOf(it.toUpperCase()) }
+                            ?.let { FinanceAnalyticGrouping.valueOf(it.uppercase()) }
                         val filter = ctx.queryParam("filter")!!
-                            .let { JavalinJson.fromJson(it, FinanceAnalyticFilter::class.java) }
+                            .let { jsonMapper().fromJsonString(it, FinanceAnalyticFilter::class.java) }
 
                         ctx.json(financeAnalyticService.querySummary(deviceId, grouping, filter))
                     }
@@ -44,9 +44,9 @@ class FinanceHttpHandler(
                         val deviceId = ctx.queryParam("deviceId")!!
 
                         val grouping = ctx.queryParam("grouping")
-                            ?.let { FinanceAnalyticGrouping.valueOf(it.toUpperCase()) }
+                            ?.let { FinanceAnalyticGrouping.valueOf(it.uppercase()) }
                         val filter = ctx.queryParam("filter")!!
-                            .let { JavalinJson.fromJson(it, FinanceAnalyticFilter::class.java) }
+                            .let { jsonMapper().fromJsonString(it, FinanceAnalyticFilter::class.java) }
                         val zoneOffset = ctx.queryParam("zoneOffset")!!
                             .let { ZoneOffset.ofTotalSeconds(it.toInt()) }
 
