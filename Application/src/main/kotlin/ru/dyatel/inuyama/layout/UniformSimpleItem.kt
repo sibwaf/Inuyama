@@ -23,7 +23,7 @@ import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.Update
-import ru.dyatel.inuyama.pairing.DiscoveredServer
+import ru.dyatel.inuyama.pairing.PairedServer
 import ru.sibwaf.inuyama.common.utilities.humanReadable
 import sibwaf.inuyama.app.common.RemoteService
 import sibwaf.inuyama.app.common.components.UniformSimpleItem
@@ -69,11 +69,29 @@ class NetworkItem(val network: Network, trustChangeListener: (Boolean) -> Unit) 
     override val onSwitchStateChange = trustChangeListener
 }
 
-class PairingServerItem(val server: DiscoveredServer, paired: Boolean) : UniformSimpleItem() {
-    override val markerColorResource = if (paired) R.color.color_ok else R.color.color_pending
+class PairingServerItem(
+    val server: PairedServer,
+    isAlive: Boolean,
+    isPaired: Boolean,
+) : UniformSimpleItem() {
+
+    override val markerColorResource = when {
+        !isAlive -> R.color.color_fail
+        isPaired -> R.color.color_ok
+        else -> R.color.color_pending
+    }
 
     override fun getTitle(context: Context) = server.key.humanReadable
-    override fun getSubtitle(context: Context) = "${server.address}:${server.port}"
+    override fun getSubtitle(context: Context): String {
+        val address = "${server.host}:${server.port}"
+        val textResource = if (server.wasDiscovered) {
+            R.string.label_pairing_server_subtitle_discovered
+        } else {
+            R.string.label_pairing_server_subtitle_fixed
+        }
+
+        return context.getString(textResource, address)
+    }
 
     override fun getType() = ITEM_TYPE_PAIRING_SERVER
 }

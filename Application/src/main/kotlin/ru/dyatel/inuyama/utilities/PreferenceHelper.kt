@@ -10,7 +10,7 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
-import ru.dyatel.inuyama.pairing.PairedServer
+import ru.dyatel.inuyama.pairing.SavedPairedServer
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.sibwaf.inuyama.common.Pairing
 import ru.sibwaf.inuyama.common.paired.model.ErrorLogEntry
@@ -83,7 +83,7 @@ class PreferenceHelper(context: Context) : KodeinAware {
             preferences.editAndApply { putString(DATA_DEVICE_IDENTIFIER, value) }
         }
 
-    var pairedServer: PairedServer?
+    var pairedServer: SavedPairedServer?
         get() = preferences.getString(DATA_PAIRED_SERVER, null)?.let { gson.fromJson(it) }
         set(value) {
             preferences.editAndApply { putString(DATA_PAIRED_SERVER, value?.let { gson.toJson(it) }) }

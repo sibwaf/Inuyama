@@ -135,6 +135,6 @@ class PairedApi(
         }
     }
 
-    private fun Request.Builder.withUrl(server: DiscoveredServer, path: String) = url("${server.url}$path")
+    private fun Request.Builder.withUrl(server: PairedServer, path: String) = url("${server.url}$path")
     private fun Request.Builder.withAuth(session: PairedSession) = header("Authorization", "Bearer ${session.token}")
 }

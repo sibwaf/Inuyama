@@ -57,6 +57,9 @@
     <string name="label_finance_change">%+.2f %s</string>
     <string name="label_current_network_untrusted">Текущая сеть не является доверенной</string>
     <string name="label_pairing_discovery_port">Порт связывания</string>
+    <string name="label_pairing_paired_server_address">Адрес сервера</string>
+    <string name="label_pairing_server_subtitle_fixed">%s</string>
+    <string name="label_pairing_server_subtitle_discovered">%s (поблизости)</string>
 
     <plurals name="ruranobe_volumes">
         <item quantity="one">%d том, %s</item>

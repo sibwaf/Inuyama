@@ -12,10 +12,7 @@ import ru.sibwaf.inuyama.common.Pairing
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import sibwaf.inuyama.app.common.NetworkManager
 import java.security.KeyPair
-import java.security.PublicKey
 import kotlin.coroutines.resume
-
-data class PairedServer(val key: PublicKey)
 
 class PairingManager(override val kodein: Kodein) : KodeinAware {
 
@@ -30,11 +27,8 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
     val deviceIdentifier: String
         get() = preferenceHelper.deviceIdentifier ?: regenerateDeviceIdentifier()
 
-    var pairedServer: PairedServer?
-        get() = preferenceHelper.pairedServer
-        set(value) {
-            preferenceHelper.pairedServer = value
-        }
+    val isPaired: Boolean
+        get() = preferenceHelper.pairedServer != null
 
     fun regenerateDeviceKeyPair(): KeyPair {
         val keyPair = Cryptography.createRSAKeyPair()
@@ -48,21 +42,30 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
         return identifier
     }
 
-    fun compareWithPaired(server: DiscoveredServer): Boolean {
-        return server.key == pairedServer?.key
+    fun compareWithPaired(server: PairedServer): Boolean {
+        val pairedServer = preferenceHelper.pairedServer ?: return false
+        val pairedWasDiscovered = pairedServer.address == null
+        return server.key == pairedServer.key && server.wasDiscovered == pairedWasDiscovered
     }
 
-    suspend fun findPairedServer(): DiscoveredServer? {
-        if (pairedServer == null) {
-            return null
+    suspend fun findPairedServer(): PairedServer? {
+        val pairedServer = preferenceHelper.pairedServer ?: return null
+
+        if (pairedServer.address != null) {
+            return PairedServer(
+                host = pairedServer.address.host,
+                port = pairedServer.address.port,
+                key = pairedServer.key,
+                wasDiscovered = false,
+            )
         }
 
         // TODO: magic constants
-        var listener: ((DiscoveredServer) -> Unit)? = null
+        var listener: ((PairedServer) -> Unit)? = null
         return try {
             withTimeoutOrNull(10000) {
-                suspendCancellableCoroutine<DiscoveredServer> { continuation ->
-                    listener = { server: DiscoveredServer ->
+                suspendCancellableCoroutine<PairedServer> { continuation ->
+                    listener = { server: PairedServer ->
                         if (compareWithPaired(server) && !continuation.isCompleted) {
                             continuation.resume(server)
                         }
@@ -82,11 +85,16 @@ class PairingManager(override val kodein: Kodein) : KodeinAware {
     }
 
     fun unbind() {
-        pairedServer = null
+        preferenceHelper.pairedServer = null
     }
 
-    fun bind(server: DiscoveredServer) {
-        pairedServer = PairedServer(server.key)
+    fun bind(server: PairedServer) {
+        preferenceHelper.pairedServer = SavedPairedServer(
+            key = server.key,
+            address = SavedPairedServer.HostAndPort(
+                host = server.host,
+                port = server.port,
+            ).takeUnless { server.wasDiscovered }
+        )
     }
-
 }

@@ -47,9 +47,9 @@ class PairingServerView(context: Context) : BaseScreenView<PairingServerScreen>(
     }
 }
 
-class PairingServerScreen(private val server: DiscoveredServer) : InuScreen<PairingServerView>() {
+class PairingServerScreen(private val server: PairedServer) : InuScreen<PairingServerView>() {
 
-    override val titleText = "${server.address}:${server.port}"
+    override val titleText = "${server.host}:${server.port}"
 
     private val pairingManager by instance<PairingManager>()
 

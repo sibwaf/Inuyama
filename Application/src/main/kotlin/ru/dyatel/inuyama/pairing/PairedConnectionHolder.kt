@@ -30,11 +30,11 @@ class PairedConnectionHolder(
 
     private val mutex = Mutex()
 
-    private val server = AtomicReference<DiscoveredServer>()
+    private val server = AtomicReference<PairedServer>()
     private val session = AtomicReference<PairedSession>()
 
-    suspend fun <T> withServer(block: suspend (DiscoveredServer) -> T): T {
-        var server: DiscoveredServer?
+    suspend fun <T> withServer(block: suspend (PairedServer) -> T): T {
+        var server: PairedServer?
         for (attempt in 0 until 2) {
             mutex.withLock {
                 server = this.server.get()
@@ -42,7 +42,7 @@ class PairedConnectionHolder(
                     Log.d(logTag, "Discovering server")
                     server = pairingManager.findPairedServer() ?: throw PairedServerNotAvailableException("Failed to discover the server")
 
-                    Log.d(logTag, "Discovered server ${server!!.address.hostAddress}:${server!!.port} (${server!!.key.humanReadable})")
+                    Log.d(logTag, "Discovered server ${server!!.host}:${server!!.port} (${server!!.key.humanReadable})")
                     this.server.set(server)
                 }
             }
@@ -50,7 +50,7 @@ class PairedConnectionHolder(
             try {
                 return block(server!!)
             } catch (e: PairedServerNotAvailableException) {
-                Log.d(logTag, "Server ${server!!.address.hostAddress}:${server!!.port} seems dead, resetting")
+                Log.d(logTag, "Server ${server!!.host}:${server!!.port} seems dead, resetting")
                 this.server.compareAndSet(server, null)
             }
         }
@@ -58,7 +58,7 @@ class PairedConnectionHolder(
         throw PairedServerNotAvailableException("Too many server discovery retries")
     }
 
-    suspend fun <T> withSession(block: suspend (DiscoveredServer, PairedSession) -> T): T {
+    suspend fun <T> withSession(block: suspend (PairedServer, PairedSession) -> T): T {
         return withServer { server ->
             var session: PairedSession?
             for (attempt in 0 until 2) {
@@ -84,7 +84,7 @@ class PairedConnectionHolder(
         }
     }
 
-    private suspend fun createSession(server: DiscoveredServer): PairedSession {
+    private suspend fun createSession(server: PairedServer): PairedSession {
         val httpClient = networkManager.getHttpClient(trustedOnly = true)
 
         val deviceKeyPair = pairingManager.deviceKeyPair

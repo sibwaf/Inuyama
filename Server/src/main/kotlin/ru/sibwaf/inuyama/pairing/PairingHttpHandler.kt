@@ -4,6 +4,7 @@ import io.javalin.Javalin
 import ru.sibwaf.inuyama.KeyKeeper
 import ru.sibwaf.inuyama.common.BindSessionApiRequest
 import ru.sibwaf.inuyama.common.BindSessionApiResponse
+import ru.sibwaf.inuyama.common.PingApiResponse
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.http.HttpHandler
@@ -30,7 +31,13 @@ class PairingHttpHandler(
         }
 
         pairedSubroute {
-            get("/ping") {}
+            get("/ping") { ctx ->
+                val response = PingApiResponse(
+                    key = Encoding.encodeBase64(Encoding.encodeRSAPublicKey(keyKeeper.keyPair.public))
+                )
+
+                ctx.json(response)
+            }
 
             post("/bind-session") { ctx ->
                 val request = ctx.decryptBodyAs<BindSessionApiRequest>()

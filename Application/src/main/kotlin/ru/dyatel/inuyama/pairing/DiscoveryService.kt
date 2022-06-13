@@ -11,7 +11,7 @@ import java.net.DatagramPacket
 import java.net.DatagramSocket
 import kotlin.concurrent.thread
 
-private typealias Listener = (DiscoveredServer) -> Unit
+private typealias Listener = (PairedServer) -> Unit
 
 class DiscoveryService(override val kodein: Kodein) : KodeinAware {
 
@@ -43,7 +43,13 @@ class DiscoveryService(override val kodein: Kodein) : KodeinAware {
 
                 val response = Pairing.decodeDiscoverResponse(packet) ?: continue
 
-                val server = DiscoveredServer(packet.address, response.port, response.key)
+                val server = PairedServer(
+                    host = packet.address.hostAddress ?: continue,
+                    port = response.port,
+                    key = response.key,
+                    wasDiscovered = true,
+                )
+
                 for (listener in listeners) {
                     listener(server)
                 }
