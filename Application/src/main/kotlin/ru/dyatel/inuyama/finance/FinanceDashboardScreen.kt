@@ -79,7 +79,10 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                                 margin = DIM_LARGE
                             }
 
-                            layoutManager = LinearLayoutManager(context)
+                            layoutManager = object : LinearLayoutManager(context) {
+                                override fun canScrollVertically() = false
+                                override fun canScrollHorizontally() = false
+                            }
                         }
                     }
 
