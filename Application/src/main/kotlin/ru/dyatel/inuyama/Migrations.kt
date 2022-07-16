@@ -77,7 +77,7 @@ class MigrationRunner(override val kodein: Kodein) : KodeinAware {
                 val financeOperationBox = store.boxFor<FinanceOperation>()
 
                 financeOperationBox
-                    .query { FinanceOperation_.guid.isNull }
+                    .query { isNull(FinanceOperation_.guid) }
                     .forEach {
                         it.guid = UUID.randomUUID()
                         financeOperationBox.put(it)
