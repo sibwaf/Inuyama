@@ -1,48 +1,35 @@
 package ru.dyatel.inuyama.finance.components
 
 import android.content.Context
-import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.TextView
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import org.jetbrains.anko.alignParentLeft
 import org.jetbrains.anko.alignParentRight
 import org.jetbrains.anko.alignParentTop
 import org.jetbrains.anko.cardview.v7._CardView
-import org.jetbrains.anko.centerVertically
 import org.jetbrains.anko.leftOf
 import org.jetbrains.anko.margin
-import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.relativeLayout
 import org.jetbrains.anko.verticalLayout
-import org.jetbrains.anko.wrapContent
-import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.finance.dto.FinanceOperationInfo
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.utilities.ListenableEditor
 import ru.dyatel.inuyama.utilities.PublishListenerHolderImpl
-import ru.dyatel.inuyama.utilities.withAdditionalListener
 import ru.dyatel.inuyama.utilities.withBatching
 import ru.dyatel.inuyama.utilities.withEditor
 import sibwaf.inuyama.app.common.DIM_LARGE
 import sibwaf.inuyama.app.common.DIM_MEDIUM
 import sibwaf.inuyama.app.common.components.uniformIconButton
-import sibwaf.inuyama.app.common.components.uniformTextView
 
 class FinanceOperationListEditor(context: Context) : LinearLayout(context), ListenableEditor<List<FinanceOperationInfo>> {
 
     private val rowContainer: ViewGroup
-    private lateinit var totalSumView: TextView
 
     private val operationEditors = mutableListOf<FinanceOperationListEditorRow>()
     private var categories: List<FinanceCategory> = emptyList()
 
     private val changePublisher = PublishListenerHolderImpl<List<FinanceOperationInfo>>()
-        .withAdditionalListener { operations ->
-            val amount = operations.sumByDouble { it.amount }
-            totalSumView.text = context.getString(R.string.label_finance_amount, amount)
-        }
         .withEditor(this)
         .withBatching()
 
@@ -51,30 +38,8 @@ class FinanceOperationListEditor(context: Context) : LinearLayout(context), List
 
         rowContainer = verticalLayout()
 
-        relativeLayout {
-            lparams(height = wrapContent, width = matchParent)
-
-            totalSumView = uniformTextView {
-                id = generateViewId()
-                gravity = Gravity.CENTER_HORIZONTAL
-            }
-
-            val addEditorButton = uniformIconButton(CommunityMaterial.Icon2.cmd_plus) {
-                id = generateViewId()
-                setOnClickListener { addOperationEditor() }
-            }
-
-            totalSumView.lparams {
-                margin = DIM_MEDIUM
-
-                centerVertically()
-                alignParentLeft()
-                leftOf(addEditorButton)
-            }
-            addEditorButton.lparams {
-                centerVertically()
-                alignParentRight()
-            }
+        uniformIconButton(CommunityMaterial.Icon2.cmd_plus) {
+            setOnClickListener { addOperationEditor() }
         }
 
         addOperationEditor()

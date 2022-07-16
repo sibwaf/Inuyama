@@ -9,6 +9,7 @@ import org.jetbrains.anko.alignParentLeft
 import org.jetbrains.anko.alignParentRight
 import org.jetbrains.anko.alignParentTop
 import org.jetbrains.anko.appcompat.v7.tintedButton
+import org.jetbrains.anko.backgroundColorResource
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.relativeLayout
 import org.jetbrains.anko.support.v4.nestedScrollView
@@ -23,6 +24,7 @@ import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.screens.InuScreen
 import sibwaf.inuyama.app.common.DIM_LARGE
+import kotlin.math.abs
 
 class FinanceReceiptView(context: Context) : BaseScreenView<FinanceReceiptScreen>(context) {
 
@@ -33,19 +35,27 @@ class FinanceReceiptView(context: Context) : BaseScreenView<FinanceReceiptScreen
 
     init {
         relativeLayout {
+            lparams {
+                margin = DIM_LARGE
+            }
+
             val editorView = nestedScrollView {
                 id = generateViewId()
                 addView(editor)
             }
 
-            saveButton = tintedButton(R.string.action_save) {
+            saveButton = tintedButton {
                 id = generateViewId()
+
+                editor.onChange { receipt ->
+                    val amount = receipt.operations.sumOf { it.amount }
+
+                    text = context.getString(R.string.label_finance_amount, abs(amount))
+                    backgroundColorResource = if (amount >= 0) R.color.color_ok else R.color.color_fail
+                }
             }
 
             editorView.lparams {
-                margin = DIM_LARGE
-                bottomMargin = 0
-
                 alignParentLeft()
                 alignParentRight()
                 alignParentTop()
