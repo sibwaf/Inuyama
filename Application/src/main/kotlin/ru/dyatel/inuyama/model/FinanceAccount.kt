@@ -8,5 +8,7 @@ data class FinanceAccount(
     @Id var id: Long = 0,
     var name: String = "",
     var initialBalance: Double = 0.0,
-    var balance: Double = 0.0
+    var balance: Double = 0.0,
+    var quickAccess: Boolean = true,
+    var disabled: Boolean = false,
 )

@@ -3,7 +3,6 @@ package ru.dyatel.inuyama.finance
 import android.content.Context
 import android.widget.Button
 import com.wealthfront.magellan.BaseScreenView
-import io.objectbox.Box
 import org.jetbrains.anko.alignParentBottom
 import org.jetbrains.anko.alignParentLeft
 import org.jetbrains.anko.alignParentRight
@@ -17,7 +16,6 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.finance.components.FinanceTransferEditor
 import ru.dyatel.inuyama.finance.dto.FinanceTransferDto
-import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.screens.InuScreen
 import sibwaf.inuyama.app.common.DIM_LARGE
 
@@ -61,13 +59,12 @@ class FinanceTransferScreen : InuScreen<FinanceTransferView>() {
 
     override val titleResource = R.string.screen_finance_new_transfer
 
+    private val accountManager by instance<FinanceAccountManager>()
     private val operationManager by instance<FinanceOperationManager>()
-
-    private val accountBox by instance<Box<FinanceAccount>>()
 
     override fun createView(context: Context): FinanceTransferView {
         return FinanceTransferView(context).apply {
-            editor.bindAccounts(accountBox.all)
+            editor.bindAccounts(accountManager.getActiveAccounts())
             editor.onChange {
                 saveButton.isEnabled = it != null
             }

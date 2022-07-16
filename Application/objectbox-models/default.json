@@ -359,7 +359,7 @@
     },
     {
       "id": "11:2280843673621928002",
-      "lastPropertyId": "4:5013334627035476159",
+      "lastPropertyId": "6:8563711556371999361",
       "name": "FinanceAccount",
       "properties": [
         {
@@ -382,6 +382,16 @@
           "id": "4:5013334627035476159",
           "name": "balance",
           "type": 8
+        },
+        {
+          "id": "5:8601090556621555447",
+          "name": "quickAccess",
+          "type": 1
+        },
+        {
+          "id": "6:8563711556371999361",
+          "name": "disabled",
+          "type": 1
         }
       ],
       "relations": []

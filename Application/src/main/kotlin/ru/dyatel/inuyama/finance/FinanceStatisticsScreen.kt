@@ -157,7 +157,7 @@ class FinanceStatisticsScreen : InuScreen<FinanceStatisticsView>() {
     private fun update() {
         val period = period
         launchJob(Dispatchers.Default, id = updateJobId, replacing = true) {
-            val totalSavings = accountBox.all.sumByDouble { it.balance + it.initialBalance }
+            val totalSavings = accountBox.all.sumByDouble { it.balance + it.initialBalance } // todo: migrate to FinanceAccountManager
             withContext(Dispatchers.Main) {
                 view.totalSavings = totalSavings
             }

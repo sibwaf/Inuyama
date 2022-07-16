@@ -6,6 +6,8 @@ import io.objectbox.kotlin.query
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.model.FinanceAccount
+import ru.dyatel.inuyama.model.FinanceAccount_
 import ru.dyatel.inuyama.model.FinanceOperation
 import ru.dyatel.inuyama.model.FinanceOperation_
 import ru.dyatel.inuyama.model.FinanceReceipt
@@ -81,6 +83,26 @@ class MigrationRunner(override val kodein: Kodein) : KodeinAware {
                     .forEach {
                         it.guid = UUID.randomUUID()
                         financeOperationBox.put(it)
+                    }
+            }
+        }
+
+        if (lastUsedVersion < 9) {
+            store.runInTx {
+                val financeAccountBox = store.boxFor<FinanceAccount>()
+
+                financeAccountBox
+                    .query { isNull(FinanceAccount_.quickAccess) }
+                    .forEach {
+                        it.quickAccess = true
+                        financeAccountBox.put(it)
+                    }
+
+                financeAccountBox
+                    .query { isNull(FinanceAccount_.disabled) }
+                    .forEach {
+                        it.disabled = false
+                        financeAccountBox.put(it)
                     }
             }
         }

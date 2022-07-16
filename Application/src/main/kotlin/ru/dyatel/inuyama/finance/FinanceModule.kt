@@ -24,6 +24,7 @@ val financeModule = Kodein.Module("finance") {
 
     bind<FirstOfdApi>() with singleton { FirstOfdApi() }
 
+    bind<FinanceAccountManager>() with singleton { FinanceAccountManager(instance()) }
     bind<FinanceOperationManager>() with singleton { FinanceOperationManager(kodein) }
     bind<FinanceQrService>() with provider {
         FinanceQrService(

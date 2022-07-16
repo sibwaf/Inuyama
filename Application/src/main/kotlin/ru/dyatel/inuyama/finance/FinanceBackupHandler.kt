@@ -36,7 +36,9 @@ class FinanceBackupHandler(
                     id = it.id.toString(),
                     name = it.name,
                     initialBalance = it.initialBalance,
-                    balance = it.balance
+                    balance = it.balance,
+                    quickAccess = it.quickAccess,
+                    disabled = it.disabled,
                 )
             },
             categories = categoryRepository.all.map {
@@ -89,7 +91,10 @@ class FinanceBackupHandler(
                         name = account.name,
                         initialBalance = account.initialBalance,
                         balance = account.balance
-                    )
+                    ).also { savedAccount ->
+                        account.quickAccess?.let { savedAccount.quickAccess = it }
+                        account.disabled?.let { savedAccount.disabled = it }
+                    }
                 )
             }
 
@@ -161,7 +166,9 @@ private data class BackupFinanceAccount(
     val id: String,
     val name: String,
     val initialBalance: Double,
-    val balance: Double
+    val balance: Double,
+    val quickAccess: Boolean?,
+    val disabled: Boolean?,
 )
 
 private data class BackupFinanceCategory(

@@ -407,7 +407,7 @@
     },
     {
       "id": "13:3485297411382379919",
-      "lastPropertyId": "7:3188628072407411011",
+      "lastPropertyId": "8:6184737949256287090",
       "name": "FinanceOperation",
       "properties": [
         {
@@ -454,6 +454,11 @@
           "type": 11,
           "flags": 520,
           "relationTarget": "FinanceReceipt"
+        },
+        {
+          "id": "8:6184737949256287090",
+          "name": "guid",
+          "type": 9
         }
       ],
       "relations": [

@@ -18,7 +18,6 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.finance.components.FinanceReceiptEditor
 import ru.dyatel.inuyama.finance.dto.FinanceOperationInfo
 import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
-import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.screens.InuScreen
@@ -62,9 +61,9 @@ class FinanceReceiptView(context: Context) : BaseScreenView<FinanceReceiptScreen
 
 class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
 
+    private val accountManager by instance<FinanceAccountManager>()
     private val operationManager by instance<FinanceOperationManager>()
 
-    private val accountBox by instance<Box<FinanceAccount>>()
     private val categoryBox by instance<Box<FinanceCategory>>()
 
     private val receipt: FinanceReceipt?
@@ -98,7 +97,7 @@ class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
 
     override fun createView(context: Context): FinanceReceiptView {
         return FinanceReceiptView(context).apply {
-            editor.bindAccounts(accountBox.all)
+            editor.bindAccounts(accountManager.getActiveAccounts())
             editor.bindCategories(categoryBox.all)
 
             if (receiptInfo != null) {

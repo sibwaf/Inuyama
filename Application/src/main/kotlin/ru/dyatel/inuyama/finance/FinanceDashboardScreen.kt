@@ -3,6 +3,7 @@ package ru.dyatel.inuyama.finance
 import android.content.Context
 import android.view.Menu
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -149,10 +150,10 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
 
     override val titleResource = R.string.screen_finance_dashboard
 
+    private val accountManager by instance<FinanceAccountManager>()
     private val operationManager by instance<FinanceOperationManager>()
     private val qrService by instance<FinanceQrService>()
 
-    private val accountStore by instance<Box<FinanceAccount>>()
     private val accountAdapter = ItemAdapter<FinanceAccountItem>()
     private val accountFastAdapter = accountAdapter.buildFastAdapter()
 
@@ -193,10 +194,13 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     }
 
     private fun reloadAccounts() {
-        view.isEmpty = accountStore.isEmpty
-        accountStore.all
-            .map { FinanceAccountItem(operationManager, it) }
-            .let { accountAdapter.set(it) }
+        val accounts = accountManager.getActiveAccounts()
+
+        view.isEmpty = accounts.isEmpty()
+
+        val quickAccessAccounts = accounts.filter { it.quickAccess }
+        view.accountRecyclerView.isVisible = quickAccessAccounts.isNotEmpty()
+        accountAdapter.set(quickAccessAccounts.map { FinanceAccountItem(operationManager, it) })
     }
 
     private fun reloadReceipts() {
@@ -221,7 +225,7 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
 
     fun createReceiptFromQr() {
         launchJob {
-            val account = accountStore.all.first()
+            val account = accountManager.getActiveAccounts().first()
             val category = categoryStore.all.first()
 
             val receipt = try {
