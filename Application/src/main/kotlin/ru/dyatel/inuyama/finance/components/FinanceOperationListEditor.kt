@@ -48,9 +48,13 @@ class FinanceOperationListEditor(context: Context) : LinearLayout(context), List
     private fun addOperationEditor() {
         val editor = FinanceOperationListEditorRow(context).apply {
             bindCategories(categories)
+
+            withForwardAction { addOperationEditor() }
             onRemove { removeOperationEditor(this) }
             onChange { changePublisher.notifyListener() }
         }
+
+        operationEditors.lastOrNull()?.withForwardAction()
 
         operationEditors += editor
         rowContainer.addView(editor)
@@ -61,6 +65,8 @@ class FinanceOperationListEditor(context: Context) : LinearLayout(context), List
     private fun removeOperationEditor(editor: FinanceOperationListEditorRow) {
         operationEditors -= editor
         rowContainer.removeView(editor)
+
+        operationEditors.lastOrNull()?.withForwardAction { addOperationEditor() }
 
         changePublisher.notifyListener()
     }
@@ -138,6 +144,10 @@ private class FinanceOperationListEditorRow(context: Context) : _CardView(contex
     }
 
     fun bindCategories(categories: List<FinanceCategory>) = editor.bindCategories(categories)
+
+    fun withForwardAction(listener: (() -> Unit)? = null) {
+        editor.withForwardAction(listener)
+    }
 
     fun onRemove(listener: () -> Unit) {
         removeListener = listener

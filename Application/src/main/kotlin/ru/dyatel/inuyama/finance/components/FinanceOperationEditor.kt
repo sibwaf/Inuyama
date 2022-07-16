@@ -1,6 +1,7 @@
 package ru.dyatel.inuyama.finance.components
 
 import android.content.Context
+import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
 import androidx.core.widget.doAfterTextChanged
 import org.jetbrains.anko.hintResource
@@ -33,6 +34,8 @@ class FinanceOperationEditor(context: Context) : FrameLayout(context), Listenabl
         .withEditor(this)
         .withBatching()
 
+    private var forwardAction: (() -> Unit)? = null
+
     init {
         verticalLayout {
             categorySelector = financeCategorySelector {
@@ -46,7 +49,10 @@ class FinanceOperationEditor(context: Context) : FrameLayout(context), Listenabl
                 weightSum = 1.0f
 
                 descriptionEditor = uniformTextInput {
+                    id = generateViewId()
                     hintResource = R.string.hint_description
+                    imeOptions = imeOptions.or(EditorInfo.IME_ACTION_NEXT)
+
                     doAfterTextChanged { changePublisher.notifyListener() }
                 }.apply {
                     lparams {
@@ -56,8 +62,19 @@ class FinanceOperationEditor(context: Context) : FrameLayout(context), Listenabl
                 }
 
                 amountEditor = uniformDoubleInput {
+                    id = generateViewId()
                     hintResource = R.string.hint_finance_amount
+
                     doAfterTextChanged { changePublisher.notifyListener() }
+
+                    setOnEditorActionListener { _, actionId, _ ->
+                        val forwardAction = forwardAction
+                        if (forwardAction != null && actionId == EditorInfo.IME_ACTION_NEXT) {
+                            forwardAction()
+                        }
+
+                        false
+                    }
                 }.apply {
                     lparams {
                         width = 0
@@ -70,6 +87,11 @@ class FinanceOperationEditor(context: Context) : FrameLayout(context), Listenabl
 
     fun bindCategories(categories: List<FinanceCategory>) {
         categorySelector.bindItems(categories)
+    }
+
+    fun withForwardAction(listener: (() -> Unit)? = null) {
+        forwardAction = listener
+        amountEditor.editText!!.apply { imeOptions = imeOptions.or(EditorInfo.IME_ACTION_NEXT) }
     }
 
     override fun onChange(listener: (FinanceOperationInfo?) -> Unit) = changePublisher.onChange(listener)
