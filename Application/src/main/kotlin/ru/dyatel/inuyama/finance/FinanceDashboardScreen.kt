@@ -167,6 +167,10 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
 
     init {
         accountFastAdapter.withOnClickListener { _, _, item, _ ->
+            createReceipt(item.account)
+            true
+        }
+        accountFastAdapter.withOnLongClickListener { _, _, item, _ ->
             navigator.goTo(FinanceAccountScreen(item.account))
             true
         }
@@ -219,8 +223,14 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
         receiptAdapter.add(receipts)
     }
 
-    fun createReceipt() {
-        navigator.goTo(FinanceReceiptScreen())
+    fun createReceipt(account: FinanceAccount? = null) {
+        navigator.goTo(
+            if (account == null) {
+                FinanceReceiptScreen()
+            } else {
+                FinanceReceiptScreen(account)
+            }
+        )
     }
 
     fun createReceiptFromQr() {

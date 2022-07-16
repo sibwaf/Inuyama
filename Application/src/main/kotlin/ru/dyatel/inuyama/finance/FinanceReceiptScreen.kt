@@ -18,6 +18,7 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.finance.components.FinanceReceiptEditor
 import ru.dyatel.inuyama.finance.dto.FinanceOperationInfo
 import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
+import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.screens.InuScreen
@@ -91,6 +92,14 @@ class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
     constructor(receiptInfo: FinanceReceiptInfo) {
         receipt = null
         this.receiptInfo = receiptInfo
+    }
+
+    constructor(account: FinanceAccount) {
+        receipt = null
+        receiptInfo = FinanceReceiptInfo(
+            account = account,
+            operations = emptyList()
+        )
     }
 
     override val titleResource get() = if (receipt == null) R.string.screen_finance_new_receipt else R.string.screen_finance_edit_receipt

@@ -121,6 +121,10 @@ class FinanceOperationListEditor(context: Context) : LinearLayout(context), List
             for ((operation, editor) in data.zip(operationEditors)) {
                 editor.fillFrom(operation)
             }
+
+            if (data.isEmpty()) {
+                addOperationEditor()
+            }
         }
     }
 
