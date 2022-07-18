@@ -1,6 +1,7 @@
 package ru.dyatel.inuyama.finance.components
 
 import android.content.Context
+import android.graphics.Rect
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
 import androidx.core.widget.doAfterTextChanged
@@ -23,6 +24,7 @@ import sibwaf.inuyama.app.common.components.UniformDoubleInput
 import sibwaf.inuyama.app.common.components.UniformTextInput
 import sibwaf.inuyama.app.common.components.uniformDoubleInput
 import sibwaf.inuyama.app.common.components.uniformTextInput
+import sibwaf.inuyama.app.common.utilities.showKeyboard
 
 class FinanceOperationEditor(context: Context) : FrameLayout(context), ListenableEditor<FinanceOperationInfo?> {
 
@@ -83,6 +85,19 @@ class FinanceOperationEditor(context: Context) : FrameLayout(context), Listenabl
                 }
             }
         }
+    }
+
+    override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
+        // looks pretty hacky, but seems to work fine
+        val focusTarget = descriptionEditor.editText!!
+
+        val result = focusTarget.requestFocus(direction, previouslyFocusedRect)
+        if (result) {
+            post {
+                focusTarget.showKeyboard()
+            }
+        }
+        return result
     }
 
     fun bindCategories(categories: List<FinanceCategory>) {

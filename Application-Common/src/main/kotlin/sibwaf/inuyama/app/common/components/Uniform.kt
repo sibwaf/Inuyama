@@ -61,7 +61,7 @@ inline fun ViewGroup.uniformIconButton(icon: IIcon, init: ImageButton.() -> Unit
 inline fun TextInputLayout.uniformTextInputEditText(init: TextInputEditText.() -> Unit = {}): TextInputEditText {
     return textInputEditText {
         disableUiExtraction()
-        disableSuggestions()
+        disableSuggestions() // todo: probably a bad idea
 
         leftPadding = DIM_LARGE
         rightPadding = DIM_LARGE

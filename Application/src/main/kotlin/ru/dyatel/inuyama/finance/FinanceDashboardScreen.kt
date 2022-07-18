@@ -175,7 +175,7 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
             true
         }
         receiptFastAdapter.withOnClickListener { _, _, item, _ ->
-            navigator.goTo(FinanceReceiptScreen(item.receipt))
+            navigator.goTo(FinanceReceiptScreen(item.receipt, grabFocus = false))
             true
         }
     }
@@ -226,9 +226,9 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     fun createReceipt(account: FinanceAccount? = null) {
         navigator.goTo(
             if (account == null) {
-                FinanceReceiptScreen()
+                FinanceReceiptScreen(grabFocus = true)
             } else {
-                FinanceReceiptScreen(account)
+                FinanceReceiptScreen(account, grabFocus = true)
             }
         )
     }
@@ -248,7 +248,7 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
             }
 
             withContext(Dispatchers.Main) {
-                navigator.goTo(FinanceReceiptScreen(receipt))
+                navigator.goTo(FinanceReceiptScreen(receipt, grabFocus = false))
             }
         }
     }

@@ -51,6 +51,7 @@ class FinanceReceiptView(context: Context) : BaseScreenView<FinanceReceiptScreen
                     val amount = receipt.operations.sumOf { it.amount }
 
                     text = context.getString(R.string.label_finance_amount, abs(amount))
+                    // todo: add direction to receipt dto instead of relying on sign
                     backgroundColorResource = if (amount >= 0) R.color.color_ok else R.color.color_fail
                 }
             }
@@ -80,12 +81,15 @@ class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
     private val receipt: FinanceReceipt?
     private val receiptInfo: FinanceReceiptInfo?
 
-    constructor() {
+    private val grabFocus: Boolean
+
+    constructor(grabFocus: Boolean) {
         receipt = null
         receiptInfo = null
+        this.grabFocus = grabFocus
     }
 
-    constructor(receipt: FinanceReceipt) {
+    constructor(receipt: FinanceReceipt, grabFocus: Boolean) {
         this.receipt = receipt
         receiptInfo = FinanceReceiptInfo(
             account = receipt.account.target,
@@ -97,19 +101,22 @@ class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
                 )
             }
         )
+        this.grabFocus = grabFocus
     }
 
-    constructor(receiptInfo: FinanceReceiptInfo) {
+    constructor(receiptInfo: FinanceReceiptInfo, grabFocus: Boolean) {
         receipt = null
         this.receiptInfo = receiptInfo
+        this.grabFocus = grabFocus
     }
 
-    constructor(account: FinanceAccount) {
+    constructor(account: FinanceAccount, grabFocus: Boolean) {
         receipt = null
         receiptInfo = FinanceReceiptInfo(
             account = account,
             operations = emptyList()
         )
+        this.grabFocus = grabFocus
     }
 
     override val titleResource get() = if (receipt == null) R.string.screen_finance_new_receipt else R.string.screen_finance_edit_receipt
@@ -127,6 +134,14 @@ class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
                 saveReceipt(editor.buildValue())
                 navigator.goBack()
             }
+        }
+    }
+
+    override fun onShow(context: Context?) {
+        super.onShow(context)
+
+        if (grabFocus) {
+            view.editor.requestFocus()
         }
     }
 

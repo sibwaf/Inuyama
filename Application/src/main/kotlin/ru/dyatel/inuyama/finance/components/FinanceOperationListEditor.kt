@@ -21,6 +21,7 @@ import ru.dyatel.inuyama.utilities.withEditor
 import sibwaf.inuyama.app.common.DIM_LARGE
 import sibwaf.inuyama.app.common.DIM_MEDIUM
 import sibwaf.inuyama.app.common.components.uniformIconButton
+import sibwaf.inuyama.app.common.utilities.hideKeyboard
 
 class FinanceOperationListEditor(context: Context) : LinearLayout(context), ListenableEditor<List<FinanceOperationInfo>> {
 
@@ -60,6 +61,8 @@ class FinanceOperationListEditor(context: Context) : LinearLayout(context), List
         rowContainer.addView(editor)
 
         changePublisher.notifyListener()
+
+        editor.requestFocus()
     }
 
     private fun removeOperationEditor(editor: FinanceOperationListEditorRow) {
@@ -69,6 +72,9 @@ class FinanceOperationListEditor(context: Context) : LinearLayout(context), List
         operationEditors.lastOrNull()?.withForwardAction { addOperationEditor() }
 
         changePublisher.notifyListener()
+
+        clearFocus()
+        hideKeyboard()
     }
 
     fun bindCategories(categories: List<FinanceCategory>) {
@@ -97,6 +103,9 @@ class FinanceOperationListEditor(context: Context) : LinearLayout(context), List
                 addOperationEditor()
             }
         }
+
+        clearFocus()
+        hideKeyboard()
     }
 
     override fun buildValue(): List<FinanceOperationInfo> {
