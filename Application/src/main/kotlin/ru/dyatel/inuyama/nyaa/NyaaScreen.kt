@@ -27,11 +27,11 @@ import ru.dyatel.inuyama.model.NyaaWatch
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
-import sibwaf.inuyama.app.common.components.DatePicker
+import sibwaf.inuyama.app.common.components.UniformDatePicker
 import sibwaf.inuyama.app.common.components.UniformTextInput
 import sibwaf.inuyama.app.common.components.showConfirmationDialog
+import sibwaf.inuyama.app.common.components.uniformDatePicker
 import sibwaf.inuyama.app.common.components.uniformTextInput
-import sibwaf.inuyama.app.common.utilities.supportFragmentManager
 
 class NyaaView(context: Context) : BaseScreenView<NyaaScreen>(context) {
 
@@ -95,7 +95,7 @@ class NyaaScreen : InuScreen<NyaaView>(), KodeinAware {
 
     private fun showEditDialog(watch: NyaaWatch) {
         lateinit var queryEditor: UniformTextInput
-        lateinit var startDateSelector: DatePicker
+        lateinit var startDateSelector: UniformDatePicker
         lateinit var descriptionEditor: UniformTextInput
         lateinit var collectPathEditor: UniformTextInput
         lateinit var directorySelector: DirectorySelector
@@ -109,13 +109,9 @@ class NyaaScreen : InuScreen<NyaaView>(), KodeinAware {
                 hintResource = R.string.hint_nyaa_watch_query
             }.apply { text = watch.query }
 
-            // TODO: uniform view
-            uniformTextInput {
+            startDateSelector = uniformDatePicker {
                 hintResource = R.string.hint_nyaa_watch_start_date
-
-                startDateSelector = DatePicker(this, watch.startDatetime)
-                setOnClickListener { startDateSelector.showDialog(activity.supportFragmentManager) }
-            }
+            }.apply { date = watch.startDatetime }
 
             descriptionEditor = uniformTextInput {
                 hintResource = R.string.hint_nyaa_watch_description
@@ -136,7 +132,7 @@ class NyaaScreen : InuScreen<NyaaView>(), KodeinAware {
             .setView(view)
             .setPositiveButton(R.string.action_save) { _, _ ->
                 watch.query = queryEditor.text
-                watch.startDatetime = startDateSelector.date
+                watch.startDatetime = startDateSelector.date!!
                 watch.description = descriptionEditor.text
                 watch.collectPath = collectPathEditor.text
                 watch.directory.target = directorySelector.selected
