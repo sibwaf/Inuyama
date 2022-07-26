@@ -52,7 +52,11 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         return receipt.operations.sumByDouble { it.amount }
     }
 
-    fun createReceipt(account: FinanceAccount, operations: List<FinanceOperationInfo>) {
+    fun createReceipt(
+        account: FinanceAccount,
+        operations: List<FinanceOperationInfo>,
+        datetime: DateTime
+    ) {
         val receipt = FinanceReceipt()
         receipt.account.target = account
 
@@ -61,6 +65,8 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         }
 
         account.balance += getAmount(receipt)
+
+        receipt.datetime = datetime
 
         boxStore.runInTx {
             accountBox.put(account)
@@ -106,9 +112,12 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
     fun update(
         receipt: FinanceReceipt,
         account: FinanceAccount,
-        operations: List<FinanceOperationInfo>
+        operations: List<FinanceOperationInfo>,
+        datetime: DateTime,
     ) {
         boxStore.runInTx {
+            receipt.datetime = datetime
+
             val oldAccount = accountBox[receipt.account.targetId]
             oldAccount.balance -= getAmount(receipt)
             accountBox.put(oldAccount)
@@ -125,6 +134,8 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
             val newAccount = accountBox[account.id]
             newAccount.balance += getAmount(receipt)
             accountBox.put(newAccount)
+
+            receipt.datetime = datetime
 
             receiptBox.put(receipt)
             operationBox.remove(oldOperations)

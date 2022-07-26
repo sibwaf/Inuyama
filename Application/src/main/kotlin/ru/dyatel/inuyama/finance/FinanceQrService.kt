@@ -1,5 +1,6 @@
 package ru.dyatel.inuyama.finance
 
+import hirondelle.date4j.DateTime
 import ru.dyatel.inuyama.QrReader
 import ru.dyatel.inuyama.finance.dto.FinanceOperationInfo
 import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
@@ -7,6 +8,7 @@ import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.sibwaf.inuyama.common.api.FirstOfdApi
 import sibwaf.inuyama.app.common.NetworkManager
+import java.util.TimeZone
 
 class FinanceQrService(
     private val qrReader: QrReader,
@@ -28,7 +30,8 @@ class FinanceQrService(
                     amount = it.price,
                     description = it.name
                 )
-            }
+            },
+            datetime = DateTime.now(TimeZone.getDefault()), // todo: from ticket
         )
     }
 }

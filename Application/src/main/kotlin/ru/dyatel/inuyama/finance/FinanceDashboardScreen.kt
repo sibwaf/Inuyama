@@ -10,6 +10,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
+import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import io.objectbox.kotlin.query
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +30,7 @@ import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
 import ru.dyatel.inuyama.layout.FinanceAccountItem
 import ru.dyatel.inuyama.layout.FinanceReceiptItem
 import ru.dyatel.inuyama.model.FinanceAccount
@@ -44,6 +46,7 @@ import sibwaf.inuyama.app.common.components.createOptionalView
 import sibwaf.inuyama.app.common.components.floatingActionButton
 import sibwaf.inuyama.app.common.components.nestedFloatingActionButton
 import sibwaf.inuyama.app.common.components.withIcon
+import java.util.TimeZone
 
 class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardScreen>(context) {
 
@@ -228,7 +231,14 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
             if (account == null) {
                 FinanceReceiptScreen(grabFocus = true)
             } else {
-                FinanceReceiptScreen(account, grabFocus = true)
+                FinanceReceiptScreen(
+                    FinanceReceiptInfo(
+                        account = account,
+                        operations = emptyList(),
+                        datetime = DateTime.now(TimeZone.getDefault()),
+                    ),
+                    grabFocus = true
+                )
             }
         )
     }

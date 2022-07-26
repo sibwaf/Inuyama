@@ -19,7 +19,6 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.finance.components.FinanceReceiptEditor
 import ru.dyatel.inuyama.finance.dto.FinanceOperationInfo
 import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
-import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.screens.InuScreen
@@ -83,6 +82,7 @@ class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
 
     private val grabFocus: Boolean
 
+    // todo: remove this constructor
     constructor(grabFocus: Boolean) {
         receipt = null
         receiptInfo = null
@@ -99,7 +99,8 @@ class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
                     amount = it.amount,
                     description = it.description
                 )
-            }
+            },
+            datetime = receipt.datetime,
         )
         this.grabFocus = grabFocus
     }
@@ -107,15 +108,6 @@ class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
     constructor(receiptInfo: FinanceReceiptInfo, grabFocus: Boolean) {
         receipt = null
         this.receiptInfo = receiptInfo
-        this.grabFocus = grabFocus
-    }
-
-    constructor(account: FinanceAccount, grabFocus: Boolean) {
-        receipt = null
-        receiptInfo = FinanceReceiptInfo(
-            account = account,
-            operations = emptyList()
-        )
         this.grabFocus = grabFocus
     }
 
@@ -149,13 +141,15 @@ class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
         if (receipt == null) {
             operationManager.createReceipt(
                 account = receiptInfo.account,
-                operations = receiptInfo.operations
+                operations = receiptInfo.operations,
+                datetime = receiptInfo.datetime,
             )
         } else {
             operationManager.update(
                 receipt = receipt,
                 account = receiptInfo.account,
-                operations = receiptInfo.operations
+                operations = receiptInfo.operations,
+                datetime = receiptInfo.datetime,
             )
         }
     }

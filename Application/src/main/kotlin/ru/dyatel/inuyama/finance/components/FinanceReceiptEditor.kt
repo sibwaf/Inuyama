@@ -1,13 +1,16 @@
 package ru.dyatel.inuyama.finance.components
 
 import android.content.Context
+import android.view.Gravity
 import android.widget.FrameLayout
+import androidx.core.widget.doAfterTextChanged
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import org.jetbrains.anko.cardview.v7.themedCardView
+import org.jetbrains.anko.horizontalMargin
+import org.jetbrains.anko.linearLayout
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.verticalLayout
-import org.jetbrains.anko.verticalMargin
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
 import ru.dyatel.inuyama.layout.FinanceAccountSelector
@@ -18,11 +21,18 @@ import ru.dyatel.inuyama.utilities.ListenableEditor
 import ru.dyatel.inuyama.utilities.PublishListenerHolderImpl
 import ru.dyatel.inuyama.utilities.withBatching
 import ru.dyatel.inuyama.utilities.withEditor
+import ru.sibwaf.inuyama.common.utilities.toDateOnly
+import ru.sibwaf.inuyama.common.utilities.toTimeOnly
+import ru.sibwaf.inuyama.common.utilities.withTimeFrom
 import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
 import sibwaf.inuyama.app.common.DIM_LARGE
 import sibwaf.inuyama.app.common.DIM_MEDIUM
 import sibwaf.inuyama.app.common.components.IconTabSelector
+import sibwaf.inuyama.app.common.components.UniformDatePicker
+import sibwaf.inuyama.app.common.components.UniformTimePicker
 import sibwaf.inuyama.app.common.components.iconTabSelector
+import sibwaf.inuyama.app.common.components.uniformDatePicker
+import sibwaf.inuyama.app.common.components.uniformTimePicker
 import kotlin.math.abs
 
 class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableEditor<FinanceReceiptInfo> {
@@ -30,6 +40,8 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
     private lateinit var directionSelector: IconTabSelector<OperationDirection>
     private lateinit var accountSelector: FinanceAccountSelector
     private lateinit var operationListEditor: FinanceOperationListEditor
+    private lateinit var datePicker: UniformDatePicker
+    private lateinit var timePicker: UniformTimePicker
 
     private val changePublisher = PublishListenerHolderImpl<FinanceReceiptInfo>()
         .withEditor(this)
@@ -58,12 +70,31 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
 
                     accountSelector = financeAccountSelector {
                         lparams(width = matchParent) {
-                            verticalMargin = DIM_EXTRA_LARGE
+                            topMargin = DIM_EXTRA_LARGE
                             leftMargin = DIM_LARGE
                             rightMargin = DIM_MEDIUM
                         }
 
                         onItemSelected { changePublisher.notifyListener() }
+                    }
+
+                    linearLayout {
+                        lparams(width = matchParent) {
+                            horizontalMargin = DIM_LARGE
+                            bottomMargin = DIM_LARGE
+                        }
+
+                        datePicker = uniformDatePicker {
+                            gravity = Gravity.CENTER
+
+                            doAfterTextChanged { changePublisher.notifyListener() }
+                        }.lparams(width = matchParent) { weight = 1.0f }
+
+                        timePicker = uniformTimePicker {
+                            gravity = Gravity.CENTER
+
+                            doAfterTextChanged { changePublisher.notifyListener() }
+                        }.lparams(width = matchParent) { weight = 1.0f }
                     }
                 }
             }
@@ -98,6 +129,8 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
             operationListEditor.fillFrom(
                 data.operations.map { it.copy(amount = abs(it.amount)) }
             )
+            datePicker.date = data.datetime.toDateOnly()
+            timePicker.time = data.datetime.toTimeOnly()
         }
     }
 
@@ -110,7 +143,8 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
 
         return FinanceReceiptInfo(
             account = accountSelector.selected!!,
-            operations = operations
+            operations = operations,
+            datetime = datePicker.date!! withTimeFrom timePicker.time!!
         )
     }
 }
