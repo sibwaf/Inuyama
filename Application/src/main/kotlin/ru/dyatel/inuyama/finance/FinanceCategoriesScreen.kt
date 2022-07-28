@@ -54,6 +54,8 @@ class FinanceCategoriesView(context: Context) : BaseScreenView<FinanceCategories
 
 class FinanceCategoriesScreen : InuScreen<FinanceCategoriesView>() {
 
+    override val titleResource = R.string.screen_finance_categories
+
     private val categoryBox by instance<Box<FinanceCategory>>()
 
     private val adapter = ItemAdapter<FinanceCategoryItem>()
