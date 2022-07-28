@@ -268,10 +268,10 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     }
 
     override fun onUpdateMenu(menu: Menu) {
-        menu.findItem(R.id.add_finance_account).apply {
+        menu.findItem(R.id.goto_finance_accounts).apply {
             isVisible = true
             setOnMenuItemClickListener {
-                navigator.goTo(FinanceAccountScreen(FinanceAccount()))
+                navigator.goTo(FinanceAccountsScreen())
                 true
             }
         }

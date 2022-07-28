@@ -10,8 +10,8 @@
           android:title="@string/menu_settings"
           app:showAsAction="never"/>
 
-    <item android:id="@+id/add_finance_account"
-          android:title="@string/menu_add_finance_account"
+    <item android:id="@+id/goto_finance_accounts"
+          android:title="@string/menu_goto_finance_accounts"
           app:showAsAction="never"/>
 
     <item android:id="@+id/goto_finance_categories"

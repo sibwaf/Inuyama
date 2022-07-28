@@ -8,6 +8,7 @@
     <string name="screen_proxy">Прокси</string>
     <string name="screen_finance_dashboard">Кошельки</string>
     <string name="screen_finance_statistics">Статистика</string>
+    <string name="screen_finance_accounts">Кошельки</string>
     <string name="screen_finance_categories">Категории</string>
     <string name="screen_finance_new_account">Новый кошелёк</string>
     <string name="screen_finance_new_category">Новая категория</string>
@@ -20,7 +21,7 @@
     <string name="module_ruranobe">РуРанобэ</string>
     <string name="module_pairing">Шибари</string>
 
-    <string name="menu_add_finance_account">Добавить кошелёк</string>
+    <string name="menu_goto_finance_accounts">Кошельки</string>
     <string name="menu_goto_finance_categories">Категории</string>
 
     <string name="notification_channel_updates">Обновления</string>

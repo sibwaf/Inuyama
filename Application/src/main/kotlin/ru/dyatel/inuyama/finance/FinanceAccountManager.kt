@@ -14,4 +14,10 @@ class FinanceAccountManager(
             .query { equal(FinanceAccount_.disabled, false) }
             .find()
     }
+
+    fun getDisabledAccounts(): List<FinanceAccount> {
+        return accountRepository
+            .query { equal(FinanceAccount_.disabled, true) }
+            .find()
+    }
 }
