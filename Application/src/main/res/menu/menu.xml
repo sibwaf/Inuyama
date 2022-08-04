@@ -12,10 +12,10 @@
 
     <item android:id="@+id/goto_finance_accounts"
           android:title="@string/menu_goto_finance_accounts"
-          app:showAsAction="never"/>
+          app:showAsAction="ifRoom"/>
 
     <item android:id="@+id/goto_finance_categories"
           android:title="@string/menu_goto_finance_categories"
-          app:showAsAction="never"/>
+          app:showAsAction="ifRoom"/>
 
 </menu>
