@@ -113,7 +113,7 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                     }
                 }
 
-                onMainButtonClick { screen.createReceipt() }
+                onMainButtonClick { screen.createEmptyReceipt() }
 
                 addExtraButton {
                     floatingActionButton {
@@ -170,7 +170,7 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
 
     init {
         accountFastAdapter.withOnClickListener { _, _, item, _ ->
-            createReceipt(item.account)
+            createEmptyReceipt(item.account)
             true
         }
         accountFastAdapter.withOnLongClickListener { _, _, item, _ ->
@@ -226,21 +226,14 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
         receiptAdapter.add(receipts)
     }
 
-    fun createReceipt(account: FinanceAccount? = null) {
-        navigator.goTo(
-            if (account == null) {
-                FinanceReceiptScreen(grabFocus = true)
-            } else {
-                FinanceReceiptScreen(
-                    FinanceReceiptInfo(
-                        account = account,
-                        operations = emptyList(),
-                        datetime = DateTime.now(TimeZone.getDefault()),
-                    ),
-                    grabFocus = true
-                )
-            }
+    fun createEmptyReceipt(account: FinanceAccount = accountManager.getActiveAccounts().first()) {
+        val receiptInfo = FinanceReceiptInfo(
+            account = account,
+            operations = emptyList(),
+            datetime = DateTime.now(TimeZone.getDefault()),
         )
+
+        navigator.goTo(FinanceReceiptScreen(receiptInfo, grabFocus = true))
     }
 
     fun createReceiptFromQr() {

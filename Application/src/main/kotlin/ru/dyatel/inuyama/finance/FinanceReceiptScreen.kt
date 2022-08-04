@@ -82,13 +82,6 @@ class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
 
     private val grabFocus: Boolean
 
-    // todo: remove this constructor
-    constructor(grabFocus: Boolean) {
-        receipt = null
-        receiptInfo = null
-        this.grabFocus = grabFocus
-    }
-
     constructor(receipt: FinanceReceipt, grabFocus: Boolean) {
         this.receipt = receipt
         receiptInfo = FinanceReceiptInfo(
