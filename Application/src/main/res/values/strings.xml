@@ -90,6 +90,8 @@
 
     <string name="hint_finance_account_balance">Начальный баланс</string>
     <string name="hint_finance_amount">Сумма</string>
+    <string name="hint_finance_quick_access">Быстрый доступ</string>
+    <string name="hint_finance_disabled">Отключен</string>
 
     <string name="message_finance_qr_failed">Не удалось получить содержимое чека</string>
     <string name="message_backup_restore_in_progress">Восстанавливаемся из бэкапа…</string>
