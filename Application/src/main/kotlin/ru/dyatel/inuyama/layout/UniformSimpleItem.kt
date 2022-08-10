@@ -8,6 +8,7 @@ import org.jetbrains.anko.frameLayout
 import ru.dyatel.inuyama.ITEM_TYPE_FINANCE_ACCOUNT
 import ru.dyatel.inuyama.ITEM_TYPE_FINANCE_CATEGORY
 import ru.dyatel.inuyama.ITEM_TYPE_FINANCE_RECEIPT
+import ru.dyatel.inuyama.ITEM_TYPE_FINANCE_TRANSFER
 import ru.dyatel.inuyama.ITEM_TYPE_HOME_UPDATE
 import ru.dyatel.inuyama.ITEM_TYPE_NETWORK
 import ru.dyatel.inuyama.ITEM_TYPE_PAIRING_SERVER
@@ -18,6 +19,7 @@ import ru.dyatel.inuyama.finance.FinanceOperationManager
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceReceipt
+import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.Update
@@ -93,10 +95,12 @@ class FinanceCategoryItem(val category: FinanceCategory) : UniformSimpleItem() {
     override fun getType() = ITEM_TYPE_FINANCE_CATEGORY
 }
 
+sealed class FinanceTransactionItem : UniformSimpleItem()
+
 class FinanceReceiptItem(
     private val financeOperationManager: FinanceOperationManager,
     val receipt: FinanceReceipt
-) : UniformSimpleItem() {
+) : FinanceTransactionItem() {
 
     private val amount by lazy { financeOperationManager.getAmount(receipt) }
 
@@ -125,4 +129,32 @@ class FinanceReceiptItem(
     override fun getSubtitle(context: Context) = receipt.datetime.format("DD.MM.YYYY, hh:mm")!!
 
     override fun getType() = ITEM_TYPE_FINANCE_RECEIPT
+}
+
+class FinanceTransferItem(
+    val transfer: FinanceTransfer
+) : FinanceTransactionItem() {
+
+    override val markerColorResource = R.color.color_pending
+
+    override fun getTitle(context: Context): String {
+        val accountFrom = transfer.from.target
+        val accountTo = transfer.to.target
+
+        val amountText = context.getString(R.string.label_finance_amount, transfer.amount)
+
+        return buildString {
+            append(accountFrom.name)
+            append(", ")
+            append(amountText)
+
+            appendLine()
+
+            append(accountTo.name)
+        }
+    }
+
+    override fun getSubtitle(context: Context) = transfer.datetime.format("DD.MM.YYYY, hh:mm")!!
+
+    override fun getType() = ITEM_TYPE_FINANCE_TRANSFER
 }

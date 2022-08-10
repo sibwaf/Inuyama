@@ -3,15 +3,21 @@ package ru.dyatel.inuyama.finance
 import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import io.objectbox.BoxStore
+import io.objectbox.kotlin.query
+import io.objectbox.query.QueryBuilder.StringOrder
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.finance.dto.FinanceOperationInfo
+import ru.dyatel.inuyama.finance.dto.TransactionHistoryCursor
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceOperation
 import ru.dyatel.inuyama.model.FinanceReceipt
+import ru.dyatel.inuyama.model.FinanceReceipt_
+import ru.dyatel.inuyama.model.FinanceTransaction
 import ru.dyatel.inuyama.model.FinanceTransfer
+import ru.dyatel.inuyama.model.FinanceTransfer_
 
 class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 
@@ -43,6 +49,48 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 //                    +transferToQuery.sumDouble()
 //        }
 //    }
+
+    fun getTransactions(count: Int, cursor: TransactionHistoryCursor? = null): Pair<List<FinanceTransaction>, TransactionHistoryCursor> {
+        if (cursor?.finished == true) {
+            return emptyList<FinanceTransaction>() to cursor
+        }
+
+        val receipts = receiptBox
+            .query {
+                cursor?.lastReceiptDatetime?.let { lessOrEqual(FinanceReceipt_.datetime, it.toString(), StringOrder.CASE_INSENSITIVE) }
+                cursor?.lastReceiptId?.let { less(FinanceReceipt_.id, it) }
+
+                orderDesc(FinanceReceipt_.datetime)
+                orderDesc(FinanceReceipt_.id)
+            }
+            .find(0L, count.toLong() + 1)
+
+        val transfers = transferBox
+            .query {
+                cursor?.lastTransferDatetime?.let { lessOrEqual(FinanceTransfer_.datetime, it.toString(), StringOrder.CASE_INSENSITIVE) }
+                cursor?.lastTransferId?.let { less(FinanceTransfer_.id, it) }
+
+                orderDesc(FinanceTransfer_.datetime)
+                orderDesc(FinanceTransfer_.id)
+            }
+            .find(0L, count.toLong() + 1)
+
+        val sortedTransactions = (receipts + transfers)
+            .sortedByDescending { it.datetime }
+            .take(count)
+
+        val lastReceipt = sortedTransactions.lastOrNull { it is FinanceReceipt } as FinanceReceipt?
+        val lastTransfer = sortedTransactions.lastOrNull { it is FinanceTransfer } as FinanceTransfer?
+
+        return sortedTransactions to TransactionHistoryCursor(
+            lastReceiptId = lastReceipt?.id ?: cursor?.lastReceiptId,
+            lastReceiptDatetime = lastReceipt?.datetime ?: cursor?.lastReceiptDatetime,
+            lastTransferId = lastTransfer?.id ?: cursor?.lastTransferId,
+            lastTransferDatetime = lastTransfer?.datetime ?: cursor?.lastTransferDatetime,
+
+            finished = receipts.size + transfers.size <= count,
+        )
+    }
 
     fun getCurrentBalance(account: FinanceAccount): Double {
         return account.initialBalance + account.balance

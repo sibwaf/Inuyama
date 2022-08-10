@@ -9,10 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
+import com.mikepenz.fastadapter.adapters.ModelAdapter
 import com.wealthfront.magellan.BaseScreenView
 import hirondelle.date4j.DateTime
 import io.objectbox.Box
-import io.objectbox.kotlin.query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.anko.alignParentBottom
@@ -32,12 +32,15 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
 import ru.dyatel.inuyama.finance.dto.FinanceTransferDto
+import ru.dyatel.inuyama.finance.dto.TransactionHistoryCursor
 import ru.dyatel.inuyama.layout.FinanceAccountItem
 import ru.dyatel.inuyama.layout.FinanceReceiptItem
+import ru.dyatel.inuyama.layout.FinanceTransferItem
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceReceipt
-import ru.dyatel.inuyama.model.FinanceReceipt_
+import ru.dyatel.inuyama.model.FinanceTransaction
+import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
@@ -54,7 +57,7 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
     lateinit var accountRecyclerView: RecyclerView
         private set
 
-    lateinit var receiptRecyclerView: RecyclerView
+    lateinit var transactionRecyclerView: RecyclerView
         private set
 
     private val optionalView: OptionalView
@@ -91,7 +94,7 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                         }
                     }
 
-                    receiptRecyclerView = recyclerView {
+                    transactionRecyclerView = recyclerView {
                         lparams(width = matchParent, height = wrapContent)
                         layoutManager = LinearLayoutManager(context)
                     }
@@ -159,35 +162,41 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     private val qrService by instance<FinanceQrService>()
 
     private val accountAdapter = ItemAdapter<FinanceAccountItem>()
-    private val accountFastAdapter = accountAdapter.buildFastAdapter()
-
-    private val categoryStore by instance<Box<FinanceCategory>>()
-
-    private val receiptStore by instance<Box<FinanceReceipt>>()
-    private val receiptAdapter = ItemAdapter<FinanceReceiptItem>()
-    private val receiptFastAdapter = receiptAdapter.buildFastAdapter()
-
-    private var receiptListOffset = 0
-
-    init {
-        accountFastAdapter.withOnClickListener { _, _, item, _ ->
-            createEmptyReceipt(item.account)
-            true
-        }
-        accountFastAdapter.withOnLongClickListener { _, _, item, _ ->
-            navigator.goTo(FinanceAccountScreen(item.account))
-            true
-        }
-        receiptFastAdapter.withOnClickListener { _, _, item, _ ->
-            navigator.goTo(FinanceReceiptScreen(item.receipt, grabFocus = false))
-            true
+    private val transactionAdapter = ModelAdapter { it: FinanceTransaction ->
+        when (it) {
+            is FinanceReceipt -> FinanceReceiptItem(operationManager, it)
+            is FinanceTransfer -> FinanceTransferItem(it)
         }
     }
 
+    private var transactionHistoryCursor: TransactionHistoryCursor? = null
+
+    private val categoryStore by instance<Box<FinanceCategory>>()
+
     override fun createView(context: Context): FinanceDashboardView {
         return FinanceDashboardView(context).apply {
-            accountRecyclerView.adapter = accountFastAdapter
-            receiptRecyclerView.adapter = receiptFastAdapter
+            accountRecyclerView.adapter = accountAdapter.buildFastAdapter().apply {
+                withOnClickListener { _, _, item, _ ->
+                    createEmptyReceipt(item.account)
+                    true
+                }
+                withOnLongClickListener { _, _, item, _ ->
+                    navigator.goTo(FinanceAccountScreen(item.account))
+                    true
+                }
+            }
+
+            transactionRecyclerView.adapter = transactionAdapter.buildFastAdapter().apply {
+                withOnClickListener { _, _, item, _ ->
+                    val screen = when (item) {
+                        is FinanceReceiptItem -> FinanceReceiptScreen(item.receipt, false)
+                        is FinanceTransferItem -> FinanceTransferScreen(item.transfer)
+                    }
+
+                    navigator.goTo(screen)
+                    true
+                }
+            }
         }
     }
 
@@ -197,8 +206,9 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
         reloadAccounts()
         observeChanges<FinanceAccount>(::reloadAccounts)
 
-        reloadReceipts()
-        observeChanges<FinanceReceipt>(::reloadReceipts)
+        reloadTransactions()
+        observeChanges<FinanceReceipt>(::reloadTransactions)
+        observeChanges<FinanceTransfer>(::reloadTransactions)
     }
 
     private fun reloadAccounts() {
@@ -211,20 +221,17 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
         accountAdapter.set(quickAccessAccounts.map { FinanceAccountItem(operationManager, it) })
     }
 
-    private fun reloadReceipts() {
-        receiptListOffset = 0
-        receiptAdapter.clear()
+    private fun reloadTransactions() {
+        transactionHistoryCursor = null
+        transactionAdapter.clear()
+
         loadMore()
     }
 
     fun loadMore() {
-        val receipts = receiptStore
-            .query { orderDesc(FinanceReceipt_.datetime) }
-            .find(receiptListOffset.toLong(), AMOUNT_PER_SCROLL.toLong())
-            .map { FinanceReceiptItem(operationManager, it) }
-
-        receiptListOffset += receipts.size
-        receiptAdapter.add(receipts)
+        val (transactions, cursor) = operationManager.getTransactions(count = AMOUNT_PER_SCROLL, cursor = transactionHistoryCursor)
+        transactionAdapter.add(transactions)
+        transactionHistoryCursor = cursor
     }
 
     fun createEmptyReceipt(account: FinanceAccount = accountManager.getActiveAccounts().first()) {

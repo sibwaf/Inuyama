@@ -13,6 +13,7 @@ const val ITEM_TYPE_FINANCE_ACCOUNT = 10
 const val ITEM_TYPE_FINANCE_CATEGORY = 11
 const val ITEM_TYPE_FINANCE_RECEIPT = 12
 const val ITEM_TYPE_PAIRING_SERVER = 13
+const val ITEM_TYPE_FINANCE_TRANSFER = 14
 
 @Deprecated("Not used anymore", level = DeprecationLevel.ERROR)
 const val SERVICE_TRANSMISSION = 1L
