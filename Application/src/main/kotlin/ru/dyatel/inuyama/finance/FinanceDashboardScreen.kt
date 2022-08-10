@@ -264,6 +264,7 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
             fromAccount = accounts[0],
             toAccount = accounts[1],
             amount = 0.0,
+            datetime = DateTime.now(TimeZone.getDefault()),
         )
 
         navigator.goTo(FinanceTransferScreen(transferInfo))

@@ -70,6 +70,7 @@ class FinanceTransferScreen : InuScreen<FinanceTransferView> {
             fromAccount = transfer.from.target,
             toAccount = transfer.to.target,
             amount = transfer.amount,
+            datetime = transfer.datetime,
         )
     }
 
@@ -102,6 +103,7 @@ class FinanceTransferScreen : InuScreen<FinanceTransferView> {
                 from = transferInfo.fromAccount,
                 to = transferInfo.toAccount,
                 amount = transferInfo.amount,
+                datetime = transferInfo.datetime,
             )
         } else {
             operationManager.update(
@@ -109,6 +111,7 @@ class FinanceTransferScreen : InuScreen<FinanceTransferView> {
                 from = transferInfo.fromAccount,
                 to = transferInfo.toAccount,
                 amount = transferInfo.amount,
+                datetime = transferInfo.datetime,
             )
         }
     }

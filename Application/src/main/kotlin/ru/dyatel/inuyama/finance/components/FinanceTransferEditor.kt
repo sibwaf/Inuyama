@@ -34,6 +34,7 @@ class FinanceTransferEditor(context: Context) : LinearLayout(context), Listenabl
 
     private lateinit var fromAccountSelector: FinanceAccountSelector
     private lateinit var toAccountSelector: FinanceAccountSelector
+    private val dateTimeEditor: DateTimeEditor
     private val amountEditor: UniformDoubleInput
 
     private var accounts = emptyList<FinanceAccount>()
@@ -44,6 +45,11 @@ class FinanceTransferEditor(context: Context) : LinearLayout(context), Listenabl
 
     init {
         orientation = VERTICAL
+
+        dateTimeEditor = DateTimeEditor(context).apply {
+            onChange { changePublisher.notifyListener() }
+        }
+        addView(dateTimeEditor)
 
         relativeLayout {
             lparams(width = matchParent) {
@@ -102,6 +108,7 @@ class FinanceTransferEditor(context: Context) : LinearLayout(context), Listenabl
                 centerVertically()
             }
         }
+
         amountEditor = uniformDoubleInput {
             hintResource = R.string.hint_finance_amount
             doAfterTextChanged { changePublisher.notifyListener() }
@@ -124,6 +131,7 @@ class FinanceTransferEditor(context: Context) : LinearLayout(context), Listenabl
         changePublisher.notifyAfterBatch {
             fromAccountSelector.selected = data.fromAccount
             toAccountSelector.selected = data.toAccount
+            dateTimeEditor.fillFrom(data.datetime)
             amountEditor.value = data.amount
         }
     }
@@ -132,7 +140,8 @@ class FinanceTransferEditor(context: Context) : LinearLayout(context), Listenabl
         return FinanceTransferDto(
             fromAccount = fromAccountSelector.selected ?: return null,
             toAccount = toAccountSelector.selected ?: return null,
-            amount = amountEditor.value
+            amount = amountEditor.value,
+            datetime = dateTimeEditor.buildValue(),
         )
     }
 }

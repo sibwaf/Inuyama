@@ -74,11 +74,11 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         }
     }
 
-    fun createTransfer(from: FinanceAccount, to: FinanceAccount, amount: Double) {
+    fun createTransfer(from: FinanceAccount, to: FinanceAccount, amount: Double, datetime: DateTime) {
         from.balance -= amount
         to.balance += amount
 
-        val transfer = FinanceTransfer(amount = amount)
+        val transfer = FinanceTransfer(amount = amount, datetime = datetime)
         transfer.from.target = from
         transfer.to.target = to
 
@@ -147,6 +147,7 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         from: FinanceAccount,
         to: FinanceAccount,
         amount: Double,
+        datetime: DateTime,
     ) {
         boxStore.runInTx {
             val oldAmount = transfer.amount
@@ -170,6 +171,7 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
             transfer.from.targetId = from.id
             transfer.to.targetId = to.id
             transfer.amount = amount
+            transfer.datetime = datetime
             transferBox.put(transfer)
         }
     }
