@@ -16,6 +16,7 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.finance.components.FinanceTransferEditor
 import ru.dyatel.inuyama.finance.dto.FinanceTransferDto
+import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.dyatel.inuyama.screens.InuScreen
 import sibwaf.inuyama.app.common.DIM_LARGE
 
@@ -55,19 +56,38 @@ class FinanceTransferView(context: Context) : BaseScreenView<FinanceTransferScre
     }
 }
 
-class FinanceTransferScreen : InuScreen<FinanceTransferView>() {
-
-    override val titleResource = R.string.screen_finance_new_transfer
+class FinanceTransferScreen : InuScreen<FinanceTransferView> {
 
     private val accountManager by instance<FinanceAccountManager>()
     private val operationManager by instance<FinanceOperationManager>()
 
+    private val transfer: FinanceTransfer?
+    private val transferInfo: FinanceTransferDto
+
+    constructor(transfer: FinanceTransfer) {
+        this.transfer = transfer
+        transferInfo = FinanceTransferDto(
+            fromAccount = transfer.from.target,
+            toAccount = transfer.to.target,
+            amount = transfer.amount,
+        )
+    }
+
+    constructor(transferInfo: FinanceTransferDto) {
+        transfer = null
+        this.transferInfo = transferInfo
+    }
+
+    override val titleResource get() = if (transfer == null) R.string.screen_finance_new_transfer else R.string.screen_finance_edit_transfer
+
     override fun createView(context: Context): FinanceTransferView {
         return FinanceTransferView(context).apply {
-            editor.bindAccounts(accountManager.getActiveAccounts())
             editor.onChange {
                 saveButton.isEnabled = it != null
             }
+
+            editor.bindAccounts(accountManager.getActiveAccounts())
+            editor.fillFrom(transferInfo)
 
             saveButton.setOnClickListener {
                 saveTransfer(editor.buildValue()!!)
@@ -76,11 +96,20 @@ class FinanceTransferScreen : InuScreen<FinanceTransferView>() {
         }
     }
 
-    private fun saveTransfer(transfer: FinanceTransferDto) {
-        operationManager.createTransfer(
-            from = transfer.fromAccount,
-            to = transfer.toAccount,
-            amount = transfer.amount
-        )
+    private fun saveTransfer(transferInfo: FinanceTransferDto) {
+        if (transfer == null) {
+            operationManager.createTransfer(
+                from = transferInfo.fromAccount,
+                to = transferInfo.toAccount,
+                amount = transferInfo.amount,
+            )
+        } else {
+            operationManager.update(
+                transfer = transfer,
+                from = transferInfo.fromAccount,
+                to = transferInfo.toAccount,
+                amount = transferInfo.amount,
+            )
+        }
     }
 }

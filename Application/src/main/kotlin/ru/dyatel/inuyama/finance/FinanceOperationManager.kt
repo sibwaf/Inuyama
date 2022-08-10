@@ -143,6 +143,38 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
     }
 
     fun update(
+        transfer: FinanceTransfer,
+        from: FinanceAccount,
+        to: FinanceAccount,
+        amount: Double,
+    ) {
+        boxStore.runInTx {
+            val oldAmount = transfer.amount
+
+            val oldFrom = accountBox[transfer.from.targetId]
+            oldFrom.balance += oldAmount
+            accountBox.put(oldFrom)
+
+            val oldTo = accountBox[transfer.to.targetId]
+            oldTo.balance -= oldAmount
+            accountBox.put(oldTo)
+
+            val newFrom = accountBox[from.id]
+            newFrom.balance -= amount
+            accountBox.put(newFrom)
+
+            val newTo = accountBox[to.id]
+            newTo.balance += amount
+            accountBox.put(newTo)
+
+            transfer.from.targetId = from.id
+            transfer.to.targetId = to.id
+            transfer.amount = amount
+            transferBox.put(transfer)
+        }
+    }
+
+    fun update(
         operation: FinanceOperation,
         category: FinanceCategory,
         amount: Double,

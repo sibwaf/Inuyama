@@ -31,6 +31,7 @@ import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
+import ru.dyatel.inuyama.finance.dto.FinanceTransferDto
 import ru.dyatel.inuyama.layout.FinanceAccountItem
 import ru.dyatel.inuyama.layout.FinanceReceiptItem
 import ru.dyatel.inuyama.model.FinanceAccount
@@ -257,7 +258,15 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     }
 
     fun createTransfer() {
-        navigator.goTo(FinanceTransferScreen())
+        val accounts = accountManager.getActiveAccounts()
+
+        val transferInfo = FinanceTransferDto(
+            fromAccount = accounts[0],
+            toAccount = accounts[1],
+            amount = 0.0,
+        )
+
+        navigator.goTo(FinanceTransferScreen(transferInfo))
     }
 
     override fun onUpdateMenu(menu: Menu) {
