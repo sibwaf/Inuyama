@@ -1,13 +1,10 @@
 package ru.dyatel.inuyama.finance.components
 
 import android.content.Context
-import android.view.Gravity
 import android.widget.FrameLayout
-import androidx.core.widget.doAfterTextChanged
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import org.jetbrains.anko.cardview.v7.themedCardView
 import org.jetbrains.anko.horizontalMargin
-import org.jetbrains.anko.linearLayout
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.verticalLayout
@@ -21,18 +18,11 @@ import ru.dyatel.inuyama.utilities.ListenableEditor
 import ru.dyatel.inuyama.utilities.PublishListenerHolderImpl
 import ru.dyatel.inuyama.utilities.withBatching
 import ru.dyatel.inuyama.utilities.withEditor
-import ru.sibwaf.inuyama.common.utilities.toDateOnly
-import ru.sibwaf.inuyama.common.utilities.toTimeOnly
-import ru.sibwaf.inuyama.common.utilities.withTimeFrom
 import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
 import sibwaf.inuyama.app.common.DIM_LARGE
 import sibwaf.inuyama.app.common.DIM_MEDIUM
 import sibwaf.inuyama.app.common.components.IconTabSelector
-import sibwaf.inuyama.app.common.components.UniformDatePicker
-import sibwaf.inuyama.app.common.components.UniformTimePicker
 import sibwaf.inuyama.app.common.components.iconTabSelector
-import sibwaf.inuyama.app.common.components.uniformDatePicker
-import sibwaf.inuyama.app.common.components.uniformTimePicker
 import kotlin.math.abs
 
 class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableEditor<FinanceReceiptInfo> {
@@ -40,8 +30,7 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
     private lateinit var directionSelector: IconTabSelector<OperationDirection>
     private lateinit var accountSelector: FinanceAccountSelector
     private lateinit var operationListEditor: FinanceOperationListEditor
-    private lateinit var datePicker: UniformDatePicker
-    private lateinit var timePicker: UniformTimePicker
+    private lateinit var dateTimeEditor: DateTimeEditor
 
     private val changePublisher = PublishListenerHolderImpl<FinanceReceiptInfo>()
         .withEditor(this)
@@ -78,24 +67,15 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
                         onItemSelected { changePublisher.notifyListener() }
                     }
 
-                    linearLayout {
+                    dateTimeEditor = DateTimeEditor(context).apply {
                         lparams(width = matchParent) {
                             horizontalMargin = DIM_LARGE
                             bottomMargin = DIM_LARGE
                         }
 
-                        datePicker = uniformDatePicker {
-                            gravity = Gravity.CENTER
-
-                            doAfterTextChanged { changePublisher.notifyListener() }
-                        }.lparams(width = matchParent) { weight = 1.0f }
-
-                        timePicker = uniformTimePicker {
-                            gravity = Gravity.CENTER
-
-                            doAfterTextChanged { changePublisher.notifyListener() }
-                        }.lparams(width = matchParent) { weight = 1.0f }
+                        onChange { changePublisher.notifyListener() }
                     }
+                    addView(dateTimeEditor)
                 }
             }
 
@@ -118,7 +98,7 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
 
     override fun fillFrom(data: FinanceReceiptInfo) {
         changePublisher.notifyAfterBatch {
-            val direction = if (data.operations.sumByDouble { it.amount } > 0) {
+            val direction = if (data.operations.sumOf { it.amount } >= 0) {
                 OperationDirection.INCOME
             } else {
                 OperationDirection.EXPENSE
@@ -129,8 +109,7 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
             operationListEditor.fillFrom(
                 data.operations.map { it.copy(amount = abs(it.amount)) }
             )
-            datePicker.date = data.datetime.toDateOnly()
-            timePicker.time = data.datetime.toTimeOnly()
+            dateTimeEditor.fillFrom(data.datetime)
         }
     }
 
@@ -144,7 +123,7 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
         return FinanceReceiptInfo(
             account = accountSelector.selected!!,
             operations = operations,
-            datetime = datePicker.date!! withTimeFrom timePicker.time!!
+            datetime = dateTimeEditor.buildValue()
         )
     }
 }
