@@ -37,6 +37,9 @@
     <string name="dialog_restore_backup_title">Восстановление из бэкапа</string>
     <string name="dialog_restore_backup_full_message">Восстанавливаем всё из бэкапа? Существующие данные будут стёрты!</string>
 
+    <string name="dialog_finance_remove_receipt_title">Удаление чека</string>
+    <string name="dialog_finance_remove_receipt_message">Удаляем чек?</string>
+
     <string name="const_directory_default">[по умолчанию]</string>
     <string name="const_proxy_default">[прямое подключение]</string>
 

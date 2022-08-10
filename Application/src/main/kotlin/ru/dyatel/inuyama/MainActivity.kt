@@ -262,6 +262,7 @@ class MainActivity : SingleActivity(), KodeinAware {
         menuInflater.inflate(R.menu.menu, menu)
         menu.findItem(R.id.add).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_plus)
         menu.findItem(R.id.settings).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_settings)
+        menu.findItem(R.id.remove).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_trash_can)
         menu.findItem(R.id.goto_finance_accounts).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_wallet)
         menu.findItem(R.id.goto_finance_categories).icon = createActionBarIcon(CommunityMaterial.Icon2.cmd_tag)
         return super.onCreateOptionsMenu(menu)

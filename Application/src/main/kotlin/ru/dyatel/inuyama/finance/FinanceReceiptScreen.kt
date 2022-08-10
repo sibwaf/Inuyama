@@ -1,6 +1,7 @@
 package ru.dyatel.inuyama.finance
 
 import android.content.Context
+import android.view.Menu
 import android.widget.Button
 import com.wealthfront.magellan.BaseScreenView
 import io.objectbox.Box
@@ -23,6 +24,7 @@ import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.screens.InuScreen
 import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.components.showConfirmationDialog
 import kotlin.math.abs
 
 class FinanceReceiptView(context: Context) : BaseScreenView<FinanceReceiptScreen>(context) {
@@ -144,6 +146,30 @@ class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
                 operations = receiptInfo.operations,
                 datetime = receiptInfo.datetime,
             )
+        }
+    }
+
+    override fun onUpdateMenu(menu: Menu) {
+        if (receipt == null) {
+            return
+        }
+
+        menu.findItem(R.id.remove).apply {
+            isVisible = true
+            setOnMenuItemClickListener {
+                val context = context ?: return@setOnMenuItemClickListener false
+
+                context.showConfirmationDialog(
+                    title = context.getString(R.string.dialog_finance_remove_receipt_title),
+                    message = context.getString(R.string.dialog_finance_remove_receipt_message),
+                    action = context.getString(R.string.action_remove),
+                ) {
+                    operationManager.cancel(receipt)
+                    navigator.goBack()
+                }
+
+                true
+            }
         }
     }
 }
