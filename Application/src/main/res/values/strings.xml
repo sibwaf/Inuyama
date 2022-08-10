@@ -39,6 +39,8 @@
 
     <string name="dialog_finance_remove_receipt_title">Удаление чека</string>
     <string name="dialog_finance_remove_receipt_message">Удаляем чек?</string>
+    <string name="dialog_finance_remove_transfer_title">Удаление перевода</string>
+    <string name="dialog_finance_remove_transfer_message">Удаляем перевод?</string>
 
     <string name="const_directory_default">[по умолчанию]</string>
     <string name="const_proxy_default">[прямое подключение]</string>

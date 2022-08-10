@@ -97,7 +97,7 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
     }
 
     fun getAmount(receipt: FinanceReceipt): Double {
-        return receipt.operations.sumByDouble { it.amount }
+        return receipt.operations.sumOf { it.amount }
     }
 
     fun createReceipt(
@@ -144,6 +144,20 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 
             operationBox.remove(receipt.operations)
             receiptBox.remove(receipt)
+        }
+    }
+
+    fun cancel(transfer: FinanceTransfer) {
+        boxStore.runInTx {
+            val fromAccount = transfer.from.target
+            fromAccount.balance += transfer.amount
+            accountBox.put(fromAccount)
+
+            val toAccount = transfer.to.target
+            toAccount.balance -= transfer.amount
+            accountBox.put(toAccount)
+
+            transferBox.remove(transfer)
         }
     }
 

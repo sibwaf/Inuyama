@@ -1,6 +1,7 @@
 package ru.dyatel.inuyama.finance
 
 import android.content.Context
+import android.view.Menu
 import android.widget.Button
 import com.wealthfront.magellan.BaseScreenView
 import org.jetbrains.anko.alignParentBottom
@@ -19,6 +20,7 @@ import ru.dyatel.inuyama.finance.dto.FinanceTransferDto
 import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.dyatel.inuyama.screens.InuScreen
 import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.components.showConfirmationDialog
 
 class FinanceTransferView(context: Context) : BaseScreenView<FinanceTransferScreen>(context) {
 
@@ -113,6 +115,30 @@ class FinanceTransferScreen : InuScreen<FinanceTransferView> {
                 amount = transferInfo.amount,
                 datetime = transferInfo.datetime,
             )
+        }
+    }
+
+    override fun onUpdateMenu(menu: Menu) {
+        if (transfer == null) {
+            return
+        }
+
+        menu.findItem(R.id.remove).apply {
+            isVisible = true
+            setOnMenuItemClickListener {
+                val context = context ?: return@setOnMenuItemClickListener false
+
+                context.showConfirmationDialog(
+                    title = context.getString(R.string.dialog_finance_remove_transfer_title),
+                    message = context.getString(R.string.dialog_finance_remove_transfer_message),
+                    action = context.getString(R.string.action_remove),
+                ) {
+                    operationManager.cancel(transfer)
+                    navigator.goBack()
+                }
+
+                true
+            }
         }
     }
 }
