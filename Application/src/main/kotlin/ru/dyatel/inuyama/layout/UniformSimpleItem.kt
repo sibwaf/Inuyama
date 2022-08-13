@@ -83,6 +83,8 @@ class FinanceAccountItem(
     val account: FinanceAccount
 ) : UniformSimpleItem() {
 
+    override val markerColorResource = if (account.disabled) R.color.color_fail else null
+
     override fun getTitle(context: Context) = account.name
     override fun getSubtitle(context: Context) =
         context.getString(R.string.label_finance_amount, financeOperationManager.getCurrentBalance(account))
