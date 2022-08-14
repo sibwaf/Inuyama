@@ -11,6 +11,8 @@ import ru.dyatel.inuyama.model.FinanceAccount_
 import ru.dyatel.inuyama.model.FinanceOperation
 import ru.dyatel.inuyama.model.FinanceOperation_
 import ru.dyatel.inuyama.model.FinanceReceipt
+import ru.dyatel.inuyama.model.FinanceTransfer
+import ru.dyatel.inuyama.model.FinanceTransfer_
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import java.util.UUID
 
@@ -103,6 +105,27 @@ class MigrationRunner(override val kodein: Kodein) : KodeinAware {
                     .forEach {
                         it.disabled = false
                         financeAccountBox.put(it)
+                    }
+            }
+        }
+
+        if (lastUsedVersion < 10) {
+            store.runInTx {
+                val financeAccountBox = store.boxFor<FinanceAccount>()
+                financeAccountBox
+                    .query { isNull(FinanceAccount_.currency) }
+                    .forEach {
+                        it.currency = ""
+                        financeAccountBox.put(it)
+                    }
+            }
+            store.runInTx {
+                val financeTransferBox = store.boxFor<FinanceTransfer>()
+                financeTransferBox
+                    .query { isNull(FinanceTransfer_.amountTo) }
+                    .forEach {
+                        it.amountTo = it.amount
+                        financeTransferBox.put(it)
                     }
             }
         }

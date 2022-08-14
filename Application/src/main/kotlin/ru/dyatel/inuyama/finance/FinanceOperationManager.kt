@@ -9,6 +9,7 @@ import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.finance.dto.FinanceOperationInfo
+import ru.dyatel.inuyama.finance.dto.FinanceTransferDto
 import ru.dyatel.inuyama.finance.dto.TransactionHistoryCursor
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
@@ -122,16 +123,16 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         }
     }
 
-    fun createTransfer(from: FinanceAccount, to: FinanceAccount, amount: Double, datetime: DateTime) {
-        from.balance -= amount
-        to.balance += amount
+    fun createTransfer(data: FinanceTransferDto) {
+        data.fromAccount.balance -= data.amountFrom
+        data.toAccount.balance += data.amountTo
 
-        val transfer = FinanceTransfer(amount = amount, datetime = datetime)
-        transfer.from.target = from
-        transfer.to.target = to
+        val transfer = FinanceTransfer(amount = data.amountFrom, amountTo = data.amountTo, datetime = data.datetime)
+        transfer.from.target = data.fromAccount
+        transfer.to.target = data.toAccount
 
         boxStore.runInTx {
-            accountBox.put(from, to)
+            accountBox.put(data.fromAccount, data.toAccount)
             transferBox.put(transfer)
         }
     }
@@ -154,7 +155,7 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
             accountBox.put(fromAccount)
 
             val toAccount = transfer.to.target
-            toAccount.balance -= transfer.amount
+            toAccount.balance -= transfer.amountTo
             accountBox.put(toAccount)
 
             transferBox.remove(transfer)
@@ -204,36 +205,29 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         }
     }
 
-    fun update(
-        transfer: FinanceTransfer,
-        from: FinanceAccount,
-        to: FinanceAccount,
-        amount: Double,
-        datetime: DateTime,
-    ) {
+    fun update(transfer: FinanceTransfer, data: FinanceTransferDto) {
         boxStore.runInTx {
-            val oldAmount = transfer.amount
-
             val oldFrom = accountBox[transfer.from.targetId]
-            oldFrom.balance += oldAmount
+            oldFrom.balance += transfer.amount
             accountBox.put(oldFrom)
 
             val oldTo = accountBox[transfer.to.targetId]
-            oldTo.balance -= oldAmount
+            oldTo.balance -= transfer.amountTo
             accountBox.put(oldTo)
 
-            val newFrom = accountBox[from.id]
-            newFrom.balance -= amount
+            val newFrom = accountBox[data.fromAccount.id]
+            newFrom.balance -= data.amountFrom
             accountBox.put(newFrom)
 
-            val newTo = accountBox[to.id]
-            newTo.balance += amount
+            val newTo = accountBox[data.toAccount.id]
+            newTo.balance += data.amountTo
             accountBox.put(newTo)
 
-            transfer.from.targetId = from.id
-            transfer.to.targetId = to.id
-            transfer.amount = amount
-            transfer.datetime = datetime
+            transfer.from.target = newFrom
+            transfer.to.target = newTo
+            transfer.amount = data.amountFrom
+            transfer.amountTo = data.amountTo
+            transfer.datetime = data.datetime
             transferBox.put(transfer)
         }
     }

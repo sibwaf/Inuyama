@@ -71,7 +71,8 @@ class FinanceTransferScreen : InuScreen<FinanceTransferView> {
         transferInfo = FinanceTransferDto(
             fromAccount = transfer.from.target,
             toAccount = transfer.to.target,
-            amount = transfer.amount,
+            amountFrom = transfer.amount,
+            amountTo = transfer.amountTo,
             datetime = transfer.datetime,
         )
     }
@@ -101,20 +102,9 @@ class FinanceTransferScreen : InuScreen<FinanceTransferView> {
 
     private fun saveTransfer(transferInfo: FinanceTransferDto) {
         if (transfer == null) {
-            operationManager.createTransfer(
-                from = transferInfo.fromAccount,
-                to = transferInfo.toAccount,
-                amount = transferInfo.amount,
-                datetime = transferInfo.datetime,
-            )
+            operationManager.createTransfer(transferInfo)
         } else {
-            operationManager.update(
-                transfer = transfer,
-                from = transferInfo.fromAccount,
-                to = transferInfo.toAccount,
-                amount = transferInfo.amount,
-                datetime = transferInfo.datetime,
-            )
+            operationManager.update(transfer, transferInfo)
         }
     }
 

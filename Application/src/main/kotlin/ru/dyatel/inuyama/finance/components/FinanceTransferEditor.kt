@@ -2,6 +2,7 @@ package ru.dyatel.inuyama.finance.components
 
 import android.content.Context
 import android.widget.LinearLayout
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.iconics.IconicsDrawable
@@ -22,6 +23,7 @@ import ru.dyatel.inuyama.layout.financeAccountSelector
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.utilities.ListenableEditor
 import ru.dyatel.inuyama.utilities.PublishListenerHolderImpl
+import ru.dyatel.inuyama.utilities.withAdditionalListener
 import ru.dyatel.inuyama.utilities.withBatching
 import ru.dyatel.inuyama.utilities.withEditor
 import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
@@ -35,11 +37,16 @@ class FinanceTransferEditor(context: Context) : LinearLayout(context), Listenabl
     private lateinit var fromAccountSelector: FinanceAccountSelector
     private lateinit var toAccountSelector: FinanceAccountSelector
     private val dateTimeEditor: DateTimeEditor
-    private val amountEditor: UniformDoubleInput
+    private val amountFromEditor: UniformDoubleInput
+    private lateinit var amountToEditor: UniformDoubleInput
 
     private var accounts = emptyList<FinanceAccount>()
 
     private val changePublisher = PublishListenerHolderImpl<FinanceTransferDto?>()
+        .withAdditionalListener { transfer ->
+            transfer ?: return@withAdditionalListener
+            amountToEditor.isVisible = transfer.toAccount.currency != transfer.fromAccount.currency
+        }
         .withEditor(this)
         .withBatching()
 
@@ -109,8 +116,13 @@ class FinanceTransferEditor(context: Context) : LinearLayout(context), Listenabl
             }
         }
 
-        amountEditor = uniformDoubleInput {
+        amountFromEditor = uniformDoubleInput {
             hintResource = R.string.hint_finance_amount
+            doAfterTextChanged { changePublisher.notifyListener() }
+        }
+
+        amountToEditor = uniformDoubleInput {
+            hintResource = R.string.hint_finance_amount_converted
             doAfterTextChanged { changePublisher.notifyListener() }
         }
     }
@@ -132,15 +144,20 @@ class FinanceTransferEditor(context: Context) : LinearLayout(context), Listenabl
             fromAccountSelector.selected = data.fromAccount
             toAccountSelector.selected = data.toAccount
             dateTimeEditor.fillFrom(data.datetime)
-            amountEditor.value = data.amount
+            amountFromEditor.value = data.amountFrom
+            amountToEditor.value = data.amountTo
         }
     }
 
     override fun buildValue(): FinanceTransferDto? {
+        val fromAccount = fromAccountSelector.selected ?: return null
+        val toAccount = toAccountSelector.selected ?: return null
+
         return FinanceTransferDto(
-            fromAccount = fromAccountSelector.selected ?: return null,
-            toAccount = toAccountSelector.selected ?: return null,
-            amount = amountEditor.value,
+            fromAccount = fromAccount,
+            toAccount = toAccount,
+            amountFrom = amountFromEditor.value,
+            amountTo = if (fromAccount.currency == toAccount.currency) amountFromEditor.value else amountToEditor.value,
             datetime = dateTimeEditor.buildValue(),
         )
     }

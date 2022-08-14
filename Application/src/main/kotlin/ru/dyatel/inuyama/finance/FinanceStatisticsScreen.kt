@@ -1,5 +1,6 @@
 package ru.dyatel.inuyama.finance
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.Gravity
 import android.view.View
@@ -8,6 +9,7 @@ import com.wealthfront.magellan.BaseScreenView
 import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import io.objectbox.kotlin.query
+import io.objectbox.query.QueryBuilder.StringOrder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.anko.alignParentLeft
@@ -26,6 +28,10 @@ import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceOperation
+import ru.dyatel.inuyama.model.FinanceOperation_
+import ru.dyatel.inuyama.model.FinanceReceipt_
+import ru.dyatel.inuyama.model.FinanceTransfer
+import ru.dyatel.inuyama.model.FinanceTransfer_
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.sibwaf.inuyama.common.utilities.minusMonths
 import sibwaf.inuyama.app.common.DIM_LARGE
@@ -34,8 +40,9 @@ import sibwaf.inuyama.app.common.SP_EXTRA_LARGE
 import sibwaf.inuyama.app.common.SP_LARGE
 import sibwaf.inuyama.app.common.components.ListSpinner
 import java.util.TimeZone
-import kotlin.math.abs
-import kotlin.properties.Delegates
+import java.util.TreeMap
+
+data class FinanceStatisticsCategorySummary(val categoryName: String, val amount: Double)
 
 class FinanceStatisticsView(context: Context) : BaseScreenView<FinanceStatisticsScreen>(context) {
 
@@ -45,10 +52,6 @@ class FinanceStatisticsView(context: Context) : BaseScreenView<FinanceStatistics
     private lateinit var totalChangeView: TextView
     private lateinit var summaryView: TextView
     private lateinit var dateView: TextView
-
-    var totalSavings: Double by Delegates.observable(0.0) { _, _, value ->
-        totalSavingsView.text = context.getString(R.string.label_finance_amount, value)
-    }
 
     init {
         scrollView {
@@ -110,21 +113,36 @@ class FinanceStatisticsView(context: Context) : BaseScreenView<FinanceStatistics
         updateDateView()
     }
 
-    fun setOperationList(operations: List<Pair<String, Double>>) {
-        val changeSum = operations.sumByDouble { it.second }
-        totalChangeView.text = context.getString(R.string.label_finance_change, changeSum)
-
-        summaryView.text = operations.joinToString("\n") {
-            "${it.first}: ${context.getString(R.string.label_finance_amount, it.second)}"
-        }
+    fun setTotalSavings(savings: Map<String, Double>) {
+        totalSavingsView.text = savings.asSequence()
+            .joinToString("\n") { (currency, amount) -> context.getString(R.string.label_finance_amount, amount, currency) }
     }
 
-    fun updateDateView() {
+    fun setTotalChange(changes: Map<String, Double>) {
+        totalChangeView.text = changes.asSequence()
+            .joinToString("\n") { (currency, amount) -> context.getString(R.string.label_finance_change, amount, currency) }
+    }
+
+    fun setCategoryList(operations: Map<String, List<FinanceStatisticsCategorySummary>>) {
+        summaryView.text = buildString {
+            for ((currency, categorySummaries) in operations) {
+                for (categorySummary in categorySummaries) {
+                    val amountText = context.getString(R.string.label_finance_change, categorySummary.amount, currency)
+                    appendLine("${categorySummary.categoryName}: $amountText")
+                }
+
+                appendLine()
+            }
+        }.trimEnd()
+    }
+
+    private fun updateDateView() {
         val now = DateTime.now(TimeZone.getDefault()).truncate(DateTime.Unit.DAY)
         val start = now.minusMonths(periodSelector.selected!! - 1)
             .startOfMonth
             .truncate(DateTime.Unit.DAY)
 
+        @SuppressLint("SetTextI18n")
         dateView.text = "$start - $now"
     }
 }
@@ -136,6 +154,7 @@ class FinanceStatisticsScreen : InuScreen<FinanceStatisticsView>() {
 
     private val accountBox by instance<Box<FinanceAccount>>()
     private val operationBox by instance<Box<FinanceOperation>>()
+    private val transferBox by instance<Box<FinanceTransfer>>()
 
     private val updateJobId = generateJobId()
 
@@ -157,30 +176,76 @@ class FinanceStatisticsScreen : InuScreen<FinanceStatisticsView>() {
     private fun update() {
         val period = period
         launchJob(Dispatchers.Default, id = updateJobId, replacing = true) {
-            val totalSavings = accountBox.all.sumByDouble { it.balance + it.initialBalance } // todo: migrate to FinanceAccountManager
+            // todo: migrate to FinanceAccountManager
+            val totalSavings = accountBox.all
+                .groupingBy { it.currency }
+                .aggregateTo(TreeMap()) { _, acc: Double?, it, _ -> (acc ?: 0.0) + it.balance + it.initialBalance }
+
             withContext(Dispatchers.Main) {
-                view.totalSavings = totalSavings
+                view.setTotalSavings(totalSavings)
             }
 
             val start = DateTime.now(TimeZone.getDefault())
                 .minusMonths(period - 1)
                 .truncate(DateTime.Unit.MONTH)
 
-            val operations = operationBox
-                .query { filter { it.receipt.target.datetime >= start } } // todo: very inefficient
-                .find()
-                .groupBy { it.categories.first() }
-                .mapKeys { (key, _) -> key.name }
-                .mapValues { (_, value) -> value.sumByDouble { it.amount } }
-                .toList()
+            val operationsByCurrency = operationBox
+                .query {
+                    link(FinanceOperation_.receipt)
+                        .greaterOrEqual(FinanceReceipt_.datetime, start.toString(), StringOrder.CASE_SENSITIVE)
+                }
+                .findLazy()
+                .groupBy { it.receipt.target.account.target.currency }
 
-            val (incomeOperations, expenseOperations) = operations.partition { it.second > 0 }
-            val sortedOperations = listOf(incomeOperations, expenseOperations)
-                .map { it.sortedByDescending { operation -> abs(operation.second) } }
-                .flatten()
+            val transferAmountByCurrency = transferBox
+                .query {
+                    greaterOrEqual(FinanceTransfer_.datetime, start.toString(), StringOrder.CASE_SENSITIVE)
+                }
+                .findLazy()
+                .asSequence()
+                .flatMap {
+                    sequenceOf(
+                        it.from.target.currency to -it.amount,
+                        it.to.target.currency to +it.amountTo,
+                    )
+                }
+                .groupingBy { (currency, _) -> currency }
+                .aggregate { _, acc: Double?, (_, amount), _ -> (acc ?: 0.0) + amount }
+
+            val totalChange = TreeMap<String, Double>().apply {
+                for ((currency, operations) in operationsByCurrency) {
+                    val amount = operations.sumOf { it.amount }
+                    compute(currency) { _, value -> (value ?: 0.0) + amount }
+                }
+
+                for ((currency, amount) in transferAmountByCurrency) {
+                    compute(currency) { _, value -> (value ?: 0.0) + amount }
+                }
+            }
 
             withContext(Dispatchers.Main) {
-                view.setOperationList(sortedOperations)
+                view.setTotalChange(totalChange)
+            }
+
+            val categorySummariesByCurrency = operationsByCurrency
+                .mapValuesTo(TreeMap()) { (_, operations) ->
+                    operations
+                        .groupingBy { it.categories.first() }
+                        .aggregate { _, acc: Double?, it, _ -> (acc ?: 0.0) + it.amount }
+                        .asSequence()
+                        .map { (category, amount) ->
+                            FinanceStatisticsCategorySummary(
+                                categoryName = category.name,
+                                amount = amount,
+                            )
+                        }
+                        .filter { it.amount != 0.0 }
+                        .sortedByDescending { it.amount }
+                        .toList()
+                }
+
+            withContext(Dispatchers.Main) {
+                view.setCategoryList(categorySummariesByCurrency)
             }
         }
     }

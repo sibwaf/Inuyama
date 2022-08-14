@@ -359,7 +359,7 @@
     },
     {
       "id": "11:2280843673621928002",
-      "lastPropertyId": "6:8563711556371999361",
+      "lastPropertyId": "7:5623693615467192987",
       "name": "FinanceAccount",
       "properties": [
         {
@@ -392,6 +392,11 @@
           "id": "6:8563711556371999361",
           "name": "disabled",
           "type": 1
+        },
+        {
+          "id": "7:5623693615467192987",
+          "name": "currency",
+          "type": 9
         }
       ],
       "relations": []
@@ -481,7 +486,7 @@
     },
     {
       "id": "15:8468445278664187785",
-      "lastPropertyId": "5:7386468994988094192",
+      "lastPropertyId": "6:3017434035196145952",
       "name": "FinanceTransfer",
       "properties": [
         {
@@ -517,6 +522,11 @@
           "type": 11,
           "flags": 520,
           "relationTarget": "FinanceAccount"
+        },
+        {
+          "id": "6:3017434035196145952",
+          "name": "amountTo",
+          "type": 8
         }
       ],
       "relations": []

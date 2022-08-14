@@ -87,7 +87,7 @@ class FinanceAccountItem(
 
     override fun getTitle(context: Context) = account.name
     override fun getSubtitle(context: Context) =
-        context.getString(R.string.label_finance_amount, financeOperationManager.getCurrentBalance(account))
+        context.getString(R.string.label_finance_amount, financeOperationManager.getCurrentBalance(account), account.currency)
 
     override fun getType() = ITEM_TYPE_FINANCE_ACCOUNT
 }
@@ -118,7 +118,7 @@ class FinanceReceiptItem(
         val builder = StringBuilder()
         builder.append(account.name)
         builder.append(", ")
-        builder.append(context.getString(R.string.label_finance_amount, abs(amount)))
+        builder.append(context.getString(R.string.label_finance_amount, abs(amount), account.currency))
 
         if (categories.isNotEmpty()) {
             builder.append("\n")
@@ -143,16 +143,19 @@ class FinanceTransferItem(
         val accountFrom = transfer.from.target
         val accountTo = transfer.to.target
 
-        val amountText = context.getString(R.string.label_finance_amount, transfer.amount)
+        val amountFromText = context.getString(R.string.label_finance_change, -transfer.amount, accountFrom.currency)
+        val amountToText = context.getString(R.string.label_finance_change, transfer.amountTo, accountTo.currency)
 
         return buildString {
             append(accountFrom.name)
             append(", ")
-            append(amountText)
+            append(amountFromText)
 
             appendLine()
 
             append(accountTo.name)
+            append(", ")
+            append(amountToText)
         }
     }
 

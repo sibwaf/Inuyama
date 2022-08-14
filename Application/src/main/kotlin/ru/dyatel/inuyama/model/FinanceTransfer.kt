@@ -14,6 +14,7 @@ import java.util.TimeZone
 data class FinanceTransfer(
     @Id var id: Long = 0,
     var amount: Double = 0.0,
+    var amountTo: Double = 0.0,
 
     @Convert(converter = DateTimeConverter::class, dbType = String::class)
     @Index(type = IndexType.VALUE)

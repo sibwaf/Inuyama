@@ -6,6 +6,7 @@ import ru.dyatel.inuyama.model.FinanceAccount
 data class FinanceTransferDto(
     val fromAccount: FinanceAccount,
     val toAccount: FinanceAccount,
-    val amount: Double,
+    val amountFrom: Double,
+    val amountTo: Double,
     val datetime: DateTime,
 )

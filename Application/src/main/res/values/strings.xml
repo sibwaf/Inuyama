@@ -53,8 +53,8 @@
     <string name="label_no_updates">Обновлений не найдено</string>
     <string name="label_watching">Отслеживание обновлений</string>
     <string name="label_pairing_state">Связывать</string>
-    <string name="label_finance_amount">%.2f ₽</string>
-    <string name="label_finance_change">%+.2f ₽</string>
+    <string name="label_finance_amount">%.2f %s</string>
+    <string name="label_finance_change">%+.2f %s</string>
     <string name="label_current_network_untrusted">Текущая сеть не является доверенной</string>
     <string name="label_pairing_discovery_port">Порт связывания</string>
 
@@ -95,7 +95,9 @@
     <string name="hint_nyaa_watch_collect_path">Название папки</string>
 
     <string name="hint_finance_account_balance">Начальный баланс</string>
+    <string name="hint_finance_currency">Валюта</string>
     <string name="hint_finance_amount">Сумма</string>
+    <string name="hint_finance_amount_converted">Конвертированная сумма</string>
     <string name="hint_finance_quick_access">Быстрый доступ</string>
     <string name="hint_finance_disabled">Отключен</string>
 

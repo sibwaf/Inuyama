@@ -1,6 +1,7 @@
 package ru.dyatel.inuyama.finance
 
 import android.content.Context
+import android.text.InputType
 import android.widget.Button
 import androidx.appcompat.widget.SwitchCompat
 import com.wealthfront.magellan.BaseScreenView
@@ -33,6 +34,8 @@ class FinanceAccountView(context: Context) : BaseScreenView<FinanceAccountScreen
         private set
     lateinit var initialBalanceEditor: UniformDoubleInput
         private set
+    lateinit var currencyEditor: UniformTextInput
+        private set
     lateinit var quickAccessSwitch: SwitchCompat
         private set
     lateinit var disabledSwitch: SwitchCompat
@@ -55,6 +58,11 @@ class FinanceAccountView(context: Context) : BaseScreenView<FinanceAccountScreen
 
                 initialBalanceEditor = uniformDoubleInput {
                     hintResource = R.string.hint_finance_account_balance
+                }
+
+                currencyEditor = uniformTextInput {
+                    hintResource = R.string.hint_finance_currency
+                    inputType = inputType or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
                 }
 
                 quickAccessSwitch = switchCompat {
@@ -85,12 +93,14 @@ class FinanceAccountScreen(private val account: FinanceAccount) : InuScreen<Fina
     override fun createView(context: Context) = FinanceAccountView(context).apply {
         nameEditor.text = account.name
         initialBalanceEditor.value = account.initialBalance
+        currencyEditor.text = account.currency
         quickAccessSwitch.isChecked = account.quickAccess
         disabledSwitch.isChecked = account.disabled
 
         saveButton.setOnClickListener {
             account.name = nameEditor.text
             account.initialBalance = initialBalanceEditor.value
+            account.currency = currencyEditor.text.uppercase().trim()
             account.quickAccess = quickAccessSwitch.isChecked
             account.disabled = disabledSwitch.isChecked
             accountBox.put(account)

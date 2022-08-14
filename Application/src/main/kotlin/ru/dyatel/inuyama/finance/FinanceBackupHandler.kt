@@ -37,6 +37,7 @@ class FinanceBackupHandler(
                     name = it.name,
                     initialBalance = it.initialBalance,
                     balance = it.balance,
+                    currency = it.currency,
                     quickAccess = it.quickAccess,
                     disabled = it.disabled,
                 )
@@ -66,7 +67,8 @@ class FinanceBackupHandler(
             transfers = transferRepository.all.map {
                 BackupFinanceTransfer(
                     id = it.id.toString(),
-                    amount = it.amount,
+                    amountFrom = it.amount,
+                    amountTo = it.amountTo,
                     datetime = it.datetime.format(DATETIME_FORMAT),
                     fromId = it.from.targetId.toString(),
                     toId = it.to.targetId.toString()
@@ -90,7 +92,8 @@ class FinanceBackupHandler(
                     FinanceAccount(
                         name = account.name,
                         initialBalance = account.initialBalance,
-                        balance = account.balance
+                        balance = account.balance,
+                        currency = account.currency ?: "",
                     ).also { savedAccount ->
                         account.quickAccess?.let { savedAccount.quickAccess = it }
                         account.disabled?.let { savedAccount.disabled = it }
@@ -142,7 +145,8 @@ class FinanceBackupHandler(
             for (transfer in backup.transfers) {
                 transferRepository.put(
                     FinanceTransfer(
-                        amount = transfer.amount,
+                        amount = (transfer.amountFrom ?: transfer.amount)!!,
+                        amountTo = (transfer.amountTo ?: transfer.amount)!!,
                         datetime = DateTime(transfer.datetime)
                     ).also {
                         transferRepository.attach(it)
@@ -167,6 +171,7 @@ private data class BackupFinanceAccount(
     val name: String,
     val initialBalance: Double,
     val balance: Double,
+    val currency: String?,
     val quickAccess: Boolean?,
     val disabled: Boolean?,
 )
@@ -193,7 +198,9 @@ private data class BackupFinanceOperation(
 
 private data class BackupFinanceTransfer(
     val id: String,
-    val amount: Double,
+    val amount: Double? = null,
+    val amountFrom: Double?,
+    val amountTo: Double?,
     val datetime: String,
     val fromId: String,
     val toId: String

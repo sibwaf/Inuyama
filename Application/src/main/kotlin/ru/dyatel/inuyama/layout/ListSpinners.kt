@@ -43,7 +43,7 @@ class FinanceAccountSelector(context: Context) : ListSpinner<FinanceAccount>(con
 
     fun bindItems(items: List<FinanceAccount>) {
         bindItems(items) {
-            val balance = context.getString(R.string.label_finance_amount, it.initialBalance + it.balance)
+            val balance = context.getString(R.string.label_finance_amount, it.initialBalance + it.balance, it.currency)
             "${it.name} ($balance)"
         }
     }

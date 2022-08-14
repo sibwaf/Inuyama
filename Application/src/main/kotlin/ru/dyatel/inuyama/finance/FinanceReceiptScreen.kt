@@ -51,7 +51,7 @@ class FinanceReceiptView(context: Context) : BaseScreenView<FinanceReceiptScreen
                 editor.onChange { receipt ->
                     val amount = receipt.operations.sumOf { it.amount }
 
-                    text = context.getString(R.string.label_finance_amount, abs(amount))
+                    text = context.getString(R.string.label_finance_amount, abs(amount), receipt.account.currency)
                     // todo: add direction to receipt dto instead of relying on sign
                     backgroundColorResource = if (amount >= 0) R.color.color_ok else R.color.color_fail
                 }

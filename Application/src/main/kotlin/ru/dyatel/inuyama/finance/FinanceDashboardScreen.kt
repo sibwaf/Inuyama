@@ -270,7 +270,8 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
         val transferInfo = FinanceTransferDto(
             fromAccount = accounts[0],
             toAccount = accounts[1],
-            amount = 0.0,
+            amountFrom = 0.0,
+            amountTo = 0.0,
             datetime = DateTime.now(TimeZone.getDefault()),
         )
 
