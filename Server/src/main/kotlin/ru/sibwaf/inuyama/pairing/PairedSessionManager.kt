@@ -20,7 +20,7 @@ class PairedSessionManager {
     private companion object {
         const val TOKEN_LENGTH = 64
 
-        val SESSION_EXPIRATION_PERIOD = Duration.ofSeconds(10)
+        val SESSION_EXPIRATION_PERIOD = Duration.ofMinutes(15)
         val SESSION_TOKEN_LEASE_PERIOD = Duration.ofDays(2)
     }
 
