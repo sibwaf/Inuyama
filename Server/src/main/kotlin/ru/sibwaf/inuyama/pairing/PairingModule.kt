@@ -11,7 +11,13 @@ val pairingModule = Kodein.Module("pairing") {
     bind<DeviceManager>() with singleton { DeviceManager() }
     bind<PairedSessionManager>() with singleton { PairedSessionManager() }
 
-    bind<PairingHttpHandler>() with singleton { PairingHttpHandler(instance()) }
+    bind<PairingHttpHandler>() with singleton {
+        PairingHttpHandler(
+            keyKeeper = instance(),
+            pairedSessionManager = instance(),
+            deviceManager = instance(),
+        )
+    }
 
     bind<PairingModule>() with singleton { PairingModule(instance()) }
 }

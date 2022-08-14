@@ -47,13 +47,6 @@ val httpModule = Kodein.Module("http") {
         SecurityHttpFilter(config)
     }
 
-    bind<MainHttpHandler>() with singleton {
-        MainHttpHandler(
-            keyKeeper = instance(),
-            pairedSessionManager = instance()
-        )
-    }
-
     bind<HttpModule>() with singleton {
         HttpModule(
             config = instance(),
