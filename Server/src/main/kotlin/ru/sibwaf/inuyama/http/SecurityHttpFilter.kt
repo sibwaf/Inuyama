@@ -10,6 +10,7 @@ class SecurityHttpFilter(private val config: SecurityConfig) : HttpFilter {
     companion object {
         private const val ATTRIBUTE_SESSION = "sibwaf.inuyama.session"
         private const val ATTRIBUTE_DECRYPTED_BODY_PROVIDER = "sibwaf.inuyama.decrypted-body-provider"
+        private const val ATTRIBUTE_ENCRYPTABLE_RESPONSE_BODY = "sibwaf.inuyama.encryptable-response-body"
 
         var Context.session: Session?
             get() = attribute(ATTRIBUTE_SESSION)
@@ -18,6 +19,10 @@ class SecurityHttpFilter(private val config: SecurityConfig) : HttpFilter {
         var Context.decryptedBodyProvider: () -> InputStream
             get() = attribute(ATTRIBUTE_DECRYPTED_BODY_PROVIDER) ?: { bodyAsInputStream() }
             set(value) = attribute(ATTRIBUTE_DECRYPTED_BODY_PROVIDER, value)
+
+        var Context.encryptableResponseBody: InputStream?
+            get() = attribute(ATTRIBUTE_ENCRYPTABLE_RESPONSE_BODY)
+            set(value) = attribute(ATTRIBUTE_ENCRYPTABLE_RESPONSE_BODY, value)
 
         fun Context.requireSession(): Session = session ?: throw SessionException()
 

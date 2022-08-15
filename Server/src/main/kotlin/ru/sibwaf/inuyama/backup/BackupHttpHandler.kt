@@ -4,6 +4,7 @@ import io.javalin.Javalin
 import ru.sibwaf.inuyama.exception
 import ru.sibwaf.inuyama.http.HttpHandler
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptedBody
+import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.encryptableResponseBody
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.requireSession
 import ru.sibwaf.inuyama.http.pairedSubroute
 import ru.sibwaf.inuyama.http.subroute
@@ -23,7 +24,7 @@ class BackupHttpHandler(private val backupManager: BackupManager) : HttpHandler 
                     if (data == null) {
                         ctx.status(404)
                     } else {
-                        ctx.result(data)
+                        ctx.encryptableResponseBody = data
                     }
                 }
 

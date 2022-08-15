@@ -4,6 +4,7 @@ import io.javalin.http.Context
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptedBodyProvider
+import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.encryptableResponseBody
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.requireSession
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.session
 import ru.sibwaf.inuyama.pairing.PairedSessionManager
@@ -71,13 +72,13 @@ fun interface SecurityStrategy {
         }
 
         override fun postProcess(ctx: Context) {
-            val response = ctx.resultStream() ?: return
+            val session = ctx.requireSession()
 
-            response
-                .let { Cryptography.encryptAES(it, ctx.requireSession().key) }
-                .let { ctx.result(it) }
-
-            ctx.contentType("application/octet-stream")
+            val responseToEncrypt = ctx.encryptableResponseBody
+            if (responseToEncrypt != null) {
+                ctx.result(Cryptography.encryptAES(responseToEncrypt, session.key))
+                ctx.contentType("application/octet-stream")
+            }
         }
     }
 

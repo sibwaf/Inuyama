@@ -9,6 +9,7 @@ import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.http.HttpHandler
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptBodyAs
 import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.decryptedBody
+import ru.sibwaf.inuyama.http.SecurityHttpFilter.Companion.encryptableResponseBody
 import ru.sibwaf.inuyama.http.pairedSubroute
 import ru.sibwaf.inuyama.http.subroute
 import ru.sibwaf.inuyama.http.webSubroute
@@ -48,7 +49,7 @@ class PairingHttpHandler(
             }
 
             post("/echo") { ctx ->
-                ctx.result(ctx.decryptedBody())
+                ctx.encryptableResponseBody = ctx.decryptedBody()
             }
         }
     }
