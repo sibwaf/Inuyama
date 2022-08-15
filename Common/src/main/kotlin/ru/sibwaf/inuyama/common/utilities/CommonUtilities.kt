@@ -1,5 +1,7 @@
 package ru.sibwaf.inuyama.common.utilities
 
+import java.io.FilterInputStream
+import java.io.InputStream
 import java.security.SecureRandom
 
 object CommonUtilities {
@@ -15,5 +17,11 @@ object CommonUtilities {
             result.append(alphabet[index])
         }
         return result.toString()
+    }
+}
+
+fun InputStream.nonCloseable(): InputStream {
+    return object : FilterInputStream(this) {
+        override fun close() = Unit
     }
 }

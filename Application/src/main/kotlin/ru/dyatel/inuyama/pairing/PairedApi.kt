@@ -14,6 +14,7 @@ import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.common.utilities.MediaTypes
 import ru.sibwaf.inuyama.common.utilities.asRequestBody
 import ru.sibwaf.inuyama.common.utilities.await
+import ru.sibwaf.inuyama.common.utilities.nonCloseable
 import sibwaf.inuyama.app.common.NetworkManager
 import sibwaf.inuyama.app.common.RemoteService
 import java.io.ByteArrayInputStream
@@ -51,12 +52,16 @@ class PairedApi(
     }
 
     suspend fun makeBackup(module: String, data: InputStream) {
-        pairedConnectionHolder.withSession { server, session ->
-            makeRequest {
-                post(encryptBody(data, session))
-                withUrl(server, "/backup/$module")
-                withAuth(session)
-            }.close()
+        data.use { data ->
+            pairedConnectionHolder.withSession { server, session ->
+                data.reset()
+
+                makeRequest {
+                    post(encryptBody(data.nonCloseable(), session))
+                    withUrl(server, "/backup/$module")
+                    withAuth(session)
+                }.close()
+            }
         }
     }
 
