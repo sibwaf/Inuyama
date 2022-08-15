@@ -13,7 +13,11 @@ import ru.dyatel.inuyama.model.FinanceOperation_
 import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.dyatel.inuyama.model.FinanceTransfer_
+import ru.dyatel.inuyama.model.NyaaTorrent
+import ru.dyatel.inuyama.model.NyaaWatch
+import ru.dyatel.inuyama.model.RuranobeVolume
 import ru.dyatel.inuyama.utilities.PreferenceHelper
+import ru.dyatel.inuyama.utilities.resaveAll
 import java.util.UUID
 
 class MigrationRunner(override val kodein: Kodein) : KodeinAware {
@@ -128,6 +132,15 @@ class MigrationRunner(override val kodein: Kodein) : KodeinAware {
                         financeTransferBox.put(it)
                     }
             }
+        }
+
+        if (lastUsedVersion < 11) {
+            store.boxFor<FinanceOperation>().resaveAll()
+            store.boxFor<FinanceReceipt>().resaveAll()
+            store.boxFor<FinanceTransfer>().resaveAll()
+            store.boxFor<NyaaTorrent>().resaveAll()
+            store.boxFor<NyaaWatch>().resaveAll()
+            store.boxFor<RuranobeVolume>().resaveAll()
         }
 
         preferenceHelper.lastUsedVersion = currentVersion

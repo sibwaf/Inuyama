@@ -9,7 +9,6 @@ import com.wealthfront.magellan.BaseScreenView
 import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import io.objectbox.kotlin.query
-import io.objectbox.query.QueryBuilder.StringOrder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.anko.alignParentLeft
@@ -33,6 +32,7 @@ import ru.dyatel.inuyama.model.FinanceReceipt_
 import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.dyatel.inuyama.model.FinanceTransfer_
 import ru.dyatel.inuyama.screens.InuScreen
+import ru.dyatel.inuyama.utilities.greaterOrEqual
 import ru.sibwaf.inuyama.common.utilities.minusMonths
 import sibwaf.inuyama.app.common.DIM_LARGE
 import sibwaf.inuyama.app.common.DIM_MEDIUM
@@ -192,15 +192,13 @@ class FinanceStatisticsScreen : InuScreen<FinanceStatisticsView>() {
             val operationsByCurrency = operationBox
                 .query {
                     link(FinanceOperation_.receipt)
-                        .greaterOrEqual(FinanceReceipt_.datetime, start.toString(), StringOrder.CASE_SENSITIVE)
+                        .greaterOrEqual(FinanceReceipt_.datetime, start)
                 }
                 .findLazy()
                 .groupBy { it.receipt.target.account.target.currency }
 
             val transferAmountByCurrency = transferBox
-                .query {
-                    greaterOrEqual(FinanceTransfer_.datetime, start.toString(), StringOrder.CASE_SENSITIVE)
-                }
+                .query { greaterOrEqual(FinanceTransfer_.datetime, start) }
                 .findLazy()
                 .asSequence()
                 .flatMap {

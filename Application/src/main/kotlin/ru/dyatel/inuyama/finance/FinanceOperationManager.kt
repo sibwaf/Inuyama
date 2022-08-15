@@ -4,7 +4,6 @@ import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.kotlin.query
-import io.objectbox.query.QueryBuilder.StringOrder
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
@@ -19,6 +18,7 @@ import ru.dyatel.inuyama.model.FinanceReceipt_
 import ru.dyatel.inuyama.model.FinanceTransaction
 import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.dyatel.inuyama.model.FinanceTransfer_
+import ru.dyatel.inuyama.utilities.lessOrEqual
 
 class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 
@@ -58,7 +58,7 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 
         val receipts = receiptBox
             .query {
-                cursor?.lastReceiptDatetime?.let { lessOrEqual(FinanceReceipt_.datetime, it.toString(), StringOrder.CASE_INSENSITIVE) }
+                cursor?.lastReceiptDatetime?.let { lessOrEqual(FinanceReceipt_.datetime, it) }
                 cursor?.lastReceiptId?.let { less(FinanceReceipt_.id, it) }
 
                 orderDesc(FinanceReceipt_.datetime)
@@ -68,7 +68,7 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 
         val transfers = transferBox
             .query {
-                cursor?.lastTransferDatetime?.let { lessOrEqual(FinanceTransfer_.datetime, it.toString(), StringOrder.CASE_INSENSITIVE) }
+                cursor?.lastTransferDatetime?.let { lessOrEqual(FinanceTransfer_.datetime, it) }
                 cursor?.lastTransferId?.let { less(FinanceTransfer_.id, it) }
 
                 orderDesc(FinanceTransfer_.datetime)
