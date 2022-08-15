@@ -22,6 +22,11 @@ class MigrationRunner(override val kodein: Kodein) : KodeinAware {
         val lastUsedVersion = preferenceHelper.lastUsedVersion
         val currentVersion = BuildConfig.VERSION_CODE
 
+        if (lastUsedVersion < 0) {
+            preferenceHelper.lastUsedVersion = currentVersion
+            return
+        }
+
         if (lastUsedVersion == currentVersion) {
             return
         }
@@ -81,6 +86,5 @@ class MigrationRunner(override val kodein: Kodein) : KodeinAware {
         }
 
         preferenceHelper.lastUsedVersion = currentVersion
-        return
     }
 }
