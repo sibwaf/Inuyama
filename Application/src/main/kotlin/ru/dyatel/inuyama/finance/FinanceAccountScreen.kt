@@ -105,9 +105,7 @@ class FinanceAccountScreen(private val account: FinanceAccount) : InuScreen<Fina
             account.disabled = disabledSwitch.isChecked
             accountBox.put(account)
 
-            if (!existingAccount) {
-                navigator.goBack()
-            }
+            navigator.goBack()
         }
     }
 }
