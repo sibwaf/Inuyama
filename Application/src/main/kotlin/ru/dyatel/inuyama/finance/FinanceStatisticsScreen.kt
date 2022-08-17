@@ -84,7 +84,7 @@ class FinanceStatisticsView(context: Context) : BaseScreenView<FinanceStatistics
 
                     periodSelector = ListSpinner<Int>(context).apply {
                         id = periodSelectorId
-                        bindItems(listOf(1, 4, 6, 12)) { context.resources.getQuantityString(R.plurals.common_months, it, it) }
+                        bindItems(listOf(1, 3, 6, 12)) { context.resources.getQuantityString(R.plurals.common_months, it, it) }
                         selected = 1
                     }.lparams {
                         alignParentRight()
