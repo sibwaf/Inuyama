@@ -18,7 +18,8 @@ import ru.dyatel.inuyama.model.FinanceReceipt_
 import ru.dyatel.inuyama.model.FinanceTransaction
 import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.dyatel.inuyama.model.FinanceTransfer_
-import ru.dyatel.inuyama.utilities.lessOrEqual
+import ru.dyatel.inuyama.utilities.equal
+import ru.dyatel.inuyama.utilities.less
 
 class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 
@@ -58,8 +59,15 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 
         val receipts = receiptBox
             .query {
-                cursor?.lastReceiptDatetime?.let { lessOrEqual(FinanceReceipt_.datetime, it) }
-                cursor?.lastReceiptId?.let { less(FinanceReceipt_.id, it) }
+                if (cursor?.lastReceiptDatetime != null && cursor.lastReceiptId != null) {
+                    equal(FinanceReceipt_.datetime, cursor.lastReceiptDatetime)
+                    and()
+                    less(FinanceReceipt_.id, cursor.lastReceiptId)
+
+                    or()
+
+                    less(FinanceReceipt_.datetime, cursor.lastReceiptDatetime)
+                }
 
                 orderDesc(FinanceReceipt_.datetime)
                 orderDesc(FinanceReceipt_.id)
@@ -68,8 +76,15 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 
         val transfers = transferBox
             .query {
-                cursor?.lastTransferDatetime?.let { lessOrEqual(FinanceTransfer_.datetime, it) }
-                cursor?.lastTransferId?.let { less(FinanceTransfer_.id, it) }
+                if (cursor?.lastTransferDatetime != null && cursor.lastTransferId != null) {
+                    equal(FinanceTransfer_.datetime, cursor.lastTransferDatetime)
+                    and()
+                    less(FinanceTransfer_.id, cursor.lastTransferId)
+
+                    or()
+
+                    less(FinanceTransfer_.datetime, cursor.lastTransferDatetime)
+                }
 
                 orderDesc(FinanceTransfer_.datetime)
                 orderDesc(FinanceTransfer_.id)

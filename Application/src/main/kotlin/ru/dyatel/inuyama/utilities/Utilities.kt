@@ -58,6 +58,14 @@ fun <T> Box<T>.resaveAll() = updateAll { it }
 
 private val dateTimeConverter = DateTimeConverter()
 
+fun <T> QueryBuilder<T>.equal(property: Property<T>, value: DateTime): QueryBuilder<T> {
+    return equal(property, dateTimeConverter.convertToDatabaseValue(value)!!, StringOrder.CASE_SENSITIVE)
+}
+
+fun <T> QueryBuilder<T>.less(property: Property<T>, value: DateTime): QueryBuilder<T> {
+    return less(property, dateTimeConverter.convertToDatabaseValue(value)!!, StringOrder.CASE_SENSITIVE)
+}
+
 fun <T> QueryBuilder<T>.lessOrEqual(property: Property<T>, value: DateTime): QueryBuilder<T> {
     return lessOrEqual(property, dateTimeConverter.convertToDatabaseValue(value)!!, StringOrder.CASE_SENSITIVE)
 }
