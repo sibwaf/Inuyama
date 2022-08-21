@@ -8,6 +8,7 @@ import okhttp3.Response
 import okhttp3.internal.closeQuietly
 import ru.dyatel.inuyama.R
 import ru.sibwaf.inuyama.common.TorrentDownloadApiRequest
+import ru.sibwaf.inuyama.common.paired.model.ErrorLogEntry
 import ru.sibwaf.inuyama.common.utilities.CommonUtilities
 import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
@@ -62,6 +63,16 @@ class PairedApi(
                     withAuth(session)
                 }.close()
             }
+        }
+    }
+
+    suspend fun logError(event: ErrorLogEntry) {
+        pairedConnectionHolder.withSession { server, session ->
+            makeRequest {
+                post(encryptBody(gson.toJson(event), session))
+                withUrl(server, "/errors")
+                withAuth(session)
+            }.close()
         }
     }
 

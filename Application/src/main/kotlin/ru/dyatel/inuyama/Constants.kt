@@ -28,6 +28,7 @@ const val NOTIFICATION_ID_UPDATE = 1
 
 const val WORK_NAME_OVERSEER = "${BuildConfig.APPLICATION_ID}:overseer"
 const val WORK_NAME_BACKUP = "${BuildConfig.APPLICATION_ID}:backup"
+const val WORK_NAME_ERROR_SENDER = "${BuildConfig.APPLICATION_ID}:errors"
 
 const val DASHBOARD_UPDATE_COUNT = 8
 

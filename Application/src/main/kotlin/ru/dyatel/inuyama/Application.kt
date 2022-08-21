@@ -10,6 +10,7 @@ import com.google.gson.JsonParser
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import org.kodein.di.Kodein
@@ -23,6 +24,8 @@ import org.kodein.di.generic.setBinding
 import org.kodein.di.generic.singleton
 import ru.dyatel.inuyama.backup.BackupService
 import ru.dyatel.inuyama.backup.MainBackupHandler
+import ru.dyatel.inuyama.errors.ErrorLogManager
+import ru.dyatel.inuyama.errors.errorModule
 import ru.dyatel.inuyama.finance.financeModule
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.MyObjectBox
@@ -42,6 +45,7 @@ import ru.dyatel.inuyama.utilities.NoJson
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
 import ru.sibwaf.inuyama.common.utilities.Encoding
+import ru.sibwaf.inuyama.common.utilities.DateTimeGsonTypeAdapter
 import sibwaf.inuyama.app.common.ModuleScreenProvider
 import sibwaf.inuyama.app.common.NetworkManager
 import java.security.PublicKey
@@ -79,6 +83,7 @@ class Application : Application(), KodeinAware {
                         return Encoding.decodeRSAPublicKey(Encoding.decodeBase64(reader.nextString()))
                     }
                 }.nullSafe())
+                .registerTypeAdapter(DateTime::class.java, DateTimeGsonTypeAdapter().nullSafe())
                 .setPrettyPrinting()
                 .create()
         }
@@ -138,6 +143,7 @@ class Application : Application(), KodeinAware {
         }
 
         bind() from setBinding<ModuleScreenProvider>()
+        import(errorModule)
         import(rutrackerModule)
         import(nyaaModule)
 //        import(ruranobeModule)
@@ -146,6 +152,9 @@ class Application : Application(), KodeinAware {
 
     override fun onCreate() {
         super.onCreate()
+
+        val errorLogManager by instance<ErrorLogManager>()
+        errorLogManager.setupExceptionHandler()
 
         val migrationRunner by instance<MigrationRunner>()
         migrationRunner.migrate()

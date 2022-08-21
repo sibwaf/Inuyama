@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import com.zaxxer.hikari.HikariDataSource
+import hirondelle.date4j.DateTime
 import okhttp3.OkHttpClient
 import org.kodein.di.Kodein
 import org.kodein.di.direct
@@ -14,6 +15,8 @@ import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
 import org.slf4j.LoggerFactory
 import ru.sibwaf.inuyama.backup.backupModule
+import ru.sibwaf.inuyama.common.utilities.DateTimeGsonTypeAdapter
+import ru.sibwaf.inuyama.errors.pairedErrorModule
 import ru.sibwaf.inuyama.finance.financeModule
 import ru.sibwaf.inuyama.http.httpModule
 import ru.sibwaf.inuyama.pairing.pairingModule
@@ -28,6 +31,7 @@ private val kodein = Kodein.lazy {
     bind<Gson>() with singleton {
         GsonBuilder()
             .registerJavaTimeAdapters()
+            .registerTypeAdapter(DateTime::class.java, DateTimeGsonTypeAdapter().nullSafe())
             .withCaseInsensitiveEnums()
             .create()
     }
@@ -64,6 +68,7 @@ private val kodein = Kodein.lazy {
 
     import(pairingModule)
     import(httpModule)
+    import(pairedErrorModule)
     import(torrentModule)
     import(backupModule)
     import(financeModule)

@@ -3,6 +3,7 @@ package ru.dyatel.inuyama.utilities
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import hirondelle.date4j.DateTime
 import org.jetbrains.anko.defaultSharedPreferences
 import org.kodein.di.KodeinAware
@@ -12,6 +13,7 @@ import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.pairing.PairedServer
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.sibwaf.inuyama.common.Pairing
+import ru.sibwaf.inuyama.common.paired.model.ErrorLogEntry
 import ru.sibwaf.inuyama.common.utilities.Encoding
 import java.security.KeyPair
 import java.util.TimeZone
@@ -27,6 +29,7 @@ private const val DATA_LAST_CHECK = "overseer_last_check"
 private const val DATA_DEVICE_KEYPAIR = "rsa_keypair"
 private const val DATA_DEVICE_IDENTIFIER = "device_identifier"
 private const val DATA_PAIRED_SERVER = "paired_server"
+private const val DATA_ERROR_LOG = "error_log"
 
 class PreferenceHelper(context: Context) : KodeinAware {
 
@@ -84,6 +87,12 @@ class PreferenceHelper(context: Context) : KodeinAware {
         set(value) {
             preferences.editAndApply { putString(DATA_PAIRED_SERVER, value?.let { gson.toJson(it) }) }
         }
+
+    var errorLog: List<ErrorLogEntry>
+        get() = preferences.getString(DATA_ERROR_LOG, null)?.let {
+            gson.fromJson(it, object : TypeToken<List<ErrorLogEntry>>() {}.type)
+        } ?: emptyList()
+        set(value) = preferences.editAndApply { putString(DATA_ERROR_LOG, gson.toJson(value)) }
 }
 
 fun SharedPreferences.editAndApply(edit: SharedPreferences.Editor.() -> Unit) {
