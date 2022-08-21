@@ -294,7 +294,11 @@ class HomeScreen : InuScreen<HomeScreenView>(), KodeinAware {
         if (!overseer.isWorking) {
             view.statusBar.textResource = R.string.label_waiting_for_task
             launchJob(dispatcher = Dispatchers.Default, id = overseerJobId, replacing = true) {
-                overseer.execute()
+                try {
+                    overseer.execute()
+                } catch (e: Exception) {
+                    // todo: ignore for now
+                }
             }
         }
     }
