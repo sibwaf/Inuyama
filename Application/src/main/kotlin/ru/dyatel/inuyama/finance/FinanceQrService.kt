@@ -2,6 +2,7 @@ package ru.dyatel.inuyama.finance
 
 import hirondelle.date4j.DateTime
 import ru.dyatel.inuyama.QrReader
+import ru.dyatel.inuyama.finance.dto.FinanceOperationDirection
 import ru.dyatel.inuyama.finance.dto.FinanceOperationInfo
 import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
 import ru.dyatel.inuyama.model.FinanceAccount
@@ -23,6 +24,7 @@ class FinanceQrService(
         val items = firstOfdApi.getTicketItemsByQr(qrText, httpClient)
 
         return FinanceReceiptInfo(
+            direction = FinanceOperationDirection.EXPENSE,
             account = account,
             operations = items.map {
                 FinanceOperationInfo(

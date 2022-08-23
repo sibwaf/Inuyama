@@ -18,6 +18,7 @@ import org.jetbrains.anko.topOf
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.finance.components.FinanceReceiptEditor
+import ru.dyatel.inuyama.finance.dto.FinanceOperationDirection
 import ru.dyatel.inuyama.finance.dto.FinanceOperationInfo
 import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
 import ru.dyatel.inuyama.model.FinanceCategory
@@ -52,8 +53,10 @@ class FinanceReceiptView(context: Context) : BaseScreenView<FinanceReceiptScreen
                     val amount = receipt.operations.sumOf { it.amount }
 
                     text = context.getString(R.string.label_finance_amount, abs(amount), receipt.account.currency)
-                    // todo: add direction to receipt dto instead of relying on sign
-                    backgroundColorResource = if (amount >= 0) R.color.color_ok else R.color.color_fail
+                    backgroundColorResource = when (receipt.direction) {
+                        FinanceOperationDirection.EXPENSE -> R.color.color_fail
+                        FinanceOperationDirection.INCOME -> R.color.color_ok
+                    }
                 }
             }
 
@@ -87,6 +90,13 @@ class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
     constructor(receipt: FinanceReceipt, grabFocus: Boolean) {
         this.receipt = receipt
         receiptInfo = FinanceReceiptInfo(
+            // operationManager is not available here as it is received from kodein
+            // and kodein requires an activity which was not set yet
+            direction = if (receipt.operations.sumOf { it.amount } > 0) {
+                FinanceOperationDirection.INCOME
+            } else {
+                FinanceOperationDirection.EXPENSE
+            },
             account = receipt.account.target,
             operations = receipt.operations.map {
                 FinanceOperationInfo(
@@ -134,18 +144,9 @@ class FinanceReceiptScreen : InuScreen<FinanceReceiptView> {
 
     private fun saveReceipt(receiptInfo: FinanceReceiptInfo) {
         if (receipt == null) {
-            operationManager.createReceipt(
-                account = receiptInfo.account,
-                operations = receiptInfo.operations,
-                datetime = receiptInfo.datetime,
-            )
+            operationManager.createReceipt(receiptInfo)
         } else {
-            operationManager.update(
-                receipt = receipt,
-                account = receiptInfo.account,
-                operations = receiptInfo.operations,
-                datetime = receiptInfo.datetime,
-            )
+            operationManager.update(receipt, receiptInfo)
         }
     }
 

@@ -7,7 +7,9 @@ import io.objectbox.kotlin.query
 import org.kodein.di.Kodein
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
+import ru.dyatel.inuyama.finance.dto.FinanceOperationDirection
 import ru.dyatel.inuyama.finance.dto.FinanceOperationInfo
+import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
 import ru.dyatel.inuyama.finance.dto.FinanceTransferDto
 import ru.dyatel.inuyama.finance.dto.TransactionHistoryCursor
 import ru.dyatel.inuyama.model.FinanceAccount
@@ -20,6 +22,7 @@ import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.dyatel.inuyama.model.FinanceTransfer_
 import ru.dyatel.inuyama.utilities.equal
 import ru.dyatel.inuyama.utilities.less
+import kotlin.math.abs
 
 class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
 
@@ -116,24 +119,20 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         return receipt.operations.sumOf { it.amount }
     }
 
-    fun createReceipt(
-        account: FinanceAccount,
-        operations: List<FinanceOperationInfo>,
-        datetime: DateTime
-    ) {
+    fun createReceipt(data: FinanceReceiptInfo) {
         val receipt = FinanceReceipt()
-        receipt.account.target = account
+        receipt.account.target = data.account
 
-        for (operationInfo in operations) {
-            receipt.operations.add(operationInfo.asFinanceOperation(account, receipt.datetime))
+        for (operationInfo in data.operations) {
+            receipt.operations.add(operationInfo.asFinanceOperation(data.direction, data.account, receipt.datetime))
         }
 
-        account.balance += getAmount(receipt)
+        data.account.balance += getAmount(receipt)
 
-        receipt.datetime = datetime
+        receipt.datetime = data.datetime
 
         boxStore.runInTx {
-            accountBox.put(account)
+            accountBox.put(data.account)
             receiptBox.put(receipt)
         }
     }
@@ -187,15 +186,8 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         }
     }
 
-    fun update(
-        receipt: FinanceReceipt,
-        account: FinanceAccount,
-        operations: List<FinanceOperationInfo>,
-        datetime: DateTime,
-    ) {
+    fun update(receipt: FinanceReceipt, data: FinanceReceiptInfo) {
         boxStore.runInTx {
-            receipt.datetime = datetime
-
             val oldAccount = accountBox[receipt.account.targetId]
             oldAccount.balance -= getAmount(receipt)
             accountBox.put(oldAccount)
@@ -203,17 +195,17 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
             val oldOperations = receipt.operations.toList()
             receipt.operations.clear()
 
-            for (operationInfo in operations) {
-                receipt.operations.add(operationInfo.asFinanceOperation(account, receipt.datetime))
+            for (operationInfo in data.operations) {
+                receipt.operations.add(operationInfo.asFinanceOperation(data.direction, data.account, receipt.datetime))
             }
 
-            receipt.account.targetId = account.id
+            receipt.account.targetId = data.account.id
 
-            val newAccount = accountBox[account.id]
+            val newAccount = accountBox[data.account.id]
             newAccount.balance += getAmount(receipt)
             accountBox.put(newAccount)
 
-            receipt.datetime = datetime
+            receipt.datetime = data.datetime
 
             receiptBox.put(receipt)
             operationBox.remove(oldOperations)
@@ -267,9 +259,18 @@ class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
         }
     }
 
-    private fun FinanceOperationInfo.asFinanceOperation(account: FinanceAccount, datetime: DateTime): FinanceOperation {
+    private fun FinanceOperationInfo.asFinanceOperation(
+        direction: FinanceOperationDirection,
+        account: FinanceAccount,
+        datetime: DateTime
+    ): FinanceOperation {
+        val sign = when (direction) {
+            FinanceOperationDirection.EXPENSE -> -1
+            FinanceOperationDirection.INCOME -> 1
+        }
+
         val operation = FinanceOperation(
-            amount = amount,
+            amount = sign * abs(amount),
             datetime = datetime,
             description = description
         )

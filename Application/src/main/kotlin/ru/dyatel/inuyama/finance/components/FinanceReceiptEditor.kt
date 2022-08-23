@@ -9,6 +9,7 @@ import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.verticalLayout
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.finance.dto.FinanceOperationDirection
 import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
 import ru.dyatel.inuyama.layout.FinanceAccountSelector
 import ru.dyatel.inuyama.layout.financeAccountSelector
@@ -27,7 +28,7 @@ import kotlin.math.abs
 
 class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableEditor<FinanceReceiptInfo> {
 
-    private lateinit var directionSelector: IconTabSelector<OperationDirection>
+    private lateinit var directionSelector: IconTabSelector<FinanceOperationDirection>
     private lateinit var accountSelector: FinanceAccountSelector
     private lateinit var operationListEditor: FinanceOperationListEditor
     private lateinit var dateTimeEditor: DateTimeEditor
@@ -49,8 +50,8 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
                     directionSelector = iconTabSelector {
                         bindOptions(
                             listOf(
-                                OperationDirection.EXPENSE to CommunityMaterial.Icon.cmd_cart_outline,
-                                OperationDirection.INCOME to CommunityMaterial.Icon.cmd_credit_card_plus,
+                                FinanceOperationDirection.EXPENSE to CommunityMaterial.Icon.cmd_cart_outline,
+                                FinanceOperationDirection.INCOME to CommunityMaterial.Icon.cmd_credit_card_plus,
                             )
                         )
 
@@ -98,13 +99,7 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
 
     override fun fillFrom(data: FinanceReceiptInfo) {
         changePublisher.notifyAfterBatch {
-            val direction = if (data.operations.sumOf { it.amount } >= 0) {
-                OperationDirection.INCOME
-            } else {
-                OperationDirection.EXPENSE
-            }
-
-            directionSelector.selected = direction
+            directionSelector.selected = data.direction
             accountSelector.selected = data.account
             operationListEditor.fillFrom(
                 data.operations.map { it.copy(amount = abs(it.amount)) }
@@ -114,20 +109,11 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
     }
 
     override fun buildValue(): FinanceReceiptInfo {
-        val operations = operationListEditor.buildValue().map {
-            it.copy(
-                amount = if (directionSelector.selected == OperationDirection.EXPENSE) -it.amount else it.amount
-            )
-        }
-
         return FinanceReceiptInfo(
+            direction = directionSelector.selected!!,
             account = accountSelector.selected!!,
-            operations = operations,
+            operations = operationListEditor.buildValue(),
             datetime = dateTimeEditor.buildValue()
         )
     }
-}
-
-private enum class OperationDirection {
-    EXPENSE, INCOME
 }

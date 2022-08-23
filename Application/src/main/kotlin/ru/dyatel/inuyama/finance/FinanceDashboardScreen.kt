@@ -30,6 +30,7 @@ import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
+import ru.dyatel.inuyama.finance.dto.FinanceOperationDirection
 import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
 import ru.dyatel.inuyama.finance.dto.FinanceTransferDto
 import ru.dyatel.inuyama.finance.dto.TransactionHistoryCursor
@@ -236,6 +237,7 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
 
     fun createEmptyReceipt(account: FinanceAccount = accountManager.getActiveAccounts().first()) {
         val receiptInfo = FinanceReceiptInfo(
+            direction = FinanceOperationDirection.EXPENSE,
             account = account,
             operations = emptyList(),
             datetime = DateTime.now(TimeZone.getDefault()),
