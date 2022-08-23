@@ -13,7 +13,6 @@ import io.objectbox.reactive.SubscriptionBuilder
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.jetbrains.anko.find
@@ -82,7 +81,9 @@ abstract class InuScreen<V> : Screen<V>(), KodeinAware where V : ViewGroup, V : 
             }
         }
 
-        return GlobalScope.launch(dispatcher, block = block).also { attachJob(it, id) }
+        return CoroutineScope(dispatcher)
+            .launch(block = block)
+            .also { attachJob(it, id) }
     }
 
     abstract override fun createView(context: Context): V
