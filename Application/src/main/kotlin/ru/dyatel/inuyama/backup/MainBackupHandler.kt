@@ -7,8 +7,8 @@ import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.ProxyBinding
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.utilities.PreferenceHelper
-import ru.dyatel.inuyama.utilities.fromJson
 import ru.sibwaf.inuyama.common.utilities.Encoding
+import ru.sibwaf.inuyama.common.utilities.gson.fromJson
 import sibwaf.inuyama.app.common.backup.ModuleBackupHandler
 import java.io.ByteArrayInputStream
 import java.io.InputStream

@@ -5,8 +5,8 @@ import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import ru.dyatel.inuyama.model.NyaaTorrent
 import ru.dyatel.inuyama.model.NyaaWatch
-import ru.dyatel.inuyama.utilities.fromJson
 import ru.sibwaf.inuyama.common.utilities.Encoding
+import ru.sibwaf.inuyama.common.utilities.gson.fromJson
 import sibwaf.inuyama.app.common.backup.ModuleBackupHandler
 import java.io.ByteArrayInputStream
 import java.io.InputStream

@@ -4,8 +4,8 @@ import com.google.gson.Gson
 import io.objectbox.Box
 import ru.dyatel.inuyama.model.RutrackerWatch
 import ru.dyatel.inuyama.utilities.PreferenceHelper
-import ru.dyatel.inuyama.utilities.fromJson
 import ru.sibwaf.inuyama.common.utilities.Encoding
+import ru.sibwaf.inuyama.common.utilities.gson.fromJson
 import sibwaf.inuyama.app.common.backup.ModuleBackupHandler
 import java.io.ByteArrayInputStream
 import java.io.InputStream

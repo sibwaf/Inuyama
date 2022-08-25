@@ -8,8 +8,8 @@ import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceOperation
 import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.model.FinanceTransfer
-import ru.dyatel.inuyama.utilities.fromJson
 import ru.sibwaf.inuyama.common.utilities.Encoding
+import ru.sibwaf.inuyama.common.utilities.gson.fromJson
 import sibwaf.inuyama.app.common.backup.ModuleBackupHandler
 import java.io.ByteArrayInputStream
 import java.io.InputStream

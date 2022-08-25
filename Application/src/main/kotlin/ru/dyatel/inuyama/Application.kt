@@ -2,15 +2,9 @@ package ru.dyatel.inuyama
 
 import android.app.Application
 import android.content.Context
-import com.google.gson.ExclusionStrategy
-import com.google.gson.FieldAttributes
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
-import com.google.gson.TypeAdapter
-import com.google.gson.stream.JsonReader
-import com.google.gson.stream.JsonWriter
-import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import org.kodein.di.Kodein
@@ -41,14 +35,13 @@ import ru.dyatel.inuyama.pairing.PairedApi
 import ru.dyatel.inuyama.pairing.PairedConnectionHolder
 import ru.dyatel.inuyama.pairing.PairingManager
 import ru.dyatel.inuyama.rutracker.rutrackerModule
-import ru.dyatel.inuyama.utilities.NoJson
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
-import ru.sibwaf.inuyama.common.utilities.Encoding
-import ru.sibwaf.inuyama.common.utilities.DateTimeGsonTypeAdapter
+import ru.sibwaf.inuyama.common.utilities.gson.registerDateTimeAdapter
+import ru.sibwaf.inuyama.common.utilities.gson.registerPublicKeyAdapter
+import ru.sibwaf.inuyama.common.utilities.gson.withNoJsonAnnotationSupport
 import sibwaf.inuyama.app.common.ModuleScreenProvider
 import sibwaf.inuyama.app.common.NetworkManager
-import java.security.PublicKey
 
 class Application : Application(), KodeinAware {
 
@@ -70,20 +63,9 @@ class Application : Application(), KodeinAware {
 
         bind<Gson>() with singleton {
             GsonBuilder()
-                .setExclusionStrategies(object : ExclusionStrategy {
-                    override fun shouldSkipClass(clazz: Class<*>) = false
-                    override fun shouldSkipField(f: FieldAttributes) = f.getAnnotation(NoJson::class.java) != null
-                })
-                .registerTypeAdapter(PublicKey::class.java, object : TypeAdapter<PublicKey>() {
-                    override fun write(writer: JsonWriter, value: PublicKey) {
-                        writer.value(Encoding.encodeBase64(Encoding.encodeRSAPublicKey(value)))
-                    }
-
-                    override fun read(reader: JsonReader): PublicKey {
-                        return Encoding.decodeRSAPublicKey(Encoding.decodeBase64(reader.nextString()))
-                    }
-                }.nullSafe())
-                .registerTypeAdapter(DateTime::class.java, DateTimeGsonTypeAdapter().nullSafe())
+                .withNoJsonAnnotationSupport()
+                .registerDateTimeAdapter()
+                .registerPublicKeyAdapter()
                 .setPrettyPrinting()
                 .create()
         }

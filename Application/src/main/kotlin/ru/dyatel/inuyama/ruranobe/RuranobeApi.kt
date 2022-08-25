@@ -14,9 +14,9 @@ import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.SERVICE_RURANOBE
 import ru.dyatel.inuyama.model.RuranobeProject
 import ru.dyatel.inuyama.model.RuranobeVolume
-import ru.dyatel.inuyama.utilities.fromJson
 import ru.sibwaf.inuyama.common.utilities.asDateTime
 import ru.sibwaf.inuyama.common.utilities.await
+import ru.sibwaf.inuyama.common.utilities.gson.fromJson
 import sibwaf.inuyama.app.common.NetworkManager
 import sibwaf.inuyama.app.common.ProxyableRemoteService
 import java.io.IOException

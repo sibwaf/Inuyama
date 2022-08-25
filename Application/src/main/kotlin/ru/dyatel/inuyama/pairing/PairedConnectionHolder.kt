@@ -6,7 +6,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import ru.dyatel.inuyama.utilities.fromJson
 import ru.sibwaf.inuyama.common.BindSessionApiRequest
 import ru.sibwaf.inuyama.common.BindSessionApiResponse
 import ru.sibwaf.inuyama.common.utilities.CommonUtilities
@@ -14,6 +13,7 @@ import ru.sibwaf.inuyama.common.utilities.Cryptography
 import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.common.utilities.MediaTypes
 import ru.sibwaf.inuyama.common.utilities.await
+import ru.sibwaf.inuyama.common.utilities.gson.fromJson
 import ru.sibwaf.inuyama.common.utilities.humanReadable
 import ru.sibwaf.inuyama.common.utilities.successOrThrow
 import sibwaf.inuyama.app.common.NetworkManager

@@ -1,4 +1,4 @@
-package ru.sibwaf.inuyama.utilities
+package ru.sibwaf.inuyama.common.utilities.gson
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -7,21 +7,6 @@ import com.google.gson.TypeAdapterFactory
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import java.time.OffsetDateTime
-
-fun GsonBuilder.registerJavaTimeAdapters(): GsonBuilder {
-    return apply {
-        registerTypeAdapter(OffsetDateTime::class.java, object : TypeAdapter<OffsetDateTime>() {
-            override fun write(out: JsonWriter, value: OffsetDateTime) {
-                out.value(value.toString())
-            }
-
-            override fun read(`in`: JsonReader): OffsetDateTime {
-                return OffsetDateTime.parse(`in`.nextString())
-            }
-        }.nullSafe())
-    }
-}
 
 fun GsonBuilder.withCaseInsensitiveEnums(): GsonBuilder {
     return apply {
@@ -33,7 +18,7 @@ fun GsonBuilder.withCaseInsensitiveEnums(): GsonBuilder {
 
                 return object : TypeAdapter<T>() {
                     override fun write(out: JsonWriter, value: T) {
-                        out.value(value.toString().toLowerCase())
+                        out.value(value.toString().lowercase())
                     }
 
                     @Suppress("UNCHECKED_CAST")

@@ -15,6 +15,7 @@ import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
 import ru.sibwaf.inuyama.common.Pairing
 import ru.sibwaf.inuyama.common.paired.model.ErrorLogEntry
 import ru.sibwaf.inuyama.common.utilities.Encoding
+import ru.sibwaf.inuyama.common.utilities.gson.fromJson
 import java.security.KeyPair
 import java.util.TimeZone
 

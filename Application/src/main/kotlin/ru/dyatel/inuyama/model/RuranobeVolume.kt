@@ -7,7 +7,7 @@ import io.objectbox.annotation.Entity
 import io.objectbox.annotation.Id
 import io.objectbox.relation.ToOne
 import ru.dyatel.inuyama.utilities.DateTimeConverter
-import ru.dyatel.inuyama.utilities.NoJson
+import ru.sibwaf.inuyama.common.utilities.gson.NoJson
 
 @Entity
 data class RuranobeVolume(
