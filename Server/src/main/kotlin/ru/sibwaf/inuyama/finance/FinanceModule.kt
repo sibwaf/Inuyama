@@ -9,6 +9,12 @@ import ru.sibwaf.inuyama.finance.analytics.FinanceAnalyticService
 val financeModule = Kodein.Module("finance") {
     bind<FinanceBackupDataProvider>() with singleton { FinanceBackupDataProvider(instance(), instance()) }
 
+    bind<CurrencyConverter>() with singleton {
+        CurrencyConverter(
+            exchangeRateHostApi = instance(),
+        )
+    }
+
     bind<FinanceAnalyticService>() with singleton { FinanceAnalyticService(instance()) }
 
     bind<FinanceHttpHandler>() with singleton { FinanceHttpHandler(instance(), instance()) }

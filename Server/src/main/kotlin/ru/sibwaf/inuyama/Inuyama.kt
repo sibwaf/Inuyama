@@ -14,6 +14,7 @@ import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
 import org.slf4j.LoggerFactory
 import ru.sibwaf.inuyama.backup.backupModule
+import ru.sibwaf.inuyama.common.api.ExchangeRateHostApi
 import ru.sibwaf.inuyama.common.utilities.gson.registerDateTimeAdapter
 import ru.sibwaf.inuyama.common.utilities.gson.registerJavaTimeAdapters
 import ru.sibwaf.inuyama.common.utilities.gson.withCaseInsensitiveEnums
@@ -64,6 +65,13 @@ private val kodein = Kodein.lazy {
     bind<KeyKeeper>() with singleton { KeyKeeper() }
 
     bind<OkHttpClient>() with singleton { OkHttpClient() }
+
+    bind<ExchangeRateHostApi>() with singleton {
+        ExchangeRateHostApi(
+            httpClient = instance(),
+            gson = instance(),
+        )
+    }
 
     import(pairingModule)
     import(httpModule)
