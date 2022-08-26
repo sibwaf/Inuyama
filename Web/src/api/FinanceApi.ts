@@ -9,6 +9,7 @@ export interface FinanceAccount {
     id: string;
     name: string;
     balance: number;
+    currency: string;
 }
 
 export enum FinanceOperationDirection {

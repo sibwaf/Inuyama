@@ -35,6 +35,17 @@ export class FinanceStorage {
         return [] as FinanceAccount[];
     }
 
+    private _selectedCurrency: string | null = localStorage.getItem("storage.finance.selected-currency");
+    get selectedCurrency() { return this._selectedCurrency; }
+    set selectedCurrency(value) {
+        if (value == null) {
+            localStorage.removeItem("storage.finance.selected-currency");
+        } else {
+            localStorage.setItem("storage.finance.selected-currency", value);
+        }
+        this._selectedCurrency = value;
+    }
+
     constructor(deviceId: string) {
         this.deviceId = deviceId;
     }

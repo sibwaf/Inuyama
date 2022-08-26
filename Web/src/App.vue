@@ -11,6 +11,7 @@
                     <div class="navbar-end">
                         <div class="navbar-item">
                             <device-selector />
+                            <currency-selector v-if="showCurrencySelector" />
                         </div>
                     </div>
                 </div>
@@ -45,9 +46,10 @@ import { Component, Provide, Vue } from "vue-property-decorator";
 import Storage from "@/storage/Storage";
 
 import DeviceSelector from "@/components/DeviceSelector.vue";
+import CurrencySelector from "@/components/CurrencySelector.vue";
 
 @Component({
-    components: { DeviceSelector },
+    components: { DeviceSelector, CurrencySelector },
 })
 export default class App extends Vue {
     @Provide()
@@ -68,6 +70,11 @@ export default class App extends Vue {
         } catch {
             console.error("Failed to retrieve device list");
         }
+    }
+
+    get showCurrencySelector() {
+        // todo: probably better to handle in router
+        return this.$route.path.startsWith("/finance");
     }
 }
 </script>

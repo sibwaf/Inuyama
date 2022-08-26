@@ -10,7 +10,8 @@ data class FinanceCategoryDto(
 data class FinanceAccountDto(
     val id: String,
     val name: String,
-    val balance: Double
+    val balance: Double,
+    val currency: String,
 )
 
 data class FinanceOperationDto(

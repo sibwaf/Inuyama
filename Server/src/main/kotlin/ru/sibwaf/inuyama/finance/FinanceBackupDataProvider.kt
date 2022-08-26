@@ -39,7 +39,8 @@ class FinanceBackupDataProvider(
                 FinanceAccountDto(
                     id = it.id,
                     name = it.name,
-                    balance = it.initialBalance + it.balance
+                    balance = it.initialBalance + it.balance,
+                    currency = it.currency,
                 )
             }
             .toSet()
@@ -89,7 +90,8 @@ private data class BackupFinanceAccount(
     val id: String,
     val name: String,
     val initialBalance: Double,
-    val balance: Double
+    val balance: Double,
+    val currency: String,
 )
 
 private data class BackupFinanceCategory(
