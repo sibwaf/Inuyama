@@ -8,6 +8,7 @@ import ru.sibwaf.inuyama.finance.analytics.FinanceAnalyticService
 import ru.sibwaf.inuyama.http.HttpHandler
 import ru.sibwaf.inuyama.http.subroute
 import ru.sibwaf.inuyama.http.webSubroute
+import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 class FinanceHttpHandler(
@@ -29,28 +30,64 @@ class FinanceHttpHandler(
                 }
 
                 subroute("/analytics") {
-                    get("/summary") { ctx ->
+                    get("/operation-summary") { ctx ->
                         val deviceId = ctx.queryParam("deviceId")!!
 
                         val grouping = ctx.queryParam("grouping")
                             ?.let { FinanceAnalyticGrouping.valueOf(it.uppercase()) }
                         val filter = ctx.queryParam("filter")!!
                             .let { jsonMapper().fromJsonString(it, FinanceAnalyticFilter::class.java) }
+                        val currency = ctx.queryParam("currency")!!
 
-                        ctx.json(financeAnalyticService.querySummary(deviceId, grouping, filter))
+                        ctx.json(
+                            financeAnalyticService.queryOperationSummary(
+                                deviceId = deviceId,
+                                grouping = grouping,
+                                filter = filter,
+                                targetCurrency = currency,
+                            )
+                        )
                     }
 
-                    get("/series") { ctx ->
+                    get("/operation-series") { ctx ->
                         val deviceId = ctx.queryParam("deviceId")!!
 
                         val grouping = ctx.queryParam("grouping")
                             ?.let { FinanceAnalyticGrouping.valueOf(it.uppercase()) }
                         val filter = ctx.queryParam("filter")!!
                             .let { jsonMapper().fromJsonString(it, FinanceAnalyticFilter::class.java) }
+                        val currency = ctx.queryParam("currency")!!
                         val zoneOffset = ctx.queryParam("zoneOffset")!!
                             .let { ZoneOffset.ofTotalSeconds(it.toInt()) }
 
-                        ctx.json(financeAnalyticService.querySeries(deviceId, grouping, filter, zoneOffset))
+                        ctx.json(
+                            financeAnalyticService.queryOperationSeries(
+                                deviceId = deviceId,
+                                grouping = grouping,
+                                filter = filter,
+                                targetCurrency = currency,
+                                zoneOffset = zoneOffset,
+                            )
+                        )
+                    }
+
+                    get("/savings-series") { ctx ->
+                        val deviceId = ctx.queryParam("deviceId")!!
+
+                        val currency = ctx.queryParam("currency")!!
+                        val start = ctx.queryParam("start")!!.let { OffsetDateTime.parse(it) }
+                        val end = ctx.queryParam("end")!!.let { OffsetDateTime.parse(it) }
+                        val zoneOffset = ctx.queryParam("zoneOffset")!!.let { ZoneOffset.ofTotalSeconds(it.toInt()) }
+
+                        ctx.json(
+                            financeAnalyticService.querySavingsSeries(
+                                deviceId = deviceId,
+                                targetCurrency = currency,
+                                start = start,
+                                end = end,
+                                zoneOffset = zoneOffset
+                            )
+                        )
                     }
                 }
             }

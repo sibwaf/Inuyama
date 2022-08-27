@@ -15,7 +15,12 @@ val financeModule = Kodein.Module("finance") {
         )
     }
 
-    bind<FinanceAnalyticService>() with singleton { FinanceAnalyticService(instance()) }
+    bind<FinanceAnalyticService>() with singleton {
+        FinanceAnalyticService(
+            dataProvider = instance(),
+            currencyConverter = instance(),
+        )
+    }
 
     bind<FinanceHttpHandler>() with singleton { FinanceHttpHandler(instance(), instance()) }
 }

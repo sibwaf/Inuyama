@@ -62,6 +62,8 @@ enum Granularity {
 interface ChartParameters {
     readonly deviceId: string;
 
+    readonly currency: string;
+
     readonly firstMonth: Moment;
     readonly secondMonth: Moment;
     readonly granularityMonths: number;
@@ -112,18 +114,42 @@ export default class FinanceComparisonScreen extends Vue {
         }
     }
 
+    private get deviceId() {
+        return this.storage.devices.selectedDevice;
+    }
+
+    private get financeStorage() {
+        const deviceId = this.deviceId;
+        if (deviceId == null) {
+            return null;
+        }
+
+        return this.storage.ofDevice(deviceId).finance;
+    }
+
+    private get currency() {
+        return this.financeStorage?.selectedCurrency;
+    }
+
     private get categories() {
-        return this.storage.ofCurrentDevice()?.finance?.categories ?? [];
+        return this.financeStorage?.categories || [];
     }
 
     private get chartParameters() {
-        const deviceId = this.storage.devices.selectedDevice;
+        const deviceId = this.deviceId;
         if (deviceId == null) {
+            return null;
+        }
+
+        const currency = this.currency;
+        if (currency == null) {
             return null;
         }
 
         return {
             deviceId,
+
+            currency,
 
             firstMonth: moment(this.firstMonth).startOf("month"),
             secondMonth: moment(this.secondMonth).startOf("month"),
@@ -153,7 +179,7 @@ export default class FinanceComparisonScreen extends Vue {
         parameters: ChartParameters
     ): Promise<[string, number][]> {
         const getDataForPeriod = async (start: Moment) => {
-            return new FinanceApi().getSummary(
+            return new FinanceApi().getOperationSummary(
                 parameters.deviceId,
                 parameters.grouping,
                 {
@@ -162,7 +188,8 @@ export default class FinanceComparisonScreen extends Vue {
                         .add(parameters.granularityMonths, "months")
                         .toDate(),
                     direction: parameters.direction,
-                }
+                },
+                parameters.currency
             );
         };
 

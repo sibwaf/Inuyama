@@ -27,7 +27,7 @@ class FinanceBackupDataProvider(
 
     fun getCategories(deviceId: String): Set<FinanceCategoryDto> {
         return getDeviceData(deviceId)?.categories
-            .orEmpty() // todo: crash on no device data?
+            .orEmpty()
             .map { FinanceCategoryDto(id = it.id, name = it.name) }
             .toSet()
     }
@@ -49,32 +49,35 @@ class FinanceBackupDataProvider(
     fun getOperations(deviceId: String): Sequence<FinanceOperationDto> {
         val data = getDeviceData(deviceId) ?: return emptySequence()
 
-        val rawOperations = data.operations
-            .orEmpty()
-            .asSequence()
-            .mapNotNull {
-                val datetime = it.datetime ?: return@mapNotNull null
-                FinanceOperationDto(
-                    amount = it.amount,
-                    categoryId = it.categoryIds.single(),
-                    datetime = LocalDateTime.parse(datetime).atOffset(systemZoneOffset)
-                )
-            }
-
-        val receiptOperations = data.receipts
+        return data.receipts
             .orEmpty()
             .asSequence()
             .flatMap { receipt ->
                 receipt.operations.map {
                     FinanceOperationDto(
+                        accountId = receipt.accountId,
                         amount = it.amount,
                         categoryId = it.categoryIds.single(),
                         datetime = LocalDateTime.parse(receipt.datetime).atOffset(systemZoneOffset)
                     )
                 }
             }
+    }
 
-        return rawOperations + receiptOperations
+    fun getTransfers(deviceId: String): Sequence<FinanceTransferDto> {
+        val data = getDeviceData(deviceId) ?: return emptySequence()
+
+        return data.transfers
+            .asSequence()
+            .map { transfer ->
+                FinanceTransferDto(
+                    fromAccountId = transfer.fromId,
+                    toAccountId = transfer.toId,
+                    amountFrom = (transfer.amountFrom ?: transfer.amount)!!,
+                    amountTo = (transfer.amountTo ?: transfer.amount)!!,
+                    datetime = LocalDateTime.parse(transfer.datetime).atOffset(systemZoneOffset),
+                )
+            }
     }
 }
 
@@ -117,7 +120,9 @@ private data class BackupFinanceOperation(
 
 private data class BackupFinanceTransfer(
     val id: String,
-    val amount: Double,
+    val amount: Double?,
+    val amountFrom: Double?,
+    val amountTo: Double?,
     val datetime: String,
     val fromId: String,
     val toId: String

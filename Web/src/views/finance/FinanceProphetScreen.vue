@@ -25,6 +25,7 @@ import NoDataView from "@/components/NoDataView.vue";
 
 interface RealDataParameters {
     readonly deviceId: string;
+    readonly currency: string;
     readonly periodStart: Moment;
     readonly periodEnd: Moment;
 }
@@ -43,11 +44,7 @@ export default class FinanceProphetScreen extends Vue {
     private rawPeriodStart = moment().subtract(1, "year").add(1, "month");
     private rawPeriodEnd = moment();
 
-    private rawDynamicData: FinanceAnalyticSeriesDto | null = null;
-
-    private get accounts() {
-        return this.storage.ofCurrentDevice()?.finance?.accounts ?? [];
-    }
+    private rawSavingsData: FinanceAnalyticSeriesDto | null = null;
 
     private get periodStart() {
         return moment(this.rawPeriodStart).startOf("month");
@@ -57,55 +54,41 @@ export default class FinanceProphetScreen extends Vue {
         return moment(this.rawPeriodEnd).endOf("month");
     }
 
-    private get currentTotalBalance() {
-        return this.accounts.reduce((acc, it) => acc + it.balance, 0.0);
-    }
-
     private get realDataParameters(): RealDataParameters | null {
         const deviceId = this.storage.devices.selectedDevice;
         if (deviceId == null) {
             return null;
         }
 
+        const currency = this.storage.ofDevice(deviceId).finance.selectedCurrency;
+        if (currency == null) {
+            return null;
+        }
+
         return {
             deviceId,
+            currency,
             periodStart: this.periodStart,
             periodEnd: this.periodEnd,
         };
     }
 
     private get realTimeline() {
-        return this.rawDynamicData?.timeline;
+        return this.rawSavingsData?.timeline;
     }
 
-    private get realDynamicValues() {
-        const rawDynamicData = this.rawDynamicData;
-        if (rawDynamicData == null) {
+    private get realSavingsLineValues() {
+        const rawSavingsData = this.rawSavingsData;
+        if (rawSavingsData == null) {
             return null;
         }
 
-        const key = [...rawDynamicData.data.keys()][0];
+        const key = [...rawSavingsData.data.keys()][0];
         if (key == null) {
             return null;
         }
 
-        return rawDynamicData.data.get(key);
-    }
-
-    private get realSavingsLineValues() {
-        const realDynamicValues = this.realDynamicValues;
-        if (realDynamicValues == null || realDynamicValues.length == 0) {
-            return null;
-        }
-
-        let currentTotalBalance = this.currentTotalBalance;
-
-        const line = [currentTotalBalance];
-        for (let i = realDynamicValues.length - 1; i > 0; i--) {
-            currentTotalBalance -= realDynamicValues[i];
-            line.splice(0, 0, currentTotalBalance);
-        }
-        return line;
+        return rawSavingsData.data.get(key);
     }
 
     private get predictionTimeline() {
@@ -200,14 +183,11 @@ export default class FinanceProphetScreen extends Vue {
             return;
         }
 
-        this.rawDynamicData = await this.api.getSeries(
+        this.rawSavingsData = await this.api.getSavingsSeries(
             parameters.deviceId,
-            null,
-            {
-                start: parameters.periodStart.toDate(),
-                end: parameters.periodEnd.toDate(),
-                direction: null,
-            }
+            parameters.currency,
+            parameters.periodStart.toDate(),
+            parameters.periodEnd.toDate()
         );
     }
 }

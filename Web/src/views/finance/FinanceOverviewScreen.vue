@@ -51,6 +51,7 @@ import NoDataView from "@/components/NoDataView.vue";
 
 interface ChartParameters {
     readonly deviceId: string;
+    readonly currency: string;
     readonly periodStart: Moment;
     readonly periodEnd: Moment;
 }
@@ -72,8 +73,25 @@ export default class FinanceOverviewScreen extends Vue {
     private rawSplitChartData: FinanceAnalyticSeriesDto | null = null;
     private rawExpenseOverviewChartData: FinanceAnalyticSeriesDto | null = null;
 
+    private get deviceId() {
+        return this.storage.devices.selectedDevice;
+    }
+
+    private get financeStorage() {
+        const deviceId = this.deviceId;
+        if (deviceId == null) {
+            return null;
+        }
+
+        return this.storage.ofDevice(deviceId).finance;
+    }
+
+    private get currency() {
+        return this.financeStorage?.selectedCurrency;
+    }
+
     private get categories() {
-        return this.storage.ofCurrentDevice()?.finance?.categories ?? [];
+        return this.financeStorage?.categories || [];
     }
 
     private get periodStart() {
@@ -85,13 +103,19 @@ export default class FinanceOverviewScreen extends Vue {
     }
 
     private get chartParameters(): ChartParameters | null {
-        const deviceId = this.storage.devices.selectedDevice;
+        const deviceId = this.deviceId;
         if (deviceId == null) {
+            return null;
+        }
+
+        const currency = this.currency;
+        if (currency == null) {
             return null;
         }
 
         return {
             deviceId,
+            currency,
             periodStart: this.periodStart,
             periodEnd: this.periodEnd,
         };
@@ -189,26 +213,29 @@ export default class FinanceOverviewScreen extends Vue {
             direction: null,
         };
 
-        const rawTotalChartDataAsync = this.api.getSeries(
+        const rawTotalChartDataAsync = this.api.getOperationSeries(
             chartParameters.deviceId,
             null,
-            filter
+            filter,
+            chartParameters.currency
         );
 
-        const rawSplitChartDataAsync = this.api.getSeries(
+        const rawSplitChartDataAsync = this.api.getOperationSeries(
             chartParameters.deviceId,
             FinanceAnalyticGrouping.DIRECTION,
-            filter
+            filter,
+            chartParameters.currency
         );
 
-        const rawExpenseOverviewChartDataAsync = this.api.getSeries(
+        const rawExpenseOverviewChartDataAsync = this.api.getOperationSeries(
             chartParameters.deviceId,
             FinanceAnalyticGrouping.CATEGORY,
             {
                 start: chartParameters.periodStart.toDate(),
                 end: chartParameters.periodEnd.toDate(),
                 direction: FinanceOperationDirection.EXPENSE,
-            }
+            },
+            chartParameters.currency
         );
 
         this.rawTotalChartData = await rawTotalChartDataAsync;

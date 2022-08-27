@@ -43,26 +43,55 @@ export class FinanceApi {
         return (await axios.get("/web/finance/accounts", { params: { deviceId } })).data;
     }
 
-    async getSummary(deviceId: string, grouping: FinanceAnalyticGrouping | null, filter: FinanceAnalyticFilter): Promise<Map<string, number>> {
+    async getOperationSummary(
+        deviceId: string,
+        grouping: FinanceAnalyticGrouping | null,
+        filter: FinanceAnalyticFilter,
+        currency: string,
+    ): Promise<Map<string, number>> {
         const params = {
             deviceId,
             grouping,
+            currency,
             filter: JSON.stringify(filter)
         };
 
-        const response = await axios.get("/web/finance/analytics/summary", { params });
+        const response = await axios.get("/web/finance/analytics/operation-summary", { params });
         return new Map(Object.entries(response.data));
     }
 
-    async getSeries(deviceId: string, grouping: FinanceAnalyticGrouping | null, filter: FinanceAnalyticFilter): Promise<FinanceAnalyticSeriesDto> {
+    async getOperationSeries(
+        deviceId: string,
+        grouping: FinanceAnalyticGrouping | null,
+        filter: FinanceAnalyticFilter,
+        currency: string,
+    ): Promise<FinanceAnalyticSeriesDto> {
         const params = {
             deviceId,
             grouping,
             filter: JSON.stringify(filter),
+            currency,
             zoneOffset: new Date().getTimezoneOffset() * -60
         };
 
-        const response = await axios.get("/web/finance/analytics/series", { params });
+        const response = await axios.get("/web/finance/analytics/operation-series", { params });
+
+        return {
+            timeline: response.data.timeline,
+            data: new Map(Object.entries(response.data.data))
+        };
+    }
+
+    async getSavingsSeries(deviceId: string, currency: string, start: Date, end: Date): Promise<FinanceAnalyticSeriesDto> {
+        const params = {
+            deviceId,
+            currency,
+            start,
+            end,
+            zoneOffset: new Date().getTimezoneOffset() * -60
+        };
+
+        const response = await axios.get("/web/finance/analytics/savings-series", { params });
 
         return {
             timeline: response.data.timeline,

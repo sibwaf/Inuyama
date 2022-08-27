@@ -54,11 +54,13 @@ import {
 
 interface ByDirectionParameters {
     readonly deviceId: string;
+    readonly currency: string;
     readonly month: Moment;
 }
 
 interface ByCategoryParameters {
     readonly deviceId: string;
+    readonly currency: string;
     readonly month: Moment;
 }
 
@@ -79,17 +81,43 @@ export default class FinanceScreen extends Vue {
         return moment(this.rawSelectedMonth).startOf("month");
     }
 
-    get categories() {
-        return this.storage.ofCurrentDevice()?.finance?.categories || [];
+    get deviceId() {
+        return this.storage.devices.selectedDevice;
     }
 
-    get byDirectionParameters() {
-        const deviceId = this.storage.devices.selectedDevice;
+    get financeStorage() {
+        const deviceId = this.deviceId;
         if (deviceId == null) {
             return null;
         }
 
-        return { deviceId, month: this.selectedMonth } as ByDirectionParameters;
+        return this.storage.ofDevice(deviceId).finance;
+    }
+
+    get currency() {
+        return this.financeStorage?.selectedCurrency;
+    }
+
+    get categories() {
+        return this.financeStorage?.categories || [];
+    }
+
+    get byDirectionParameters() {
+        const deviceId = this.deviceId;
+        if (deviceId == null) {
+            return null;
+        }
+
+        const currency = this.currency;
+        if (currency == null) {
+            return null;
+        }
+
+        return {
+            deviceId,
+            currency,
+            month: this.selectedMonth,
+        } as ByDirectionParameters;
     }
 
     get byDirectionData() {
@@ -98,12 +126,21 @@ export default class FinanceScreen extends Vue {
     }
 
     get byCategoryParameters() {
-        const deviceId = this.storage.devices.selectedDevice;
+        const deviceId = this.deviceId;
         if (deviceId == null) {
             return null;
         }
 
-        return { deviceId, month: this.selectedMonth } as ByCategoryParameters;
+        const currency = this.currency;
+        if (currency == null) {
+            return null;
+        }
+
+        return {
+            deviceId,
+            currency,
+            month: this.selectedMonth,
+        } as ByCategoryParameters;
     }
 
     get incomeByCategoryData() {
@@ -138,7 +175,7 @@ export default class FinanceScreen extends Vue {
             return;
         }
 
-        const data = await this.api.getSummary(
+        const data = await this.api.getOperationSummary(
             byDirectionParameters.deviceId,
             FinanceAnalyticGrouping.DIRECTION,
             {
@@ -147,7 +184,8 @@ export default class FinanceScreen extends Vue {
                     .add(1, "month")
                     .toDate(),
                 direction: null,
-            }
+            },
+            byDirectionParameters.currency
         );
 
         this.rawByDirectionData = [...data].map(([direction, amount]) => [
@@ -165,7 +203,7 @@ export default class FinanceScreen extends Vue {
         }
 
         const fetch = async (direction: FinanceOperationDirection) => {
-            const data = await this.api.getSummary(
+            const data = await this.api.getOperationSummary(
                 byCategoryParameters.deviceId,
                 FinanceAnalyticGrouping.CATEGORY,
                 {
@@ -174,7 +212,8 @@ export default class FinanceScreen extends Vue {
                         .add(1, "month")
                         .toDate(),
                     direction,
-                }
+                },
+                byCategoryParameters.currency
             );
 
             const result: [string, number][] = [...data].map(
