@@ -6,6 +6,7 @@
                 class="finance-overview-chart"
                 v-if="totalChartData"
                 :data="totalChartData"
+                :valueFormatter="chartValueFormatter"
             />
             <no-data-view v-else />
         </div>
@@ -15,6 +16,7 @@
                 class="finance-overview-chart"
                 v-if="splitChartData"
                 :data="splitChartData"
+                :valueFormatter="chartValueFormatter"
             />
             <no-data-view v-else />
         </div>
@@ -23,6 +25,7 @@
             <bubble-chart
                 v-if="expenseOverviewChartData"
                 :data="expenseOverviewChartData"
+                :valueFormatter="chartValueFormatter"
             />
             <no-data-view v-else />
         </div>
@@ -72,6 +75,8 @@ export default class FinanceOverviewScreen extends Vue {
     private rawTotalChartData: FinanceAnalyticSeriesDto | null = null;
     private rawSplitChartData: FinanceAnalyticSeriesDto | null = null;
     private rawExpenseOverviewChartData: FinanceAnalyticSeriesDto | null = null;
+
+    private chartDataCurrency: string | null = null;
 
     private get deviceId() {
         return this.storage.devices.selectedDevice;
@@ -199,6 +204,11 @@ export default class FinanceOverviewScreen extends Vue {
         } as BubbleChartData;
     }
 
+    private get chartValueFormatter() {
+        return (value: number) =>
+            `${value.toFixed(0)} ${this.chartDataCurrency}`;
+    }
+
     @Watch("chartParameters", { immediate: true })
     private async onChartParametersChanged(
         chartParameters: ChartParameters | null
@@ -238,6 +248,7 @@ export default class FinanceOverviewScreen extends Vue {
             chartParameters.currency
         );
 
+        this.chartDataCurrency = chartParameters.currency;
         this.rawTotalChartData = await rawTotalChartDataAsync;
         this.rawSplitChartData = await rawSplitChartDataAsync;
         this.rawExpenseOverviewChartData =

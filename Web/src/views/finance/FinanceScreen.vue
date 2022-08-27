@@ -14,6 +14,7 @@
                     <doughnut-chart
                         v-if="byDirectionData"
                         :data="byDirectionData"
+                        :valueFormatter="chartValueFormatter"
                     />
                     <no-data-view v-else />
                 </div>
@@ -22,6 +23,7 @@
                     <doughnut-chart
                         v-if="incomeByCategoryData"
                         :data="incomeByCategoryData"
+                        :valueFormatter="chartValueFormatter"
                     />
                     <no-data-view v-else />
                 </div>
@@ -30,6 +32,7 @@
                     <doughnut-chart
                         v-if="expenseByCategoryData"
                         :data="expenseByCategoryData"
+                        :valueFormatter="chartValueFormatter"
                     />
                     <no-data-view v-else />
                 </div>
@@ -76,6 +79,8 @@ export default class FinanceScreen extends Vue {
     private rawByDirectionData: [string, number][] | null = null;
     private rawIncomeByCategoryData: [string, number][] | null = null;
     private rawExpenseByCategoryData: [string, number][] | null = null;
+
+    private chartDataCurrency: string | null = null;
 
     get selectedMonth() {
         return moment(this.rawSelectedMonth).startOf("month");
@@ -167,6 +172,11 @@ export default class FinanceScreen extends Vue {
         return data != null && data.length > 0 ? data : null;
     }
 
+    private get chartValueFormatter() {
+        return (value: number) =>
+            `${value.toFixed(0)} ${this.chartDataCurrency}`;
+    }
+
     @Watch("byDirectionParameters", { immediate: true })
     async onByDirectionParametersChanged(
         byDirectionParameters: ByDirectionParameters | null
@@ -192,6 +202,8 @@ export default class FinanceScreen extends Vue {
             direction,
             Math.abs(amount),
         ]);
+
+        this.chartDataCurrency = byDirectionParameters.currency;
     }
 
     @Watch("byCategoryParameters", { immediate: true })
@@ -227,6 +239,7 @@ export default class FinanceScreen extends Vue {
         const incomeDataAsync = fetch(FinanceOperationDirection.INCOME);
         const expenseDataAsync = fetch(FinanceOperationDirection.EXPENSE);
 
+        this.chartDataCurrency = byCategoryParameters.currency;
         this.rawIncomeByCategoryData = await incomeDataAsync;
         this.rawExpenseByCategoryData = await expenseDataAsync;
     }

@@ -22,6 +22,8 @@ interface ChartData {
 export default class HBarChart extends Vue {
     @Prop()
     private readonly data!: [string, number][];
+    @Prop({ default: () => (value: number) => value.toString() })
+    private readonly valueFormatter!: (value: number) => string;
 
     private chart!: Chart;
 
@@ -40,11 +42,21 @@ export default class HBarChart extends Vue {
                 ],
             },
             options: {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: (item) =>
+                                this.valueFormatter(item.raw as number),
+                        },
+                    },
+                },
                 maintainAspectRatio: false,
                 responsive: true
             }
         });
-
+        this.chart.options.scales!.x!.ticks!.callback = (value) =>
+            this.valueFormatter(value as number);
+        
         this.onChartDataChanged(this.chartData);
     }
 

@@ -5,6 +5,7 @@
                 class="finance-prophet-chart"
                 v-if="chartData"
                 :data="chartData"
+                :valueFormatter="chartValueFormatter"
             />
             <no-data-view v-else />
         </div>
@@ -45,6 +46,8 @@ export default class FinanceProphetScreen extends Vue {
     private rawPeriodEnd = moment();
 
     private rawSavingsData: FinanceAnalyticSeriesDto | null = null;
+
+    private chartDataCurrency: string | null = null;
 
     private get periodStart() {
         return moment(this.rawPeriodStart).startOf("month");
@@ -175,6 +178,11 @@ export default class FinanceProphetScreen extends Vue {
         } as ChartData<Date>;
     }
 
+    private get chartValueFormatter() {
+        return (value: number) =>
+            `${value.toFixed(0)} ${this.chartDataCurrency}`;
+    }
+
     @Watch("realDataParameters", { immediate: true })
     private async onRealDataParametersChanged(
         parameters: RealDataParameters | null
@@ -189,6 +197,7 @@ export default class FinanceProphetScreen extends Vue {
             parameters.periodStart.toDate(),
             parameters.periodEnd.toDate()
         );
+        this.chartDataCurrency = parameters.currency;
     }
 }
 </script>

@@ -37,6 +37,8 @@ const MAX_RADIUS = 16;
 export default class BubbleChart extends Vue {
     @Prop()
     private readonly data!: ChartData;
+    @Prop({ default: () => (value: number) => value.toString() })
+    private readonly valueFormatter!: (value: number) => string;
 
     private chart!: Chart;
 
@@ -124,7 +126,7 @@ export default class BubbleChart extends Vue {
                 })
                 .join("; ");
         this.chart.options.plugins!.tooltip!.callbacks!.label = (item) =>
-            (item.raw as Bubble).value.toString();
+            this.valueFormatter((item.raw as Bubble).value);
 
         this.chart.options.scales!.x!.ticks!.callback = (value) =>
             chartState.horizontal[value as number];

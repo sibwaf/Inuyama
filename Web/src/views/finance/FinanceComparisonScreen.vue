@@ -30,7 +30,11 @@
                 </div>
             </div>
             <div class="column is-10">
-                <h-bar-chart v-if="chartData" :data="chartData" />
+                <h-bar-chart
+                    v-if="chartData"
+                    :data="chartData"
+                    :valueFormatter="chartValueFormatter"
+                />
                 <no-data-view v-else />
             </div>
         </div>
@@ -85,6 +89,8 @@ export default class FinanceComparisonScreen extends Vue {
         FinanceOperationDirection.EXPENSE;
 
     private rawChartData: [string, number][] | null = null;
+
+    private chartDataCurrency: string | null = null;
 
     created() {
         this.secondMonth = moment().startOf("month");
@@ -175,6 +181,11 @@ export default class FinanceComparisonScreen extends Vue {
         });
     }
 
+    private get chartValueFormatter() {
+        return (value: number) =>
+            `${value.toFixed(0)} ${this.chartDataCurrency}`;
+    }
+
     async getRawChartData(
         parameters: ChartParameters
     ): Promise<[string, number][]> {
@@ -255,6 +266,7 @@ export default class FinanceComparisonScreen extends Vue {
         }
 
         this.rawChartData = await this.getRawChartData(chartParameters);
+        this.chartDataCurrency = chartParameters.currency;
     }
 }
 </script>
