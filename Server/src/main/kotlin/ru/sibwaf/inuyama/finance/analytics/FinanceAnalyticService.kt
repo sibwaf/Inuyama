@@ -112,6 +112,8 @@ class FinanceAnalyticService(
             zoneOffset = zoneOffset
         )
 
+        // todo: parallelize cache / data collection?
+
         runBlocking {
             currencyConverter.prepareCache(
                 currencies = accounts.values.mapTo(HashSet()) { it.currency },
@@ -120,63 +122,79 @@ class FinanceAnalyticService(
             )
         }
 
-        val changeFromOperationsByTimelinePoint = dataProvider.getOperations(deviceId)
-            .filter { it.datetime >= start }
-            .groupBy { it.datetime.toTimelinePoint(timelineStep, zoneOffset) }
-            .mapValues { (_, operations) ->
-                operations.sumOf {
-                    currencyConverter.convert(
-                        amount = it.amount,
-                        fromCurrency = accounts.getValue(it.accountId).currency,
-                        toCurrency = targetCurrency,
-                        datetime = it.datetime,
+        data class BalanceChangeDto(val datetime: OffsetDateTime, val currency: String, val amount: Double)
+
+        val allChanges = sequence {
+            for (operation in dataProvider.getOperations(deviceId)) {
+                yield(
+                    BalanceChangeDto(
+                        datetime = operation.datetime,
+                        currency = accounts.getValue(operation.accountId).currency,
+                        amount = operation.amount,
                     )
-                }
+                )
+            }
+            for (transfer in dataProvider.getTransfers(deviceId)) {
+                yield(
+                    BalanceChangeDto(
+                        datetime = transfer.datetime,
+                        currency = accounts.getValue(transfer.fromAccountId).currency,
+                        amount = -transfer.amountFrom,
+                    )
+                )
+                yield(
+                    BalanceChangeDto(
+                        datetime = transfer.datetime,
+                        currency = accounts.getValue(transfer.toAccountId).currency,
+                        amount = transfer.amountTo,
+                    )
+                )
+            }
+        }
+
+        val latestSavings = accounts.values
+            .groupingBy { it.currency }
+            .foldTo(mutableMapOf(), 0.0) { acc, it -> acc + it.balance }
+        val changesByTimelinePoint = HashMap<OffsetDateTime, MutableMap<String, Double>>()
+
+        for (change in allChanges) {
+            if (change.datetime < start) {
+                continue
             }
 
-        val changeFromTransfersByTimelinePoint = dataProvider.getTransfers(deviceId)
-            .filter { it.datetime >= start }
-            .groupBy { it.datetime.toTimelinePoint(timelineStep, zoneOffset) }
-            .mapValues { (_, transfers) ->
-                transfers.sumOf {
-                    val amountFrom = currencyConverter.convert(
-                        amount = it.amountFrom,
-                        fromCurrency = accounts.getValue(it.fromAccountId).currency,
-                        toCurrency = targetCurrency,
-                        datetime = it.datetime,
-                    )
-                    val amountTo = currencyConverter.convert(
-                        amount = it.amountTo,
-                        fromCurrency = accounts.getValue(it.toAccountId).currency,
-                        toCurrency = targetCurrency,
-                        datetime = it.datetime,
-                    )
-                    amountTo - amountFrom
-                }
+            if (change.datetime > end) {
+                latestSavings.compute(change.currency) { _, it -> (it ?: 0.0) + change.amount }
+            } else {
+                val timelinePoint = change.datetime.toTimelinePoint(timelineStep, zoneOffset)
+                val changes = changesByTimelinePoint.getOrPut(timelinePoint) { mutableMapOf() }
+                changes.compute(change.currency) { _, it -> (it ?: 0.0) + change.amount }
             }
-
-        val changeAfterEnd = (changeFromOperationsByTimelinePoint.asSequence() + changeFromTransfersByTimelinePoint.asSequence())
-            .filter { (timelinePoint, _) -> timelinePoint > timeline.last() }
-            .sumOf { (_, amount) -> amount }
-
-        val latestSavings = accounts.values.sumOf {
-            currencyConverter.convert(
-                amount = it.balance,
-                fromCurrency = it.currency,
-                toCurrency = targetCurrency,
-                datetime = OffsetDateTime.now(),
-            )
         }
 
         val data = timeline.asReversed()
-            .runningFold(latestSavings - changeAfterEnd) { acc, timelinePoint ->
-                var change = 0.0
-                change += changeFromOperationsByTimelinePoint[timelinePoint] ?: 0.0
-                change += changeFromTransfersByTimelinePoint[timelinePoint] ?: 0.0
-                acc - change
+            .runningFold(latestSavings as Map<String, Double>) { acc, timelinePoint ->
+                val changes = changesByTimelinePoint[timelinePoint]
+                if (changes != null) {
+                    (changes.keys + acc.keys).associateWith { currency ->
+                        acc.getOrDefault(currency, 0.0) - changes.getOrDefault(currency, 0.0)
+                    }
+                } else {
+                    acc
+                }
             }
             .asReversed()
             .drop(1)
+            .zip(timeline)
+            .map { (savingsByCurrency, timelinePoint) ->
+                savingsByCurrency.asSequence().sumOf { (currency, amount) ->
+                    currencyConverter.convert(
+                        amount = amount,
+                        fromCurrency = currency,
+                        toCurrency = targetCurrency,
+                        datetime = timelinePoint.with(TemporalAdjusters.lastDayOfMonth()),
+                    )
+                }
+            }
 
         return FinanceAnalyticSeriesDto(timeline, mapOf("all" to data))
     }
