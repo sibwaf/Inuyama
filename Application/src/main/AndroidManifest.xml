@@ -1,8 +1,7 @@
 <manifest
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        android:installLocation="internalOnly"
-        package="ru.dyatel.inuyama">
+        android:installLocation="internalOnly">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -23,7 +22,8 @@
         <activity
                 android:name=".MainActivity"
                 android:label="@string/app_name"
-                android:launchMode="singleTask">
+                android:launchMode="singleTask"
+                android:exported="true">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -37,7 +37,7 @@
                 android:screenOrientation="unspecified"
                 tools:replace="screenOrientation"/>
 
-        <receiver android:name=".BackgroundServiceManager">
+        <receiver android:name=".BackgroundServiceManager" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
