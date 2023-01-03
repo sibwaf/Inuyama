@@ -23,7 +23,8 @@ export default class DoughnutChart extends Vue {
     @Prop({ default: () => (value: number) => value.toString() })
     private readonly valueFormatter!: (value: number) => string;
 
-    private chart!: Chart;
+    // no idea why it doesn't compile without specifying the generic type here and only here
+    private chart!: Chart<any>;
 
     mounted() {
         this.chart = new Chart(this.$refs["chart"] as ChartItem, {
