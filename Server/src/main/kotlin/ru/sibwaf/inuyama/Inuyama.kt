@@ -1,6 +1,5 @@
 package ru.sibwaf.inuyama
 
-import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
@@ -18,70 +17,67 @@ import ru.sibwaf.inuyama.common.api.ExchangeRateHostApi
 import ru.sibwaf.inuyama.common.utilities.gson.registerDateTimeAdapter
 import ru.sibwaf.inuyama.common.utilities.gson.registerJavaTimeAdapters
 import ru.sibwaf.inuyama.common.utilities.gson.withCaseInsensitiveEnums
+import ru.sibwaf.inuyama.configuration.CombinedConfigurationSource
+import ru.sibwaf.inuyama.configuration.CommandLineConfigurationSource
+import ru.sibwaf.inuyama.configuration.EnvironmentConfigurationSource
+import ru.sibwaf.inuyama.configuration.PropertiesConfigurationSource
 import ru.sibwaf.inuyama.errors.pairedErrorModule
 import ru.sibwaf.inuyama.finance.financeModule
 import ru.sibwaf.inuyama.http.httpModule
 import ru.sibwaf.inuyama.pairing.pairingModule
 import ru.sibwaf.inuyama.torrent.torrentModule
-import java.nio.file.Files
 import java.nio.file.Paths
 import javax.sql.DataSource
 
-private val kodein = Kodein.lazy {
-    bind<Gson>() with singleton {
-        GsonBuilder()
-            .registerJavaTimeAdapters()
-            .registerDateTimeAdapter()
-            .withCaseInsensitiveEnums()
-            .create()
-    }
-    bind<JsonParser>() with singleton { JsonParser() }
+fun main(args: Array<String>) {
+    val configurationSource = CombinedConfigurationSource(
+        PropertiesConfigurationSource(Paths.get("application.properties")),
+        EnvironmentConfigurationSource(),
+        CommandLineConfigurationSource(args.asList()),
+    )
 
-    bind<InuyamaConfiguration>() with singleton {
-        val gson = GsonBuilder()
-            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES)
-            .create()
-
-        val configurationPath = Paths.get("configuration.json")
-        return@singleton if (Files.exists(configurationPath)) {
-            val configurationText = Files.readAllLines(configurationPath).joinToString("\n")
-            gson.fromJson(configurationText)
-        } else {
-            InuyamaConfiguration()
+    val kodein = Kodein.lazy {
+        bind<Gson>() with singleton {
+            GsonBuilder()
+                .registerJavaTimeAdapters()
+                .registerDateTimeAdapter()
+                .withCaseInsensitiveEnums()
+                .create()
         }
-    }
+        bind<JsonParser>() with singleton { JsonParser() }
 
-    // TODO: provide "is database available property"
+        bind<InuyamaConfiguration>() with singleton { InuyamaConfiguration.from(configurationSource) }
 
-    bind<DataSource>() with singleton {
-        HikariDataSource().apply {
-            val configuration = instance<InuyamaConfiguration>().database!!
-            jdbcUrl = configuration.url
-            username = configuration.username
-            password = configuration.password
+        // TODO: provide "is database available property"
+
+        bind<DataSource>() with singleton {
+            HikariDataSource().apply {
+                val configuration = instance<InuyamaConfiguration>().database!!
+                jdbcUrl = configuration.url
+                username = configuration.username
+                password = configuration.password
+            }
         }
+
+        bind<KeyKeeper>() with singleton { KeyKeeper() }
+
+        bind<OkHttpClient>() with singleton { OkHttpClient() }
+
+        bind<ExchangeRateHostApi>() with singleton {
+            ExchangeRateHostApi(
+                httpClient = instance(),
+                gson = instance(),
+            )
+        }
+
+        import(pairingModule)
+        import(httpModule)
+        import(pairedErrorModule)
+        import(torrentModule)
+        import(backupModule)
+        import(financeModule)
     }
 
-    bind<KeyKeeper>() with singleton { KeyKeeper() }
-
-    bind<OkHttpClient>() with singleton { OkHttpClient() }
-
-    bind<ExchangeRateHostApi>() with singleton {
-        ExchangeRateHostApi(
-            httpClient = instance(),
-            gson = instance(),
-        )
-    }
-
-    import(pairingModule)
-    import(httpModule)
-    import(pairedErrorModule)
-    import(torrentModule)
-    import(backupModule)
-    import(financeModule)
-}
-
-fun main() {
     // TODO: data replication by marking "last update" on entities
     // TODO: handle deletion somehow
 
