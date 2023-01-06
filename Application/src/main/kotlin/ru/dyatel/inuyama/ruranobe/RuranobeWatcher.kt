@@ -2,9 +2,6 @@ package ru.dyatel.inuyama.ruranobe
 
 import io.objectbox.Box
 import io.objectbox.BoxStore
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.UpdateDispatcher
 import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.model.RuranobeProject
@@ -14,13 +11,12 @@ import ru.dyatel.inuyama.model.RuranobeVolume_
 import ru.dyatel.inuyama.model.Update
 import java.util.TimeZone
 
-class RuranobeWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
-
-    private val api by instance<RuranobeApi>()
-
-    private val boxStore by instance<BoxStore>()
-    private val projectBox by instance<Box<RuranobeProject>>()
-    private val volumeBox by instance<Box<RuranobeVolume>>()
+class RuranobeWatcher(
+    private val api: RuranobeApi,
+    private val boxStore: BoxStore,
+    private val projectBox: Box<RuranobeProject>,
+    private val volumeBox: Box<RuranobeVolume>,
+) : Watcher() {
 
     private val watchingQuery by lazy {
         projectBox.query()

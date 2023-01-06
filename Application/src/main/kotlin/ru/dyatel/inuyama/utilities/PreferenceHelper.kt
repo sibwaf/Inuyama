@@ -6,9 +6,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import hirondelle.date4j.DateTime
 import org.jetbrains.anko.defaultSharedPreferences
-import org.kodein.di.KodeinAware
-import org.kodein.di.android.closestKodein
-import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.pairing.SavedPairedServer
 import ru.dyatel.inuyama.rutracker.RutrackerConfiguration
@@ -32,10 +29,10 @@ private const val DATA_DEVICE_IDENTIFIER = "device_identifier"
 private const val DATA_PAIRED_SERVER = "paired_server"
 private const val DATA_ERROR_LOG = "error_log"
 
-class PreferenceHelper(context: Context) : KodeinAware {
-
-    override val kodein by closestKodein { context }
-    private val gson by instance<Gson>()
+class PreferenceHelper(
+    context: Context,
+    private val gson: Gson,
+) {
 
     private val preferences = context.defaultSharedPreferences
 

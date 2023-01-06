@@ -4,9 +4,6 @@ import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.kotlin.query
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.finance.dto.FinanceOperationDirection
 import ru.dyatel.inuyama.finance.dto.FinanceOperationInfo
 import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
@@ -24,14 +21,13 @@ import ru.dyatel.inuyama.utilities.equal
 import ru.dyatel.inuyama.utilities.less
 import kotlin.math.abs
 
-class FinanceOperationManager(override val kodein: Kodein) : KodeinAware {
-
-    private val boxStore by instance<BoxStore>()
-
-    private val accountBox by instance<Box<FinanceAccount>>()
-    private val receiptBox by instance<Box<FinanceReceipt>>()
-    private val operationBox by instance<Box<FinanceOperation>>()
-    private val transferBox by instance<Box<FinanceTransfer>>()
+class FinanceOperationManager(
+    private val boxStore: BoxStore, // todo: make an abstract transaction manager?
+    private val accountBox: Box<FinanceAccount>,
+    private val receiptBox: Box<FinanceReceipt>,
+    private val operationBox: Box<FinanceOperation>,
+    private val transferBox: Box<FinanceTransfer>,
+) {
 
 //    fun getCurrentBalance(account: FinanceAccount): Double {
 //        return boxStore.callInReadTx {

@@ -1,8 +1,5 @@
 package ru.dyatel.inuyama.pairing
 
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.sibwaf.inuyama.common.DiscoverRequest
 import ru.sibwaf.inuyama.common.Pairing
@@ -13,10 +10,10 @@ import kotlin.concurrent.thread
 
 private typealias Listener = (PairedServer) -> Unit
 
-class DiscoveryService(override val kodein: Kodein) : KodeinAware {
-
-    private val networkManager by instance<NetworkManager>()
-    private val preferenceHelper by instance<PreferenceHelper>()
+class DiscoveryService(
+    private val networkManager: NetworkManager,
+    private val preferenceHelper: PreferenceHelper,
+) {
 
     private val listeners = mutableListOf<Listener>()
 

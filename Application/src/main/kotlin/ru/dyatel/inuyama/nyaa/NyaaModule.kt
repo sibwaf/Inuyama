@@ -18,8 +18,19 @@ import sibwaf.inuyama.app.common.ModuleScreenProvider
 val nyaaModule = Kodein.Module("nyaa") {
     bind<Box<NyaaTorrent>>() with singleton { instance<BoxStore>().boxFor() }
     bind<Box<NyaaWatch>>() with singleton { instance<BoxStore>().boxFor() }
-    bind<NyaaApiService>() with singleton { NyaaApiService(kodein) }
-    bind<NyaaWatcher>() with singleton { NyaaWatcher(kodein) }
+    bind<NyaaApiService>() with singleton {
+        NyaaApiService(
+            networkManager = instance(),
+        )
+    }
+    bind<NyaaWatcher>() with singleton {
+        NyaaWatcher(
+            api = instance(),
+            boxStore = instance(),
+            torrentBox = instance(),
+            watchBox = instance(),
+        )
+    }
 
     bind<NyaaBackupHandler>() with singleton {
         NyaaBackupHandler(

@@ -3,9 +3,6 @@ package ru.dyatel.inuyama
 import io.objectbox.BoxStore
 import io.objectbox.kotlin.boxFor
 import io.objectbox.kotlin.query
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceAccount_
 import ru.dyatel.inuyama.model.FinanceOperation
@@ -20,10 +17,10 @@ import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.resaveAll
 import java.util.UUID
 
-class MigrationRunner(override val kodein: Kodein) : KodeinAware {
-
-    private val store by instance<BoxStore>()
-    private val preferenceHelper by instance<PreferenceHelper>()
+class MigrationRunner(
+    private val store: BoxStore,
+    private val preferenceHelper: PreferenceHelper,
+) {
 
     @Suppress("deprecation")
     fun migrate() {

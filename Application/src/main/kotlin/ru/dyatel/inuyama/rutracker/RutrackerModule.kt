@@ -18,8 +18,19 @@ import sibwaf.inuyama.app.common.ModuleScreenProvider
 val rutrackerModule = Kodein.Module("rutracker") {
     bind<Box<RutrackerWatch>>() with singleton { instance<BoxStore>().boxFor() }
     bind<RutrackerConfiguration>() with singleton { instance<PreferenceHelper>().rutracker }
-    bind<RutrackerApiService>() with singleton { RutrackerApiService(kodein) }
-    bind<RutrackerWatcher>() with singleton { RutrackerWatcher(kodein) }
+    bind<RutrackerApiService>() with singleton {
+        RutrackerApiService(
+            configuration = instance(),
+            networkManager = instance(),
+        )
+    }
+    bind<RutrackerWatcher>() with singleton {
+        RutrackerWatcher(
+            api = instance(),
+            boxStore = instance(),
+            watchBox = instance(),
+        )
+    }
 
     bind<RutrackerBackupHandler>() with singleton {
         RutrackerBackupHandler(

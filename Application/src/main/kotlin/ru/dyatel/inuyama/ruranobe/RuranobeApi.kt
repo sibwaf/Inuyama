@@ -7,9 +7,6 @@ import com.google.gson.reflect.TypeToken
 import okhttp3.Request
 import org.jsoup.Connection
 import org.jsoup.HttpStatusException
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.SERVICE_RURANOBE
 import ru.dyatel.inuyama.model.RuranobeProject
@@ -25,7 +22,11 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class RuranobeApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteService {
+class RuranobeApi(
+    override val networkManager: NetworkManager,
+    private val gson: Gson,
+    private val jsonParser: JsonParser,
+) : ProxyableRemoteService {
 
     private companion object {
         const val host = "https://ruranobe.ru"
@@ -35,11 +36,6 @@ class RuranobeApi(override val kodein: Kodein) : KodeinAware, ProxyableRemoteSer
     }
 
     override val serviceId = SERVICE_RURANOBE
-
-    override val networkManager by instance<NetworkManager>()
-
-    private val gson by instance<Gson>()
-    private val jsonParser by instance<JsonParser>()
 
     override fun getName(context: Context) = context.getString(R.string.module_ruranobe)!!
 

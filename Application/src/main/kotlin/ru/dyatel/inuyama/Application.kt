@@ -1,7 +1,6 @@
 package ru.dyatel.inuyama
 
 import android.app.Application
-import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
@@ -13,6 +12,7 @@ import org.kodein.di.android.x.androidXModule
 import org.kodein.di.generic.allInstances
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
+import org.kodein.di.generic.on
 import org.kodein.di.generic.provider
 import org.kodein.di.generic.setBinding
 import org.kodein.di.generic.singleton
@@ -50,7 +50,7 @@ class Application : Application(), KodeinAware {
 
         bind<BoxStore>() with singleton {
             MyObjectBox.builder()
-                .androidContext(instance<Context>())
+                .androidContext(applicationContext)
                 .build()
         }
 
@@ -59,7 +59,12 @@ class Application : Application(), KodeinAware {
         bind<Box<ProxyBinding>>() with singleton { instance<BoxStore>().boxFor<ProxyBinding>() }
         bind<Box<Directory>>() with singleton { instance<BoxStore>().boxFor<Directory>() }
 
-        bind<MigrationRunner>() with singleton { MigrationRunner(kodein) }
+        bind<MigrationRunner>() with singleton {
+            MigrationRunner(
+                store = instance(),
+                preferenceHelper = instance(),
+            )
+        }
 
         bind<Gson>() with singleton {
             GsonBuilder()
@@ -71,7 +76,12 @@ class Application : Application(), KodeinAware {
         }
         bind<JsonParser>() with singleton { JsonParser() }
 
-        bind<PreferenceHelper>() with singleton { PreferenceHelper(instance()) }
+        bind<PreferenceHelper>() with singleton {
+            PreferenceHelper(
+                context = applicationContext,
+                gson = instance(),
+            )
+        }
         bind<OverseerConfiguration>() with provider { instance<PreferenceHelper>().overseer }
 
         bind<MainBackupHandler>() with singleton {
@@ -80,18 +90,34 @@ class Application : Application(), KodeinAware {
                 proxyRepository = instance(),
                 proxyBindingRepository = instance(),
                 directoryRepository = instance(),
-                gson = instance()
+                gson = instance(),
             )
         }
 
         bind<BackgroundServiceManager>() with singleton { BackgroundServiceManager() }
 
-        bind<Notifier>() with singleton { Notifier(kodein) }
+        bind<Notifier>() with singleton { Notifier(applicationContext) }
 
-        bind<NetworkManager>() with singleton { NetworkManagerImpl(kodein) }
+        bind<NetworkManager>() with singleton {
+            NetworkManagerImpl(
+                wifiManager = on(applicationContext).instance(),
+                networkBox = instance(),
+                proxyBindingBox = instance(),
+            )
+        }
 
-        bind<DiscoveryService>() with singleton { DiscoveryService(kodein) }
-        bind<PairingManager>() with singleton { PairingManager(kodein) }
+        bind<DiscoveryService>() with singleton {
+            DiscoveryService(
+                networkManager = instance(),
+                preferenceHelper = instance(),
+            )
+        }
+        bind<PairingManager>() with singleton {
+            PairingManager(
+                discoveryService = instance(),
+                preferenceHelper = instance(),
+            )
+        }
         bind<PairedConnectionHolder>() with singleton {
             PairedConnectionHolder(
                 networkManager = instance(),

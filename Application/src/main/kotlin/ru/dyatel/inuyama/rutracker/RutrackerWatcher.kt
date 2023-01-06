@@ -3,9 +3,6 @@ package ru.dyatel.inuyama.rutracker
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import kotlinx.coroutines.runBlocking
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.UpdateDispatcher
 import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.model.RutrackerWatch
@@ -14,11 +11,11 @@ import ru.dyatel.inuyama.model.Update
 import ru.dyatel.inuyama.utilities.subscribeFor
 import ru.sibwaf.inuyama.common.utilities.MagnetParser
 
-class RutrackerWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
-
-    private val api by instance<RutrackerApiService>()
-    private val boxStore by instance<BoxStore>()
-    private val watchBox by instance<Box<RutrackerWatch>>()
+class RutrackerWatcher(
+    private val api: RutrackerApiService,
+    private val boxStore: BoxStore,
+    private val watchBox: Box<RutrackerWatch>,
+) : Watcher() {
 
     private val undispatchedQuery by lazy {
         watchBox.query()

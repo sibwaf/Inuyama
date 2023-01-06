@@ -4,9 +4,6 @@ import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.kotlin.query
 import kotlinx.coroutines.runBlocking
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.UpdateDispatcher
 import ru.dyatel.inuyama.Watcher
 import ru.dyatel.inuyama.model.NyaaTorrent
@@ -15,13 +12,12 @@ import ru.dyatel.inuyama.model.NyaaWatch
 import ru.dyatel.inuyama.model.Update
 import ru.dyatel.inuyama.utilities.subscribeFor
 
-class NyaaWatcher(override val kodein: Kodein) : Watcher(), KodeinAware {
-
-    private val api by instance<NyaaApiService>()
-
-    private val boxStore by instance<BoxStore>()
-    private val torrentBox by instance<Box<NyaaTorrent>>()
-    private val watchBox by instance<Box<NyaaWatch>>()
+class NyaaWatcher(
+    private val api: NyaaApiService,
+    private val boxStore: BoxStore,
+    private val torrentBox: Box<NyaaTorrent>,
+    private val watchBox: Box<NyaaWatch>,
+) : Watcher() {
 
     private val undispatchedQuery by lazy {
         torrentBox.query { equal(NyaaTorrent_.dispatched, false) }

@@ -5,6 +5,7 @@ import org.jsoup.Connection
 
 interface RemoteService {
 
+    // todo: that has to go
     val networkManager: NetworkManager
 
     fun getName(context: Context): String

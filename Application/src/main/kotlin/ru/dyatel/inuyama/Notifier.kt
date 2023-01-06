@@ -5,15 +5,9 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.generic.instance
-import org.kodein.di.generic.on
+import org.jetbrains.anko.notificationManager
 
-class Notifier(override val kodein: Kodein) : KodeinAware {
-
-    private val context by instance<Context>()
-    private val notificationManager by on(context).instance<NotificationManager>()
+class Notifier(private val context: Context) {
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -25,7 +19,7 @@ class Notifier(override val kodein: Kodein) : KodeinAware {
                 )
             )
 
-            notificationManager.createNotificationChannels(channels)
+            context.notificationManager.createNotificationChannels(channels)
         }
     }
 
@@ -39,7 +33,6 @@ class Notifier(override val kodein: Kodein) : KodeinAware {
             .setLights(context.getColor(R.color.color_primary), 2500, 2500)
             .build()
 
-        notificationManager.notify(NOTIFICATION_ID_UPDATE, notification)
+        context.notificationManager.notify(NOTIFICATION_ID_UPDATE, notification)
     }
-
 }

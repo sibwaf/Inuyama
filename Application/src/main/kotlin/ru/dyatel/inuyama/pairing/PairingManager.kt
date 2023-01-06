@@ -4,22 +4,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
-import org.kodein.di.Kodein
-import org.kodein.di.KodeinAware
-import org.kodein.di.generic.instance
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.sibwaf.inuyama.common.Pairing
 import ru.sibwaf.inuyama.common.utilities.Cryptography
-import sibwaf.inuyama.app.common.NetworkManager
 import java.security.KeyPair
 import kotlin.coroutines.resume
 
-class PairingManager(override val kodein: Kodein) : KodeinAware {
-
-    private val networkManager by instance<NetworkManager>()
-    private val discoveryService by instance<DiscoveryService>()
-
-    private val preferenceHelper by instance<PreferenceHelper>()
+class PairingManager(
+    private val discoveryService: DiscoveryService,
+    private val preferenceHelper: PreferenceHelper,
+) {
 
     val deviceKeyPair: KeyPair
         get() = preferenceHelper.keyPair ?: regenerateDeviceKeyPair()

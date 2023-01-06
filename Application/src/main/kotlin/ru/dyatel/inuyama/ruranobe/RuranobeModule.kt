@@ -18,8 +18,21 @@ import sibwaf.inuyama.app.common.ModuleScreenProvider
 val ruranobeModule = Kodein.Module("ruranobe") {
     bind<Box<RuranobeProject>>() with singleton { instance<BoxStore>().boxFor() }
     bind<Box<RuranobeVolume>>() with singleton { instance<BoxStore>().boxFor() }
-    bind<RuranobeApi>() with singleton { RuranobeApi(kodein) }
-    bind<RuranobeWatcher>() with singleton { RuranobeWatcher(kodein) }
+    bind<RuranobeApi>() with singleton {
+        RuranobeApi(
+            networkManager = instance(),
+            gson = instance(),
+            jsonParser = instance(),
+        )
+    }
+    bind<RuranobeWatcher>() with singleton {
+        RuranobeWatcher(
+            api = instance(),
+            boxStore = instance(),
+            projectBox = instance(),
+            volumeBox = instance(),
+        )
+    }
 
     bind<ModuleScreenProvider>().inSet() with singleton {
         object : ModuleScreenProvider() {
