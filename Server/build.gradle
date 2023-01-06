@@ -24,6 +24,3 @@ dependencies {
     implementation "com.zaxxer:HikariCP:5.0.1"
     implementation "org.jetbrains.exposed:exposed-core:0.38.2"
 }
-
-evaluationDependsOn(":Web")
-applicationDistribution.from(project(":Web").getTasksByName("assemble", false).first()) { into("frontend") }
