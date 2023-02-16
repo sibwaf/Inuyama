@@ -58,7 +58,7 @@ class CurrencyConverter(private val exchangeRateHostApi: ExchangeRateHostApi) {
             listOfNotNull(previousExchangeRate, nextExchangeRate)
                 .average()
                 .takeIf { it.isFinite() }
-                ?: 1.0
+                ?: 0.0
         }
 
         return amount * exchangeRate
