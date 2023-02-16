@@ -22,8 +22,18 @@ class CurrencyConverter(private val exchangeRateHostApi: ExchangeRateHostApi) {
             .takeWhile { it <= endDate && it < currentDate }
             .toList()
 
+        val availableCurrencies = exchangeRateHostApi.fetchAvailableCurrencies()
+
         for (fromCurrency in currencies) {
+            if (fromCurrency !in availableCurrencies) {
+                continue
+            }
+
             for (toCurrency in currencies - fromCurrency) {
+                if (toCurrency !in availableCurrencies) {
+                    continue
+                }
+
                 val pair = fromCurrency to toCurrency
 
                 // todo: no concurrency at all, should have a striped lock
@@ -50,7 +60,7 @@ class CurrencyConverter(private val exchangeRateHostApi: ExchangeRateHostApi) {
 
         val date = datetime.toLocalDate()
 
-        val exchangeRates = cache[fromCurrency to toCurrency] ?: return amount
+        val exchangeRates = cache[fromCurrency to toCurrency] ?: return 0.0
         val exchangeRate = exchangeRates[date] ?: run {
             val previousExchangeRate = exchangeRates.headMap(date).takeIf { it.isNotEmpty() }?.let { exchangeRates[it.lastKey()] }
             val nextExchangeRate = exchangeRates.tailMap(date).takeIf { it.isNotEmpty() }?.let { exchangeRates[it.firstKey()] }

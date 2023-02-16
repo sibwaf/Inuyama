@@ -63,8 +63,28 @@ class ExchangeRateHostApi(
                 .toMap()
         }
     }
+
+    suspend fun fetchAvailableCurrencies(): Set<String> {
+        val request = Request.Builder()
+            .get()
+            .url("https://api.exchangerate.host/symbols")
+            .build()
+
+        return httpClient.newCall(request).await().use { response ->
+            response.successOrThrow()
+
+            gson.fromJson<SymbolsResponseDto>(response.body!!.charStream())
+                .symbols
+                .keys
+                .toSet()
+        }
+    }
 }
 
 private data class TimeseriesResponseDto(
     val rates: Map<LocalDate, Map<String, Double>>,
+)
+
+private data class SymbolsResponseDto(
+    val symbols: Map<String, Any>
 )
