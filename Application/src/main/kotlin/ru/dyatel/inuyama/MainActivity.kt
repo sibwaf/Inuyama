@@ -41,13 +41,9 @@ import ru.dyatel.inuyama.backup.BackupService
 import ru.dyatel.inuyama.finance.FinanceDashboardScreen
 import ru.dyatel.inuyama.finance.FinanceStatisticsScreen
 import ru.dyatel.inuyama.pairing.PairingScreen
-import ru.dyatel.inuyama.screens.DirectoryScreen
-import ru.dyatel.inuyama.screens.HomeScreen
 import ru.dyatel.inuyama.screens.NetworkScreen
-import ru.dyatel.inuyama.screens.ProxyScreen
 import ru.dyatel.inuyama.utilities.debugOnly
 import ru.dyatel.inuyama.utilities.grantPermissions
-import sibwaf.inuyama.app.common.ModuleScreenProvider
 import sibwaf.inuyama.app.common.components.showConfirmationDialog
 import java.util.concurrent.atomic.AtomicLong
 
@@ -68,7 +64,7 @@ class MainActivity : SingleActivity(), KodeinAware {
 
     override fun createNavigator(): Navigator =
         Navigator
-            .withRoot(HomeScreen())
+            .withRoot(FinanceDashboardScreen())
             .build()
             .apply {
                 addLifecycleListener(
@@ -171,17 +167,6 @@ class MainActivity : SingleActivity(), KodeinAware {
     }
 
     private fun DrawerBuilder.generateDrawerItems() {
-        createMenuItem<HomeScreen>(CommunityMaterial.Icon2.cmd_home, getString(R.string.screen_home))
-
-        addDrawerItems(DividerDrawerItem())
-
-        val moduleScreens by instance<Set<ModuleScreenProvider>>()
-        for (provider in moduleScreens.sortedBy { it.getTitle(this@MainActivity) }) {
-            createMenuItem(provider.getIcon(), provider.getTitle(this@MainActivity), provider.getScreenClass())
-        }
-
-        addDrawerItems(DividerDrawerItem())
-
         createMenuItem<FinanceDashboardScreen>(CommunityMaterial.Icon2.cmd_wallet, getString(R.string.screen_finance_dashboard))
         createMenuItem<FinanceStatisticsScreen>(CommunityMaterial.Icon.cmd_chart_histogram, getString(R.string.screen_finance_statistics))
 
@@ -189,8 +174,6 @@ class MainActivity : SingleActivity(), KodeinAware {
 
         createMenuItem<NetworkScreen>(CommunityMaterial.Icon2.cmd_wifi, getString(R.string.screen_networks))
         createMenuItem<PairingScreen>(CommunityMaterial.Icon2.cmd_monitor_cellphone, getString(R.string.module_pairing))
-        createMenuItem<ProxyScreen>(CommunityMaterial.Icon.cmd_cloud, getString(R.string.screen_proxy))
-        createMenuItem<DirectoryScreen>(CommunityMaterial.Icon.cmd_folder, getString(R.string.screen_directories))
 
         addDrawerItems(DividerDrawerItem())
 

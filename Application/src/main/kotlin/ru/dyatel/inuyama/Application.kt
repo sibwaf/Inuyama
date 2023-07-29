@@ -26,7 +26,6 @@ import ru.dyatel.inuyama.model.MyObjectBox
 import ru.dyatel.inuyama.model.Network
 import ru.dyatel.inuyama.model.Proxy
 import ru.dyatel.inuyama.model.ProxyBinding
-import ru.dyatel.inuyama.nyaa.nyaaModule
 import ru.dyatel.inuyama.overseer.OverseerConfiguration
 import ru.dyatel.inuyama.overseer.OverseerService
 import ru.dyatel.inuyama.overseer.UpdateDispatchExecutor
@@ -34,7 +33,6 @@ import ru.dyatel.inuyama.pairing.DiscoveryService
 import ru.dyatel.inuyama.pairing.PairedApi
 import ru.dyatel.inuyama.pairing.PairedConnectionHolder
 import ru.dyatel.inuyama.pairing.PairingManager
-import ru.dyatel.inuyama.rutracker.rutrackerModule
 import ru.dyatel.inuyama.utilities.PreferenceHelper
 import ru.dyatel.inuyama.utilities.boxFor
 import ru.sibwaf.inuyama.common.utilities.gson.registerDateTimeAdapter
@@ -152,9 +150,6 @@ class Application : Application(), KodeinAware {
 
         bind() from setBinding<ModuleScreenProvider>()
         import(errorModule)
-        import(rutrackerModule)
-        import(nyaaModule)
-//        import(ruranobeModule)
         import(financeModule)
     }
 
