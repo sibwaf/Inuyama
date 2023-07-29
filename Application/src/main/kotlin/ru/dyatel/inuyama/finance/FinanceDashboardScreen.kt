@@ -67,10 +67,10 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
     lateinit var transactionRecyclerView: RecyclerView
         private set
 
-    private val optionalView: OptionalView
+    private lateinit var transactionOptionalWrapper: OptionalView
 
     init {
-        val regularView = context.relativeLayout {
+        relativeLayout {
             lparams(width = matchParent, height = matchParent)
 
             val mainView = nestedScrollView {
@@ -101,9 +101,15 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                         }
                     }
 
-                    transactionRecyclerView = recyclerView {
+                    transactionRecyclerView = context.recyclerView {
                         lparams(width = matchParent, height = wrapContent)
                         layoutManager = LinearLayoutManager(context)
+                    }
+
+                    transactionOptionalWrapper = createOptionalView(transactionRecyclerView, isEmpty = true) {
+                        lparams(width = matchParent, height = wrapContent) {
+                            margin = DIM_LARGE
+                        }
                     }
                 }
 
@@ -149,11 +155,9 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                 alignParentBottom()
             }
         }
-
-        optionalView = createOptionalView(regularView, true)
     }
 
-    var isEmpty by optionalView::isEmpty
+    var hasTransactions by transactionOptionalWrapper::isEmpty
 }
 
 class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
@@ -221,8 +225,6 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
     private fun reloadAccounts() {
         val accounts = accountManager.getActiveAccounts()
 
-        view.isEmpty = accounts.isEmpty()
-
         val quickAccessAccounts = accounts.filter { it.quickAccess }
         view.accountRecyclerView.isVisible = quickAccessAccounts.isNotEmpty()
         accountAdapter.set(quickAccessAccounts.map { FinanceAccountItem(operationManager, it) })
@@ -236,6 +238,8 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
         transactionAdapter.clear()
 
         loadMore()
+
+        view.hasTransactions = transactionAdapter.adapterItemCount == 0
     }
 
     fun loadMore() {

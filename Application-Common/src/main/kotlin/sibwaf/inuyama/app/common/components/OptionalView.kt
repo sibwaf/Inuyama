@@ -38,6 +38,6 @@ private class OptionalViewImpl(
     }
 }
 
-fun ViewGroup.createOptionalView(view: View, isEmpty: Boolean): OptionalView {
-    return OptionalViewImpl(context, frameLayout(), view, isEmpty)
+fun ViewGroup.createOptionalView(view: View, isEmpty: Boolean, init: View.() -> Unit = {}): OptionalView {
+    return OptionalViewImpl(context, frameLayout(init), view, isEmpty)
 }
