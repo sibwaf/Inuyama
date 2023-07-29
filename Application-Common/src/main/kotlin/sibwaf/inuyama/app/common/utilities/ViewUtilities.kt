@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.annotation.Px
+import androidx.cardview.widget.CardView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import org.jetbrains.anko.inputMethodManager
@@ -43,6 +45,8 @@ fun RecyclerView.propagateTouchEvents() {
         override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) = Unit
     })
 }
+
+fun CardView.setContentPadding(@Px value: Int) = setContentPadding(value, value, value, value)
 
 fun View.showKeyboard() {
     val inputMethodManager = context.inputMethodManager

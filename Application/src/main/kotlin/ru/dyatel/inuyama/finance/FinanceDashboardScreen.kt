@@ -1,32 +1,31 @@
 package ru.dyatel.inuyama.finance
 
 import android.content.Context
+import android.graphics.Color
+import android.view.Gravity
 import android.view.Menu
-import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.mikepenz.fastadapter.adapters.ModelAdapter
+import com.mikepenz.fastadapter_extensions.scroll.EndlessRecyclerOnScrollListener
 import com.wealthfront.magellan.BaseScreenView
 import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.jetbrains.anko.alignParentBottom
-import org.jetbrains.anko.alignParentRight
-import org.jetbrains.anko.alignParentTop
+import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.cardview.v7.themedCardView
+import org.jetbrains.anko.design.appBarLayout
+import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.padding
 import org.jetbrains.anko.recyclerview.v7.recyclerView
-import org.jetbrains.anko.relativeLayout
-import org.jetbrains.anko.support.v4.nestedScrollView
-import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
@@ -52,6 +51,7 @@ import sibwaf.inuyama.app.common.components.createOptionalView
 import sibwaf.inuyama.app.common.components.floatingActionButton
 import sibwaf.inuyama.app.common.components.nestedFloatingActionButton
 import sibwaf.inuyama.app.common.components.withIcon
+import sibwaf.inuyama.app.common.utilities.setContentPadding
 import java.util.TimeZone
 
 class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardScreen>(context) {
@@ -70,59 +70,54 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
     private lateinit var transactionOptionalWrapper: OptionalView
 
     init {
-        relativeLayout {
+        coordinatorLayout {
             lparams(width = matchParent, height = matchParent)
 
-            val mainView = nestedScrollView {
-                id = generateViewId()
-                descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
+            appBarLayout {
+                lparams(width = matchParent, height = wrapContent)
 
-                verticalLayout {
+                backgroundColor = Color.TRANSPARENT
+                outlineProvider = null
+
+                themedCardView {
                     lparams(width = matchParent, height = wrapContent) {
-                        padding = DIM_LARGE
+                        margin = DIM_LARGE
                     }
 
-                    themedCardView {
-                        lparams(width = matchParent, height = wrapContent) {
-                            bottomMargin = DIM_LARGE
+                    setCardBackgroundColor(context.getColor(R.color.color_primary))
+                    setContentPadding(DIM_LARGE)
+
+                    accountRecyclerView = recyclerView {
+                        layoutManager = object : LinearLayoutManager(context) {
+                            override fun canScrollVertically() = false
+                            override fun canScrollHorizontally() = false
                         }
-
-                        setCardBackgroundColor(context.getColor(R.color.color_primary))
-
-                        accountRecyclerView = recyclerView {
-                            lparams(width = matchParent, height = wrapContent) {
-                                margin = DIM_LARGE
-                            }
-
-                            layoutManager = object : LinearLayoutManager(context) {
-                                override fun canScrollVertically() = false
-                                override fun canScrollHorizontally() = false
-                            }
-                        }
-                    }
-
-                    transactionRecyclerView = context.recyclerView {
-                        lparams(width = matchParent, height = wrapContent)
-                        layoutManager = LinearLayoutManager(context)
-                    }
-
-                    transactionOptionalWrapper = createOptionalView(transactionRecyclerView, isEmpty = true) {
-                        lparams(width = matchParent, height = wrapContent) {
-                            margin = DIM_LARGE
-                        }
-                    }
-                }
-
-                setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
-                    // TODO: rework
-                    if (scrollY > oldScrollY && !canScrollVertically(1)) {
-                        screen.loadMore()
                     }
                 }
             }
 
-            val buttonView = nestedFloatingActionButton {
-                id = generateViewId()
+            transactionRecyclerView = context.recyclerView {
+                lparams(width = matchParent, height = wrapContent)
+
+                layoutManager = LinearLayoutManager(context)
+
+                addOnScrollListener(object : EndlessRecyclerOnScrollListener() {
+                    override fun onLoadMore(currentPage: Int) {
+                        screen.loadMoreTransactions()
+                    }
+                })
+            }
+            transactionOptionalWrapper = createOptionalView(transactionRecyclerView, isEmpty = false) {
+                lparams(width = matchParent, height = wrapContent) {
+                    behavior = AppBarLayout.ScrollingViewBehavior()
+                }
+            }
+
+            nestedFloatingActionButton {
+                lparams(width = wrapContent, height = wrapContent) {
+                    margin = DIM_EXTRA_LARGE
+                    gravity = Gravity.BOTTOM or Gravity.END
+                }
 
                 createOperationButton = setMainButton {
                     floatingActionButton {
@@ -144,15 +139,6 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                         setOnClickListener { screen.createReceiptFromQr() }
                     }
                 }
-            }
-
-            mainView.lparams(width = matchParent) {
-                alignParentTop()
-            }
-            buttonView.lparams {
-                margin = DIM_EXTRA_LARGE
-                alignParentRight()
-                alignParentBottom()
             }
         }
     }
@@ -180,6 +166,7 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
         }
     }
 
+    private val loadMoreJobId = generateJobId()
     private var transactionHistoryCursor: TransactionHistoryCursor? = null
 
     private val categoryStore by instance<Box<FinanceCategory>>()
@@ -237,15 +224,23 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
         transactionHistoryCursor = null
         transactionAdapter.clear()
 
-        loadMore()
-
-        view.hasTransactions = transactionAdapter.adapterItemCount == 0
+        loadMoreTransactions()
     }
 
-    fun loadMore() {
-        val (transactions, cursor) = operationManager.getTransactions(count = AMOUNT_PER_SCROLL, cursor = transactionHistoryCursor)
-        transactionAdapter.add(transactions)
-        transactionHistoryCursor = cursor
+    fun loadMoreTransactions() {
+        launchJob(id = loadMoreJobId) {
+            val (transactions, cursor) = withContext(Dispatchers.Default) {
+                operationManager.getTransactions(
+                    count = AMOUNT_PER_SCROLL,
+                    cursor = transactionHistoryCursor,
+                )
+            }
+
+            transactionAdapter.add(transactions)
+            transactionHistoryCursor = cursor
+
+            view.hasTransactions = transactionAdapter.adapterItemCount == 0
+        }
     }
 
     fun createEmptyReceipt(account: FinanceAccount = accountManager.getActiveAccounts().first()) {
