@@ -33,6 +33,8 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
     private lateinit var operationListEditor: FinanceOperationListEditor
     private lateinit var dateTimeEditor: DateTimeEditor
 
+    private var accounts = emptyList<FinanceAccount>()
+
     private val changePublisher = PublishListenerHolderImpl<FinanceReceiptInfo>()
         .withEditor(this)
         .withBatching()
@@ -88,6 +90,7 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
     }
 
     fun bindAccounts(accounts: List<FinanceAccount>) {
+        this.accounts = accounts
         accountSelector.bindItems(accounts)
     }
 
@@ -98,6 +101,11 @@ class FinanceReceiptEditor(context: Context) : FrameLayout(context), ListenableE
     override fun onChange(listener: (FinanceReceiptInfo) -> Unit) = changePublisher.onChange(listener)
 
     override fun fillFrom(data: FinanceReceiptInfo) {
+        val missingAccounts = listOfNotNull(
+            data.account.takeIf { it !in accounts },
+        )
+        accountSelector.bindItems(missingAccounts + accounts)
+
         changePublisher.notifyAfterBatch {
             directionSelector.selected = data.direction
             accountSelector.selected = data.account

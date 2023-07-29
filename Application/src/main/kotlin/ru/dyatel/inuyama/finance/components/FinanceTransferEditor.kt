@@ -140,6 +140,13 @@ class FinanceTransferEditor(context: Context) : LinearLayout(context), Listenabl
             return
         }
 
+        val missingAccounts = listOfNotNull(
+            data.fromAccount.takeIf { it !in accounts },
+            data.toAccount.takeIf { it !in accounts },
+        )
+        fromAccountSelector.bindItems(missingAccounts + accounts)
+        toAccountSelector.bindItems(missingAccounts + accounts)
+
         changePublisher.notifyAfterBatch {
             fromAccountSelector.selected = data.fromAccount
             toAccountSelector.selected = data.toAccount
