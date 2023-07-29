@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
@@ -54,6 +55,11 @@ import sibwaf.inuyama.app.common.components.withIcon
 import java.util.TimeZone
 
 class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardScreen>(context) {
+
+    lateinit var createOperationButton: FloatingActionButton
+        private set
+    lateinit var createTransferButton: FloatingActionButton
+        private set
 
     lateinit var accountRecyclerView: RecyclerView
         private set
@@ -112,7 +118,7 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
             val buttonView = nestedFloatingActionButton {
                 id = generateViewId()
 
-                setMainButton {
+                createOperationButton = setMainButton {
                     floatingActionButton {
                         withIcon(CommunityMaterial.Icon2.cmd_plus)
                     }
@@ -120,7 +126,7 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
 
                 onMainButtonClick { screen.createEmptyReceipt() }
 
-                addExtraButton {
+                createTransferButton = addExtraButton {
                     floatingActionButton {
                         withIcon(CommunityMaterial.Icon.cmd_arrow_expand)
                         setOnClickListener { screen.createTransfer() }
@@ -220,6 +226,9 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
         val quickAccessAccounts = accounts.filter { it.quickAccess }
         view.accountRecyclerView.isVisible = quickAccessAccounts.isNotEmpty()
         accountAdapter.set(quickAccessAccounts.map { FinanceAccountItem(operationManager, it) })
+
+        view.createOperationButton.isVisible = accounts.isNotEmpty()
+        view.createTransferButton.isVisible = accounts.size >= 2
     }
 
     private fun reloadTransactions() {
