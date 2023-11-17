@@ -10,7 +10,8 @@ data class InuyamaConfiguration(
     val serverPort: Int = Pairing.DEFAULT_DISCOVER_SERVER_PORT + 1,
     val database: DbConfiguration? = null,
     val webAuth: WebAuthConfiguration? = null,
-    val torrent: TorrentClientConfiguration? = null
+    val torrent: TorrentClientConfiguration? = null,
+    val exchangeRateHostToken: String,
 ) {
 
     companion object {
@@ -47,6 +48,7 @@ data class InuyamaConfiguration(
                 database = databaseConfiguration,
                 torrent = torrentConfiguration,
                 webAuth = authenticationConfiguration,
+                exchangeRateHostToken = configurationWrapper.requireString("inuyama.exchangeratehost.token")
             )
         }
     }

@@ -1,9 +1,9 @@
 package ru.sibwaf.inuyama.finance.analytics
 
 import kotlinx.coroutines.runBlocking
-import ru.sibwaf.inuyama.finance.CurrencyConverter
 import ru.sibwaf.inuyama.finance.FinanceBackupDataProvider
 import ru.sibwaf.inuyama.finance.FinanceOperationDto
+import ru.sibwaf.inuyama.finance.rates.ExchangeRateProvider
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
@@ -12,7 +12,7 @@ import java.time.temporal.TemporalAdjusters
 // todo: use db
 class FinanceAnalyticService(
     private val dataProvider: FinanceBackupDataProvider,
-    private val currencyConverter: CurrencyConverter,
+    private val exchangeRateProvider: ExchangeRateProvider,
 ) {
 
     fun queryOperationSummary(
@@ -23,26 +23,20 @@ class FinanceAnalyticService(
     ): Map<String, Double> {
         val accounts = dataProvider.getAccounts(deviceId).associateBy { it.id }
 
-        runBlocking {
-            currencyConverter.prepareCache(
-                currencies = accounts.values.mapTo(HashSet()) { it.currency },
-                start = filter.start,
-                end = filter.end,
-            )
-        }
-
         return dataProvider.getOperations(deviceId)
             .filter { filter.direction == null || filter.direction == it.direction }
             .filter { filter.start <= it.datetime && filter.end > it.datetime }
             .groupBy(grouping.toKeyExtractor())
             .mapValues { (_, operations) ->
                 operations.sumOf {
-                    currencyConverter.convert(
-                        amount = it.amount,
-                        fromCurrency = accounts.getValue(it.accountId).currency,
-                        toCurrency = targetCurrency,
-                        datetime = it.datetime,
-                    )
+                    val exchangeRate = runBlocking {
+                        exchangeRateProvider.getExchangeRate(
+                            fromCurrency = accounts.getValue(it.accountId).currency,
+                            toCurrency = targetCurrency,
+                            date = it.datetime.toLocalDate(),
+                        )
+                    } ?: 0.0
+                    it.amount * exchangeRate
                 }
             }
     }
@@ -65,28 +59,24 @@ class FinanceAnalyticService(
             zoneOffset = zoneOffset
         )
 
-        runBlocking {
-            currencyConverter.prepareCache(
-                currencies = accounts.values.mapTo(HashSet()) { it.currency },
-                start = filter.start,
-                end = filter.end,
-            )
-        }
-
         val data = dataProvider.getOperations(deviceId)
             .filter { filter.direction == null || filter.direction == it.direction }
             .filter { filter.start <= it.datetime && filter.end > it.datetime }
             .groupBy(grouping.toKeyExtractor())
             .mapValues { (_, operations) ->
-                val operationsByTimelinePoint = operations.groupBy { it.datetime.toTimelinePoint(timelineStep, zoneOffset) }
+                val operationsByTimelinePoint = operations.groupBy {
+                    it.datetime.toTimelinePoint(timelineStep, zoneOffset)
+                }
                 timeline.map { point ->
                     operationsByTimelinePoint[point]?.sumOf {
-                        currencyConverter.convert(
-                            amount = it.amount,
-                            fromCurrency = accounts.getValue(it.accountId).currency,
-                            toCurrency = targetCurrency,
-                            datetime = it.datetime,
-                        )
+                        val exchangeRate = runBlocking {
+                            exchangeRateProvider.getExchangeRate(
+                                fromCurrency = accounts.getValue(it.accountId).currency,
+                                toCurrency = targetCurrency,
+                                date = it.datetime.toLocalDate(),
+                            )
+                        } ?: 0.0
+                        it.amount * exchangeRate
                     } ?: 0.0
                 }
             }
@@ -111,16 +101,6 @@ class FinanceAnalyticService(
             step = timelineStep,
             zoneOffset = zoneOffset
         )
-
-        // todo: parallelize cache / data collection?
-
-        runBlocking {
-            currencyConverter.prepareCache(
-                currencies = accounts.values.mapTo(HashSet()) { it.currency },
-                start = start,
-                end = end,
-            )
-        }
 
         data class BalanceChangeDto(val datetime: OffsetDateTime, val currency: String, val amount: Double)
 
@@ -187,12 +167,14 @@ class FinanceAnalyticService(
             .zip(timeline)
             .map { (savingsByCurrency, timelinePoint) ->
                 savingsByCurrency.asSequence().sumOf { (currency, amount) ->
-                    currencyConverter.convert(
-                        amount = amount,
-                        fromCurrency = currency,
-                        toCurrency = targetCurrency,
-                        datetime = timelinePoint.with(TemporalAdjusters.lastDayOfMonth()),
-                    )
+                    val exchangeRate = runBlocking {
+                        exchangeRateProvider.getExchangeRate(
+                            fromCurrency = currency,
+                            toCurrency = targetCurrency,
+                            date = timelinePoint.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate(),
+                        )
+                    } ?: 0.0
+                    amount * exchangeRate
                 }
             }
 

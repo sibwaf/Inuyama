@@ -12,6 +12,8 @@ buildscript {
 
     ext.date4jVersion = "1.5.1"
 
+    ext.striktVersion = "0.33.0"
+
     repositories {
         google()
         mavenCentral()

@@ -23,4 +23,7 @@ dependencies {
     implementation "org.postgresql:postgresql:42.2.16"
     implementation "com.zaxxer:HikariCP:5.0.1"
     implementation "org.jetbrains.exposed:exposed-core:0.38.2"
+
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+    testImplementation "io.strikt:strikt-core:$striktVersion"
 }

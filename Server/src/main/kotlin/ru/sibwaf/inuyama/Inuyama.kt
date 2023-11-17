@@ -12,8 +12,10 @@ import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
 import org.kodein.di.generic.singleton
 import org.slf4j.LoggerFactory
+import ru.sibwaf.inuyama.api.FilesystemCachedExchangeRateHostApi
 import ru.sibwaf.inuyama.backup.backupModule
 import ru.sibwaf.inuyama.common.api.ExchangeRateHostApi
+import ru.sibwaf.inuyama.common.api.ExchangeRateHostApiImpl
 import ru.sibwaf.inuyama.common.utilities.gson.registerDateTimeAdapter
 import ru.sibwaf.inuyama.common.utilities.gson.registerJavaTimeAdapters
 import ru.sibwaf.inuyama.common.utilities.gson.withCaseInsensitiveEnums
@@ -64,8 +66,13 @@ fun main(args: Array<String>) {
         bind<OkHttpClient>() with singleton { OkHttpClient() }
 
         bind<ExchangeRateHostApi>() with singleton {
-            ExchangeRateHostApi(
-                httpClient = instance(),
+            FilesystemCachedExchangeRateHostApi(
+                delegate = ExchangeRateHostApiImpl(
+                    httpClient = instance(),
+                    gson = instance(),
+                    token = instance<InuyamaConfiguration>().exchangeRateHostToken,
+                ),
+                cachePath = Paths.get("backups", "cache", "exchange-rates"),
                 gson = instance(),
             )
         }
