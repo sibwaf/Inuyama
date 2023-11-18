@@ -46,8 +46,34 @@ class ExchangeRateHostApiImpl(
                 .mapKeys { (key, _) -> key.removePrefix(fromCurrency) }
         }
     }
+
+    override suspend fun getAvailableCurrencies(): Set<String> {
+        val url = HttpUrl.Builder()
+            .scheme("http")
+            .host("api.exchangerate.host")
+            .addPathSegment("list")
+            .addQueryParameter("access_key", token)
+            .build()
+
+        val request = Request.Builder()
+            .get()
+            .url(url)
+            .build()
+
+        return httpClient.newCall(request).await().use { response ->
+            response.successOrThrow()
+
+            gson.fromJson<ListResponseDto>(response.body!!.charStream())
+                .currencies
+                .keys
+        }
+    }
 }
 
 private data class HistoricalResponseDto(
     val quotes: Map<String, Double>,
+)
+
+private data class ListResponseDto(
+    val currencies: Map<String, String>,
 )

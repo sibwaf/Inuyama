@@ -50,6 +50,25 @@ class FilesystemCachedExchangeRateHostApi(
             }
         }
     }
+
+    override suspend fun getAvailableCurrencies(): Set<String> {
+        val path = cachePath.resolve("currencies.json")
+        return mutex.withLock {
+            val cache = try {
+                withContext(Dispatchers.IO) { gson.fromJson<Set<String>>(path) }
+            } catch (e: Exception) {
+                null
+            }
+
+            if (cache == null) {
+                val currencies = delegate.getAvailableCurrencies()
+                withContext(Dispatchers.IO) { gson.toJson(currencies, path) }
+                currencies
+            } else {
+                cache
+            }
+        }
+    }
 }
 
 private data class CacheEntry(

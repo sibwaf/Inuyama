@@ -8,4 +8,6 @@ interface ExchangeRateHostApi {
         toCurrencies: Set<String>,
         date: LocalDate,
     ): Map<String, Double>
+
+    suspend fun getAvailableCurrencies(): Set<String>
 }
