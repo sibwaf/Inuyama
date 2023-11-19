@@ -41,9 +41,15 @@ class ExchangeRateHostApiImpl(
         return httpClient.newCall(request).await().use { response ->
             response.successOrThrow()
 
-            gson.fromJson<HistoricalResponseDto>(response.body!!.charStream())
-                .quotes
-                .mapKeys { (key, _) -> key.removePrefix(fromCurrency) }
+            val body = gson.fromJson<HistoricalResponseDto>(response.body!!.charStream())
+            if (!body.success) {
+                throw ExchangeRateHostApiException(
+                    code = body.error?.code ?: ExchangeRateHostApiException.UNKNOWN,
+                    message = body.error?.info ?: "Request failed, but no error info was provided",
+                )
+            }
+
+            body.quotes.mapKeys { (key, _) -> key.removePrefix(fromCurrency) }
         }
     }
 
@@ -63,17 +69,42 @@ class ExchangeRateHostApiImpl(
         return httpClient.newCall(request).await().use { response ->
             response.successOrThrow()
 
-            gson.fromJson<ListResponseDto>(response.body!!.charStream())
-                .currencies
-                .keys
+            val body = gson.fromJson<ListResponseDto>(response.body!!.charStream())
+            if (!body.success) {
+                throw ExchangeRateHostApiException(
+                    code = body.error?.code ?: ExchangeRateHostApiException.UNKNOWN,
+                    message = body.error?.info ?: "Request failed, but no error info was provided",
+                )
+            }
+
+            body.currencies.keys
         }
     }
 }
 
 private data class HistoricalResponseDto(
+    val success: Boolean,
     val quotes: Map<String, Double>,
+    val error: ErrorDto?,
 )
 
 private data class ListResponseDto(
+    val success: Boolean,
     val currencies: Map<String, String>,
+    val error: ErrorDto?,
 )
+
+private data class ErrorDto(
+    val code: Int,
+    val info: String,
+)
+
+class ExchangeRateHostApiException(
+    val code: Int,
+    message: String,
+) : RuntimeException(message) {
+
+    companion object ErrorCode {
+        const val UNKNOWN = -1
+    }
+}
