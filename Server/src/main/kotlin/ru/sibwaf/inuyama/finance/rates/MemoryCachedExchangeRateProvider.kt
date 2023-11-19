@@ -1,11 +1,17 @@
 package ru.sibwaf.inuyama.finance.rates
 
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import com.github.benmanes.caffeine.cache.Caffeine
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.future.future
+import java.time.Duration
 import java.time.LocalDate
-import java.util.concurrent.ConcurrentHashMap
 
-class MemoryCachedExchangeRateProvider(private val delegate: ExchangeRateProvider) : ExchangeRateProvider {
+class MemoryCachedExchangeRateProvider(
+    private val delegate: ExchangeRateProvider,
+    cacheExpiration: Duration,
+) : ExchangeRateProvider {
 
     private data class CacheKey(
         val fromCurrency: String,
@@ -13,8 +19,17 @@ class MemoryCachedExchangeRateProvider(private val delegate: ExchangeRateProvide
         val date: LocalDate,
     )
 
-    private val cache = ConcurrentHashMap<CacheKey, Double>()
-    private val mutex = Mutex()
+    private val cache = Caffeine.newBuilder()
+        .expireAfterWrite(cacheExpiration)
+        .buildAsync<CacheKey, Double> { key, executor ->
+            CoroutineScope(executor.asCoroutineDispatcher()).future {
+                delegate.getExchangeRate(
+                    fromCurrency = key.fromCurrency,
+                    toCurrency = key.toCurrency,
+                    date = key.date,
+                )
+            }
+        }
 
     override suspend fun getExchangeRate(fromCurrency: String, toCurrency: String, date: LocalDate): Double? {
         val key = CacheKey(
@@ -23,16 +38,6 @@ class MemoryCachedExchangeRateProvider(private val delegate: ExchangeRateProvide
             date = date,
         )
 
-        return cache[key] ?: mutex.withLock {
-            var result = cache[key]
-            if (result == null) {
-                result = delegate.getExchangeRate(
-                    fromCurrency = fromCurrency,
-                    toCurrency = toCurrency,
-                    date = date,
-                )
-            }
-            result
-        }
+        return cache.get(key).await()
     }
 }

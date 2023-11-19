@@ -15,7 +15,7 @@ class ExchangeRateHostExchangeRateProvider(
 ) : ExchangeRateProvider {
 
     private val availableCurrenciesCache = Caffeine.newBuilder()
-        .expireAfterWrite(Duration.ofMinutes(10))
+        .expireAfterWrite(Duration.ofHours(24))
         .buildAsync<Unit, Set<String>> { _, executor ->
             CoroutineScope(executor.asCoroutineDispatcher()).future {
                 api.getAvailableCurrencies()
