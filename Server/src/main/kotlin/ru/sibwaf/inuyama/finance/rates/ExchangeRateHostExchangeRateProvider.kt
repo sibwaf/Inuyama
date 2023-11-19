@@ -23,6 +23,15 @@ class ExchangeRateHostExchangeRateProvider(
         }
 
     override suspend fun getExchangeRate(fromCurrency: String, toCurrency: String, date: LocalDate): Double? {
+        val now = LocalDate.now()
+        if (date >= now) {
+            return getExchangeRate(
+                fromCurrency = fromCurrency,
+                toCurrency = toCurrency,
+                date = now.minusDays(1),
+            )
+        }
+
         val availableCurrencies = availableCurrenciesCache.get(Unit).await()
 
         if (fromCurrency !in availableCurrencies || toCurrency !in availableCurrencies) {
