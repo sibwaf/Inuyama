@@ -11,7 +11,6 @@ import java.time.LocalDate
 
 class ExchangeRateHostExchangeRateProvider(
     private val api: ExchangeRateHostApi,
-    private val currencySetProvider: () -> Set<String>,
 ) : ExchangeRateProvider {
 
     private val availableCurrenciesCache = Caffeine.newBuilder()
@@ -38,11 +37,6 @@ class ExchangeRateHostExchangeRateProvider(
             return null
         }
 
-        val toCurrencies = (currencySetProvider() + toCurrency - fromCurrency).intersect(availableCurrencies)
-        if (toCurrencies.isEmpty()) {
-            return null
-        }
-
-        return api.getExchangeRates(fromCurrency, toCurrencies, date)[toCurrency]
+        return api.getExchangeRates(fromCurrency, setOf(toCurrency), date)[toCurrency]
     }
 }

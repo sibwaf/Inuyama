@@ -9,27 +9,17 @@ import ru.sibwaf.inuyama.finance.rates.CrossExchangeRateProvider
 import ru.sibwaf.inuyama.finance.rates.ExchangeRateHostExchangeRateProvider
 import ru.sibwaf.inuyama.finance.rates.ExchangeRateProvider
 import ru.sibwaf.inuyama.finance.rates.MemoryCachedExchangeRateProvider
-import ru.sibwaf.inuyama.pairing.DeviceManager
 import java.time.Duration
 
 val financeModule = Kodein.Module("finance") {
     bind<FinanceBackupDataProvider>() with singleton { FinanceBackupDataProvider(instance(), instance()) }
 
     bind<ExchangeRateProvider>() with singleton {
-        val deviceManager = instance<DeviceManager>()
-        val dataProvider = instance<FinanceBackupDataProvider>()
-
         MemoryCachedExchangeRateProvider(
             delegate = CrossExchangeRateProvider(
                 mainCurrency = "USD",
                 delegate = ExchangeRateHostExchangeRateProvider(
                     api = instance(),
-                    currencySetProvider = {
-                        val devices = deviceManager.listDevices()
-                        devices.flatMapTo(HashSet()) { deviceId ->
-                            dataProvider.getAccounts(deviceId).map { it.currency }
-                        }
-                    },
                 ),
             ),
             cacheExpiration = Duration.ofMinutes(30),

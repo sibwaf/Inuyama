@@ -72,6 +72,7 @@ fun main(args: Array<String>) {
                     gson = instance(),
                     token = instance<InuyamaConfiguration>().exchangeRateHostToken,
                 ),
+                fetchAllCurrencies = true,
                 cachePath = Paths.get("backups", "cache", "exchange-rates"),
                 gson = instance(),
             )

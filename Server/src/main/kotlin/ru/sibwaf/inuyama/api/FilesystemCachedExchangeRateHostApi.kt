@@ -14,6 +14,7 @@ import kotlin.io.path.createDirectories
 
 class FilesystemCachedExchangeRateHostApi(
     private val delegate: ExchangeRateHostApi,
+    private val fetchAllCurrencies: Boolean,
     private val cachePath: Path,
     private val gson: Gson,
 ) : ExchangeRateHostApi {
@@ -40,10 +41,10 @@ class FilesystemCachedExchangeRateHostApi(
             if (!cache.currencies.containsAll(toCurrencies)) {
                 val rates = delegate.getExchangeRates(
                     fromCurrency = fromCurrency,
-                    toCurrencies = toCurrencies,
+                    toCurrencies = toCurrencies.takeUnless { fetchAllCurrencies }.orEmpty(),
                     date = date,
                 )
-                withContext(Dispatchers.IO) { gson.toJson(CacheEntry(toCurrencies, rates), path) }
+                withContext(Dispatchers.IO) { gson.toJson(CacheEntry(rates.keys, rates), path) }
                 rates
             } else {
                 cache.values
