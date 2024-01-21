@@ -97,7 +97,7 @@ class FinanceTransferEditor(context: Context) : LinearLayout(context), Listenabl
             val icon = IconicsDrawable(context)
                 .icon(CommunityMaterial.Icon.cmd_arrow_down)
                 .sizeDp(24)
-                .colorRes(R.color.md_dark_primary_text)
+                .colorRes(com.mikepenz.materialize.R.color.md_dark_primary_text)
 
             val iconView = imageView(icon) {
                 id = generateViewId()

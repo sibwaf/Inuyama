@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import com.google.android.material.tabs.TabLayout
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.typeface.IIcon
-import sibwaf.inuyama.app.common.R
 
 class IconTabSelector<T>(context: Context) : TabLayout(context) {
 
@@ -49,7 +48,7 @@ class IconTabSelector<T>(context: Context) : TabLayout(context) {
             val drawable = IconicsDrawable(context)
                 .icon(option.second)
                 .sizeDp(16)
-                .colorRes(R.color.md_dark_primary_text)
+                .colorRes(com.mikepenz.materialize.R.color.md_dark_primary_text)
 
             tab.icon = drawable
         }

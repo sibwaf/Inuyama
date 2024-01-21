@@ -256,7 +256,10 @@ class MainActivity : SingleActivity(), KodeinAware {
     }
 
     private fun createActionBarIcon(icon: IIcon) =
-        IconicsDrawable(this).actionBar().icon(icon).colorRes(R.color.material_drawer_dark_primary_text)
+        IconicsDrawable(this)
+            .actionBar()
+            .icon(icon)
+            .colorRes(com.mikepenz.materialdrawer.R.color.material_drawer_dark_primary_text)
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu, menu)

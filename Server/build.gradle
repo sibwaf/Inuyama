@@ -3,6 +3,10 @@ apply plugin: "application"
 
 mainClassName = "ru.sibwaf.inuyama.InuyamaKt"
 
+kotlin {
+    jvmToolchain(17)
+}
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutinesVersion"

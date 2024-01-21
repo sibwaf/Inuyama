@@ -30,10 +30,10 @@ import org.jetbrains.anko.textResource
 import org.jetbrains.anko.textView
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
+import ru.dyatel.inuyama.R
 import ru.sibwaf.inuyama.common.utilities.KAOMOJI
 import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
 import sibwaf.inuyama.app.common.DIM_LARGE
-import sibwaf.inuyama.app.common.R
 import sibwaf.inuyama.app.common.SP_EXTRA_LARGE
 import sibwaf.inuyama.app.common.SP_MEDIUM
 import sibwaf.inuyama.app.common.utilities.disableSuggestions
@@ -50,7 +50,7 @@ inline fun ViewGroup.uniformIconButton(icon: IIcon, init: ImageButton.() -> Unit
     val drawable = IconicsDrawable(context)
         .icon(icon)
         .sizeDp(24)
-        .colorRes(R.color.md_dark_primary_text)
+        .colorRes(com.mikepenz.materialize.R.color.md_dark_primary_text)
 
     // todo: make this a square
     return imageButton(drawable) {
@@ -214,7 +214,7 @@ fun Context.uniformEmptyView(): View {
 fun FloatingActionButton.withIcon(icon: IIcon) {
     val drawable = IconicsDrawable(context)
         .icon(icon)
-        .colorRes(R.color.md_dark_primary_text)
+        .colorRes(com.mikepenz.materialize.R.color.md_dark_primary_text)
 
     setImageDrawable(drawable)
 }

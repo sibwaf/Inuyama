@@ -1,5 +1,9 @@
 apply plugin: "kotlin"
 
+kotlin {
+    jvmToolchain(17)
+}
+
 test {
     useJUnitPlatform()
 }

@@ -26,6 +26,10 @@ android {
         versionName "1.11"
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     if (localProperties != null) {
         signingConfigs {
             release {
@@ -48,15 +52,10 @@ android {
             signingConfig signingConfigs.release
         }
     }
+}
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
-    }
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {

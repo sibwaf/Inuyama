@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11-jdk AS backend-builder
+FROM eclipse-temurin:17-jdk AS backend-builder
 
 WORKDIR /build
 COPY . .
@@ -14,7 +14,7 @@ COPY Web .
 
 RUN npm install && npm run build
 
-FROM eclipse-temurin:11-jre
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 COPY --from=backend-builder /build/Server/build/distributions/Server .

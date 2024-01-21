@@ -25,7 +25,6 @@ import org.jetbrains.anko.relativeLayout
 import org.jetbrains.anko.rightPadding
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.ITEM_TYPE_DIRECTORY
-import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.model.Directory
 import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
 import sibwaf.inuyama.app.common.DIM_LARGE
@@ -106,7 +105,7 @@ class DirectoryItem(
         IconicsDrawable(ctx)
             .icon(icon)
             .sizeDp(20)
-            .colorRes(R.color.material_drawer_dark_secondary_text)
+            .colorRes(com.mikepenz.materialdrawer.R.color.material_drawer_dark_secondary_text)
 
     override fun createView(ctx: Context, parent: ViewGroup?): View {
         return ctx.relativeLayout {

@@ -8,7 +8,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import org.jetbrains.anko.numberPicker
 import org.jetbrains.anko.support.v4.ctx
-import sibwaf.inuyama.app.common.R
+import ru.dyatel.inuyama.R
 import kotlin.properties.Delegates
 
 class ElementPicker<T>(

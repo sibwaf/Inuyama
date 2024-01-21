@@ -25,7 +25,6 @@ import org.jetbrains.anko.textResource
 import org.jetbrains.anko.textView
 import org.jetbrains.anko.wrapContent
 import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
-import sibwaf.inuyama.app.common.R
 import sibwaf.inuyama.app.common.SP_MEDIUM
 import kotlin.properties.Delegates
 
@@ -85,7 +84,7 @@ class StatusBar(context: Context) : _CardView(context) {
             IconicsDrawable(context)
                 .icon(value)
                 .sizeDp(24)
-                .colorRes(R.color.md_dark_secondary)
+                .colorRes(com.mikepenz.materialize.R.color.md_dark_secondary)
         }
 
         iconView.setImageDrawable(drawable)
