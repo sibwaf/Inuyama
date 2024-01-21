@@ -3,6 +3,7 @@ package ru.sibwaf.inuyama.http
 import com.google.gson.Gson
 import io.javalin.Javalin
 import io.javalin.http.staticfiles.Location
+import io.javalin.json.JavalinGson
 import org.kodein.di.Kodein
 import org.kodein.di.generic.allInstances
 import org.kodein.di.generic.bind
@@ -12,7 +13,6 @@ import org.slf4j.LoggerFactory
 import ru.sibwaf.inuyama.InuyamaConfiguration
 import ru.sibwaf.inuyama.Module
 import ru.sibwaf.inuyama.exception
-import ru.sibwaf.inuyama.utilities.JavalinGson
 import java.net.InetAddress
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -72,7 +72,7 @@ private class HttpModule(
             .create {
                 val path = "frontend"
                 if (Files.isDirectory(Paths.get(path))) {
-                    it.addStaticFiles("frontend", Location.EXTERNAL)
+                    it.staticFiles.add("frontend", Location.EXTERNAL)
                 } else {
                     logger.warn("[$path] not found, static resources won't be served")
                 }

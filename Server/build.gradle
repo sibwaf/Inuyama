@@ -13,11 +13,11 @@ dependencies {
 
     implementation project(":Common")
 
-    implementation "ch.qos.logback:logback-classic:1.2.11"
+    implementation "ch.qos.logback:logback-classic:1.4.14"
 
     implementation "org.kodein.di:kodein-di-generic-jvm:$kodeinVersion"
 
-    implementation "io.javalin:javalin:4.6.0"
+    implementation "io.javalin:javalin:5.6.3"
 
     implementation "org.jsoup:jsoup:$jsoupVersion"
     implementation "com.google.code.gson:gson:$gsonVersion"

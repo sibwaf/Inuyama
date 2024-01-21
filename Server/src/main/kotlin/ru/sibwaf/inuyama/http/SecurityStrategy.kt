@@ -65,7 +65,7 @@ fun interface SecurityStrategy {
             ctx.session = session
 
             ctx.decryptedBodyProvider = {
-                Cryptography.decryptAES(ctx.bodyAsInputStream(), session.key)
+                Cryptography.decryptAES(ctx.bodyInputStream(), session.key)
             }
 
             return true
@@ -84,7 +84,7 @@ fun interface SecurityStrategy {
 
     class AddressWhitelist(private val whitelist: Set<InetAddress>) : SecurityStrategy {
         override fun authenticate(ctx: Context): Boolean {
-            val sender = InetAddress.getByName(ctx.req.remoteAddr)
+            val sender = InetAddress.getByName(ctx.req().remoteAddr)
             return sender in whitelist
         }
     }

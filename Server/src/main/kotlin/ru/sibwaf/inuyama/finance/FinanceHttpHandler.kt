@@ -1,7 +1,8 @@
 package ru.sibwaf.inuyama.finance
 
 import io.javalin.Javalin
-import io.javalin.plugin.json.jsonMapper
+import io.javalin.json.fromJsonString
+import io.javalin.json.jsonMapper
 import ru.sibwaf.inuyama.finance.analytics.FinanceAnalyticFilter
 import ru.sibwaf.inuyama.finance.analytics.FinanceAnalyticGrouping
 import ru.sibwaf.inuyama.finance.analytics.FinanceAnalyticService
@@ -36,7 +37,7 @@ class FinanceHttpHandler(
                         val grouping = ctx.queryParam("grouping")
                             ?.let { FinanceAnalyticGrouping.valueOf(it.uppercase()) }
                         val filter = ctx.queryParam("filter")!!
-                            .let { jsonMapper().fromJsonString(it, FinanceAnalyticFilter::class.java) }
+                            .let { ctx.jsonMapper().fromJsonString<FinanceAnalyticFilter>(it) }
                         val currency = ctx.queryParam("currency")!!
 
                         ctx.json(
@@ -55,7 +56,7 @@ class FinanceHttpHandler(
                         val grouping = ctx.queryParam("grouping")
                             ?.let { FinanceAnalyticGrouping.valueOf(it.uppercase()) }
                         val filter = ctx.queryParam("filter")!!
-                            .let { jsonMapper().fromJsonString(it, FinanceAnalyticFilter::class.java) }
+                            .let { ctx.jsonMapper().fromJsonString<FinanceAnalyticFilter>(it) }
                         val currency = ctx.queryParam("currency")!!
                         val zoneOffset = ctx.queryParam("zoneOffset")!!
                             .let { ZoneOffset.ofTotalSeconds(it.toInt()) }

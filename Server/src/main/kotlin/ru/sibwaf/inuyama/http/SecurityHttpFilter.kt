@@ -1,7 +1,8 @@
 package ru.sibwaf.inuyama.http
 
 import io.javalin.http.Context
-import io.javalin.plugin.json.jsonMapper
+import io.javalin.json.fromJsonStream
+import io.javalin.json.jsonMapper
 import ru.sibwaf.inuyama.pairing.Session
 import java.io.InputStream
 
@@ -17,7 +18,7 @@ class SecurityHttpFilter(private val config: SecurityConfig) : HttpFilter {
             set(value) = attribute(ATTRIBUTE_SESSION, value)
 
         var Context.decryptedBodyProvider: () -> InputStream
-            get() = attribute(ATTRIBUTE_DECRYPTED_BODY_PROVIDER) ?: { bodyAsInputStream() }
+            get() = attribute(ATTRIBUTE_DECRYPTED_BODY_PROVIDER) ?: { bodyInputStream() }
             set(value) = attribute(ATTRIBUTE_DECRYPTED_BODY_PROVIDER, value)
 
         var Context.encryptableResponseBody: InputStream?
@@ -29,7 +30,7 @@ class SecurityHttpFilter(private val config: SecurityConfig) : HttpFilter {
         fun Context.decryptedBody(): InputStream = decryptedBodyProvider()
 
         inline fun <reified T> Context.decryptBodyAs(): T {
-            return jsonMapper().fromJsonStream(decryptedBody(), T::class.java)
+            return jsonMapper().fromJsonStream(decryptedBody())
         }
     }
 
