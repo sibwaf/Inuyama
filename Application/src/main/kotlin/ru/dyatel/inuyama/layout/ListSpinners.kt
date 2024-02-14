@@ -2,6 +2,7 @@ package ru.dyatel.inuyama.layout
 
 import android.content.Context
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import ru.dyatel.inuyama.R
 import ru.dyatel.inuyama.model.Directory
 import ru.dyatel.inuyama.model.FinanceAccount
@@ -42,12 +43,17 @@ fun ViewGroup.proxySelector(init: ProxySelector.() -> Unit = {}): ProxySelector 
 class FinanceAccountSelector(context: Context) : ListSpinner<FinanceAccount>(context) {
 
     fun bindItems(items: List<FinanceAccount>) {
-        bindItems(items) {
-            val balance = context.getString(R.string.label_finance_amount, it.initialBalance + it.balance, it.currency)
-            "${it.name} ($balance)"
-        }
+        bindItems(items, ::getLabel)
     }
 
+    fun bindItemsWithDefault(items: List<FinanceAccount>, @StringRes defaultTextRes: Int) {
+        bindItems(items, defaultTextRes, ::getLabel)
+    }
+
+    private fun getLabel(account: FinanceAccount): String {
+        val balance = context.getString(R.string.label_finance_amount, account.initialBalance + account.balance, account.currency)
+        return "${account.name} ($balance)"
+    }
 }
 
 fun ViewGroup.financeAccountSelector(init: FinanceAccountSelector.() -> Unit = {}): FinanceAccountSelector {
@@ -63,6 +69,9 @@ class FinanceCategorySelector(context: Context) : ListSpinner<FinanceCategory>(c
         bindItems(items) { it.name }
     }
 
+    fun bindItemsWithDefault(items: List<FinanceCategory>, @StringRes defaultTextRes: Int) {
+        bindItems(items, defaultTextRes) { it.name }
+    }
 }
 
 fun ViewGroup.financeCategorySelector(init: FinanceCategorySelector.() -> Unit = {}): FinanceCategorySelector {

@@ -44,6 +44,8 @@
 
     <string name="const_directory_default">[по умолчанию]</string>
     <string name="const_proxy_default">[прямое подключение]</string>
+    <string name="const_finance_account_filter_none">[без фильтра]</string>
+    <string name="const_finance_category_filter_none">[без фильтра]</string>
 
     <string name="label_path">Путь: %s</string>
     <string name="label_last_update">Обновление: %s</string>

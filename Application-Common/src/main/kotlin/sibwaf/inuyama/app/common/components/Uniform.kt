@@ -7,6 +7,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
@@ -20,6 +21,7 @@ import org.jetbrains.anko.design._TextInputLayout
 import org.jetbrains.anko.design.textInputEditText
 import org.jetbrains.anko.frameLayout
 import org.jetbrains.anko.imageButton
+import org.jetbrains.anko.imageView
 import org.jetbrains.anko.leftPadding
 import org.jetbrains.anko.linearLayout
 import org.jetbrains.anko.margin
@@ -42,6 +44,17 @@ import sibwaf.inuyama.app.common.utilities.disableUiExtraction
 inline fun ViewGroup.uniformTextView(init: TextView.() -> Unit = {}): TextView {
     return textView {
         textSize = SP_MEDIUM
+        init()
+    }
+}
+
+inline fun ViewGroup.uniformIcon(icon: IIcon, init: ImageView.() -> Unit = {}): ImageView {
+    val drawable = IconicsDrawable(context)
+        .icon(icon)
+        .sizeDp(24)
+        .colorRes(com.mikepenz.materialize.R.color.md_dark_primary_text)
+
+    return imageView(drawable) {
         init()
     }
 }

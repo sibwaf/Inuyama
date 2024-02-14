@@ -23,9 +23,11 @@ import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.cardview.v7.themedCardView
 import org.jetbrains.anko.design.appBarLayout
 import org.jetbrains.anko.design.coordinatorLayout
+import org.jetbrains.anko.linearLayout
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.recyclerview.v7.recyclerView
+import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.KodeinAware
 import org.kodein.di.generic.instance
@@ -35,8 +37,12 @@ import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
 import ru.dyatel.inuyama.finance.dto.FinanceTransferDto
 import ru.dyatel.inuyama.finance.dto.TransactionHistoryCursor
 import ru.dyatel.inuyama.layout.FinanceAccountItem
+import ru.dyatel.inuyama.layout.FinanceAccountSelector
+import ru.dyatel.inuyama.layout.FinanceCategorySelector
 import ru.dyatel.inuyama.layout.FinanceReceiptItem
 import ru.dyatel.inuyama.layout.FinanceTransferItem
+import ru.dyatel.inuyama.layout.financeAccountSelector
+import ru.dyatel.inuyama.layout.financeCategorySelector
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceReceipt
@@ -46,13 +52,21 @@ import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
 import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
 import sibwaf.inuyama.app.common.DIM_LARGE
+import sibwaf.inuyama.app.common.DIM_MEDIUM
 import sibwaf.inuyama.app.common.components.OptionalView
 import sibwaf.inuyama.app.common.components.createOptionalView
 import sibwaf.inuyama.app.common.components.floatingActionButton
 import sibwaf.inuyama.app.common.components.nestedFloatingActionButton
+import sibwaf.inuyama.app.common.components.uniformIcon
 import sibwaf.inuyama.app.common.components.withIcon
 import sibwaf.inuyama.app.common.utilities.setContentPadding
 import java.util.TimeZone
+import kotlin.properties.Delegates
+
+data class DashboardOperationFilter(
+    val account: FinanceAccount?,
+    val category: FinanceCategory?,
+)
 
 class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardScreen>(context) {
 
@@ -61,10 +75,17 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
     lateinit var createTransferButton: FloatingActionButton
         private set
 
+    lateinit var accountFilterSelector: FinanceAccountSelector
+        private set
+    lateinit var categoryFilterSelector: FinanceCategorySelector
+        private set
+
     lateinit var accountRecyclerView: RecyclerView
         private set
 
     lateinit var transactionRecyclerView: RecyclerView
+        private set
+    lateinit var transactionEndlessScrollListener: EndlessRecyclerOnScrollListener
         private set
 
     private lateinit var transactionOptionalWrapper: OptionalView
@@ -94,6 +115,42 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                         }
                     }
                 }
+
+                themedCardView {
+                    lparams(width = matchParent, height = wrapContent) {
+                        bottomMargin = DIM_MEDIUM
+                    }
+
+                    setCardBackgroundColor(context.getColor(R.color.color_primary))
+                    setContentPadding(DIM_LARGE)
+
+                    verticalLayout {
+                        lparams(width = matchParent, height = wrapContent)
+
+                        linearLayout {
+                            lparams(width = matchParent, height = wrapContent) {
+                                bottomMargin = DIM_MEDIUM
+                            }
+
+                            uniformIcon(CommunityMaterial.Icon2.cmd_wallet).lparams { leftMargin = DIM_EXTRA_LARGE }
+                            accountFilterSelector = financeAccountSelector {
+                                lparams(width = matchParent)
+                                onItemSelected { filter = filter.copy(account = it) }
+                            }
+                        }
+                        linearLayout {
+                            lparams(width = matchParent, height = wrapContent) {
+                                topMargin = DIM_MEDIUM
+                            }
+
+                            uniformIcon(CommunityMaterial.Icon2.cmd_tag).lparams { leftMargin = DIM_EXTRA_LARGE }
+                            categoryFilterSelector = financeCategorySelector {
+                                lparams(width = matchParent)
+                                onItemSelected { filter = filter.copy(category = it) }
+                            }
+                        }
+                    }
+                }
             }
 
             transactionRecyclerView = context.recyclerView {
@@ -101,11 +158,12 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
 
                 layoutManager = LinearLayoutManager(context)
 
-                addOnScrollListener(object : EndlessRecyclerOnScrollListener() {
+                transactionEndlessScrollListener = object : EndlessRecyclerOnScrollListener() {
                     override fun onLoadMore(currentPage: Int) {
                         screen.loadMoreTransactions()
                     }
-                })
+                }
+                addOnScrollListener(transactionEndlessScrollListener)
             }
             transactionOptionalWrapper = createOptionalView(transactionRecyclerView, isEmpty = false) {
                 lparams(width = matchParent, height = wrapContent) {
@@ -144,6 +202,13 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
     }
 
     var hasTransactions by transactionOptionalWrapper::isEmpty
+
+    var filter by Delegates.observable(DashboardOperationFilter(null, null)) { _, old, new ->
+        if (old != new) {
+            screen.reloadTransactions()
+        }
+    }
+        private set
 }
 
 class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
@@ -204,6 +269,9 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
         reloadAccounts()
         observeChanges<FinanceAccount>(::reloadAccounts)
 
+        reloadCategories()
+        observeChanges<FinanceCategory>(::reloadCategories)
+
         reloadTransactions()
         observeChanges<FinanceReceipt>(::reloadTransactions)
         observeChanges<FinanceTransfer>(::reloadTransactions)
@@ -211,6 +279,8 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
 
     private fun reloadAccounts() {
         val accounts = accountManager.getActiveAccounts()
+
+        view.accountFilterSelector.bindItemsWithDefault(accounts, R.string.const_finance_account_filter_none)
 
         val quickAccessAccounts = accounts.filter { it.quickAccess }
         view.accountRecyclerView.isVisible = quickAccessAccounts.isNotEmpty()
@@ -220,11 +290,15 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
         view.createTransferButton.isVisible = accounts.size >= 2
     }
 
-    private fun reloadTransactions() {
+    private fun reloadCategories() {
+        val categories = categoryStore.all
+        view.categoryFilterSelector.bindItemsWithDefault(categories, R.string.const_finance_category_filter_none)
+    }
+
+    fun reloadTransactions() {
         transactionHistoryCursor = null
         transactionAdapter.clear()
-
-        loadMoreTransactions()
+        view.transactionEndlessScrollListener.resetPageCount()
     }
 
     fun loadMoreTransactions() {
@@ -233,6 +307,8 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
                 operationManager.getTransactions(
                     count = AMOUNT_PER_SCROLL,
                     cursor = transactionHistoryCursor,
+                    accountFilter = view.filter.account,
+                    categoryFilter = view.filter.category,
                 )
             }
 

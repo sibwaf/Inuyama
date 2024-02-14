@@ -3,7 +3,11 @@ package ru.dyatel.inuyama.finance
 import hirondelle.date4j.DateTime
 import io.objectbox.Box
 import io.objectbox.BoxStore
-import io.objectbox.kotlin.query
+import io.objectbox.kotlin.and
+import io.objectbox.kotlin.equal
+import io.objectbox.kotlin.less
+import io.objectbox.kotlin.or
+import io.objectbox.query.QueryCondition
 import ru.dyatel.inuyama.finance.dto.FinanceOperationDirection
 import ru.dyatel.inuyama.finance.dto.FinanceOperationInfo
 import ru.dyatel.inuyama.finance.dto.FinanceReceiptInfo
@@ -11,14 +15,15 @@ import ru.dyatel.inuyama.finance.dto.FinanceTransferDto
 import ru.dyatel.inuyama.finance.dto.TransactionHistoryCursor
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
+import ru.dyatel.inuyama.model.FinanceCategory_
 import ru.dyatel.inuyama.model.FinanceOperation
+import ru.dyatel.inuyama.model.FinanceOperation_
 import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.model.FinanceReceipt_
 import ru.dyatel.inuyama.model.FinanceTransaction
 import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.dyatel.inuyama.model.FinanceTransfer_
-import ru.dyatel.inuyama.utilities.equal
-import ru.dyatel.inuyama.utilities.less
+import ru.dyatel.inuyama.utilities.DateTimeConverter
 import kotlin.math.abs
 
 class FinanceOperationManager(
@@ -28,6 +33,8 @@ class FinanceOperationManager(
     private val operationBox: Box<FinanceOperation>,
     private val transferBox: Box<FinanceTransfer>,
 ) {
+
+    private val dateTimeConverter = DateTimeConverter()
 
 //    fun getCurrentBalance(account: FinanceAccount): Double {
 //        return boxStore.callInReadTx {
@@ -51,44 +58,80 @@ class FinanceOperationManager(
 //        }
 //    }
 
-    fun getTransactions(count: Int, cursor: TransactionHistoryCursor? = null): Pair<List<FinanceTransaction>, TransactionHistoryCursor> {
+    fun getTransactions(
+        count: Int,
+        cursor: TransactionHistoryCursor? = null,
+        accountFilter: FinanceAccount? = null,
+        categoryFilter: FinanceCategory? = null,
+    ): Pair<List<FinanceTransaction>, TransactionHistoryCursor> {
         if (cursor?.finished == true) {
             return emptyList<FinanceTransaction>() to cursor
         }
 
-        val receipts = receiptBox
-            .query {
-                if (cursor?.lastReceiptDatetime != null && cursor.lastReceiptId != null) {
-                    equal(FinanceReceipt_.datetime, cursor.lastReceiptDatetime)
-                    and()
-                    less(FinanceReceipt_.id, cursor.lastReceiptId)
+        val receipts = run {
+            val noCondition: QueryCondition<FinanceReceipt> = FinanceReceipt_.id.notNull()
 
-                    or()
+            val cursorCondition: QueryCondition<FinanceReceipt>
+            if (cursor?.lastReceiptDatetime != null && cursor.lastReceiptId != null) {
+                val dateTimeSerialized = dateTimeConverter.convertToDatabaseValue(cursor.lastReceiptDatetime)!!
 
-                    less(FinanceReceipt_.datetime, cursor.lastReceiptDatetime)
-                }
-
-                orderDesc(FinanceReceipt_.datetime)
-                orderDesc(FinanceReceipt_.id)
+                val sameDatetime = (FinanceReceipt_.datetime equal dateTimeSerialized) and (FinanceReceipt_.id less cursor.lastReceiptId)
+                val older = FinanceReceipt_.datetime less dateTimeSerialized
+                cursorCondition = sameDatetime or older
+            } else {
+                cursorCondition = noCondition
             }
-            .find(0L, count.toLong() + 1)
 
-        val transfers = transferBox
-            .query {
-                if (cursor?.lastTransferDatetime != null && cursor.lastTransferId != null) {
-                    equal(FinanceTransfer_.datetime, cursor.lastTransferDatetime)
-                    and()
-                    less(FinanceTransfer_.id, cursor.lastTransferId)
+            val filter = listOfNotNull(
+                cursorCondition,
+                accountFilter?.let { FinanceReceipt_.accountId equal it.id },
+            ).fold(noCondition) { acc, it -> acc and it }
 
-                    or()
-
-                    less(FinanceTransfer_.datetime, cursor.lastTransferDatetime)
+            receiptBox
+                .query(filter)
+                .apply {
+                    if (categoryFilter != null) {
+                        link(FinanceReceipt_.operations)
+                            .link(FinanceOperation_.categories)
+                            .apply(FinanceCategory_.id equal categoryFilter.id)
+                    }
                 }
+                .orderDesc(FinanceReceipt_.datetime)
+                .orderDesc(FinanceReceipt_.id)
+                .build()
+                .find(0L, count.toLong() + 1)
+        }
 
-                orderDesc(FinanceTransfer_.datetime)
-                orderDesc(FinanceTransfer_.id)
+        val transfers = run {
+            if (categoryFilter != null) {
+                return@run emptyList()
             }
-            .find(0L, count.toLong() + 1)
+
+            val noCondition: QueryCondition<FinanceTransfer> = FinanceTransfer_.id.notNull()
+
+            val cursorCondition: QueryCondition<FinanceTransfer>
+            if (cursor?.lastTransferDatetime != null && cursor.lastTransferId != null) {
+                val dateTimeSerialized = dateTimeConverter.convertToDatabaseValue(cursor.lastTransferDatetime)!!
+
+                val sameDatetime = (FinanceTransfer_.datetime equal dateTimeSerialized) and (FinanceTransfer_.id less cursor.lastTransferId)
+                val older = FinanceTransfer_.datetime less dateTimeSerialized
+                cursorCondition = sameDatetime or older
+            } else {
+                cursorCondition = noCondition
+            }
+
+            val filter = listOfNotNull(
+                cursorCondition,
+                accountFilter?.let { (FinanceTransfer_.fromId equal it.id) or (FinanceTransfer_.toId equal it.id) },
+            ).fold(noCondition) { acc, it -> acc and it }
+
+            transferBox
+                .query(filter)
+                .orderDesc(FinanceTransfer_.datetime)
+                .orderDesc(FinanceTransfer_.id)
+                .build()
+                .find(0L, count.toLong() + 1)
+        }
 
         val sortedTransactions = (receipts + transfers)
             .sortedByDescending { it.datetime }
