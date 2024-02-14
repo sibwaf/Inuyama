@@ -21,8 +21,6 @@ class FinanceAnalyticService(
         filter: FinanceAnalyticFilter,
         targetCurrency: String,
     ): Map<String, Double> {
-        val accounts = dataProvider.getAccounts(deviceId).associateBy { it.id }
-
         return dataProvider.getOperations(deviceId)
             .filter { filter.direction == null || filter.direction == it.direction }
             .filter { filter.start <= it.datetime && filter.end > it.datetime }
@@ -31,7 +29,7 @@ class FinanceAnalyticService(
                 operations.sumOf {
                     val exchangeRate = runBlocking {
                         exchangeRateProvider.getExchangeRate(
-                            fromCurrency = accounts.getValue(it.accountId).currency,
+                            fromCurrency = it.account.currency,
                             toCurrency = targetCurrency,
                             date = it.datetime.toLocalDate(),
                         )
@@ -49,8 +47,6 @@ class FinanceAnalyticService(
         targetCurrency: String,
         zoneOffset: ZoneOffset,
     ): FinanceAnalyticSeriesDto {
-        val accounts = dataProvider.getAccounts(deviceId).associateBy { it.id }
-
         val timelineStep = ChronoUnit.MONTHS
         val timeline = generateTimeline(
             start = filter.start,
@@ -71,7 +67,7 @@ class FinanceAnalyticService(
                     operationsByTimelinePoint[point]?.sumOf {
                         val exchangeRate = runBlocking {
                             exchangeRateProvider.getExchangeRate(
-                                fromCurrency = accounts.getValue(it.accountId).currency,
+                                fromCurrency = it.account.currency,
                                 toCurrency = targetCurrency,
                                 date = it.datetime.toLocalDate(),
                             )
@@ -92,8 +88,6 @@ class FinanceAnalyticService(
         end: OffsetDateTime,
         zoneOffset: ZoneOffset,
     ): FinanceAnalyticSeriesDto {
-        val accounts = dataProvider.getAccounts(deviceId).associateBy { it.id }
-
         val timelineStep = ChronoUnit.MONTHS
         val timeline = generateTimeline(
             start = start,
@@ -109,7 +103,7 @@ class FinanceAnalyticService(
                 yield(
                     BalanceChangeDto(
                         datetime = operation.datetime,
-                        currency = accounts.getValue(operation.accountId).currency,
+                        currency = operation.account.currency,
                         amount = operation.amount,
                     )
                 )
@@ -118,21 +112,21 @@ class FinanceAnalyticService(
                 yield(
                     BalanceChangeDto(
                         datetime = transfer.datetime,
-                        currency = accounts.getValue(transfer.fromAccountId).currency,
+                        currency = transfer.fromAccount.currency,
                         amount = -transfer.amountFrom,
                     )
                 )
                 yield(
                     BalanceChangeDto(
                         datetime = transfer.datetime,
-                        currency = accounts.getValue(transfer.toAccountId).currency,
+                        currency = transfer.toAccount.currency,
                         amount = transfer.amountTo,
                     )
                 )
             }
         }
 
-        val latestSavings = accounts.values
+        val latestSavings = dataProvider.getAccounts(deviceId)
             .groupingBy { it.currency }
             .foldTo(mutableMapOf(), 0.0) { acc, it -> acc + it.balance }
         val changesByTimelinePoint = HashMap<OffsetDateTime, MutableMap<String, Double>>()
@@ -203,7 +197,8 @@ class FinanceAnalyticService(
     private fun FinanceAnalyticGrouping?.toKeyExtractor(): (FinanceOperationDto) -> String {
         return when (this) {
             FinanceAnalyticGrouping.DIRECTION -> { it -> it.direction.name }
-            FinanceAnalyticGrouping.CATEGORY -> { it -> it.categoryId }
+            FinanceAnalyticGrouping.CATEGORY -> { it -> it.category.id }
+            FinanceAnalyticGrouping.CURRENCY -> { it -> it.account.currency }
             null -> { _ -> "all" }
         }
     }

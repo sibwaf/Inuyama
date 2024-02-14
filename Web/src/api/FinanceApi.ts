@@ -19,7 +19,8 @@ export enum FinanceOperationDirection {
 
 export enum FinanceAnalyticGrouping {
     DIRECTION = "direction",
-    CATEGORY = "category"
+    CATEGORY = "category",
+    CURRENCY = "currency",
 }
 
 export interface FinanceAnalyticFilter {

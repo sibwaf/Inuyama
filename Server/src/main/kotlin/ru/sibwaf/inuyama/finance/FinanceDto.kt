@@ -15,15 +15,15 @@ data class FinanceAccountDto(
 )
 
 data class FinanceOperationDto(
-    val accountId: String,
+    val account: FinanceAccountDto,
     val datetime: OffsetDateTime,
-    val categoryId: String,
+    val category: FinanceCategoryDto,
     val amount: Double
 )
 
 data class FinanceTransferDto(
-    val fromAccountId: String,
-    val toAccountId: String,
+    val fromAccount: FinanceAccountDto,
+    val toAccount: FinanceAccountDto,
     val amountFrom: Double,
     val amountTo: Double,
     val datetime: OffsetDateTime,

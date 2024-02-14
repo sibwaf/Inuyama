@@ -7,6 +7,7 @@ import ru.sibwaf.inuyama.fromJson
 import ru.sibwaf.inuyama.systemZoneOffset
 import java.time.Duration
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 class FinanceBackupDataProvider(
     private val backupManager: BackupManager,
@@ -28,54 +29,47 @@ class FinanceBackupDataProvider(
     fun getCategories(deviceId: String): Set<FinanceCategoryDto> {
         return getDeviceData(deviceId)?.categories
             .orEmpty()
-            .map { FinanceCategoryDto(id = it.id, name = it.name) }
+            .map { it.toDto() }
             .toSet()
     }
 
     fun getAccounts(deviceId: String): Set<FinanceAccountDto> {
         return getDeviceData(deviceId)?.accounts
             .orEmpty()
-            .map {
-                FinanceAccountDto(
-                    id = it.id,
-                    name = it.name,
-                    balance = it.initialBalance + it.balance,
-                    currency = it.currency,
-                )
-            }
+            .map { it.toDto() }
             .toSet()
     }
 
     fun getOperations(deviceId: String): Sequence<FinanceOperationDto> {
-        val data = getDeviceData(deviceId) ?: return emptySequence()
+        val accounts = getAccounts(deviceId).associateBy { it.id }
+        val categories = getCategories(deviceId).associateBy { it.id }
 
-        return data.receipts
+        return getDeviceData(deviceId)?.receipts
             .orEmpty()
             .asSequence()
             .flatMap { receipt ->
-                receipt.operations.map {
-                    FinanceOperationDto(
-                        accountId = receipt.accountId,
-                        amount = it.amount,
-                        categoryId = it.categoryIds.single(),
-                        datetime = LocalDateTime.parse(receipt.datetime).atOffset(systemZoneOffset)
+                val account = accounts.getValue(receipt.accountId)
+                val datetime = LocalDateTime.parse(receipt.datetime).atOffset(systemZoneOffset)
+
+                receipt.operations.map { operation ->
+                    operation.toDto(
+                        account = account,
+                        categoryProvider = { categories.getValue(it) },
+                        datetime = datetime,
                     )
                 }
             }
     }
 
     fun getTransfers(deviceId: String): Sequence<FinanceTransferDto> {
-        val data = getDeviceData(deviceId) ?: return emptySequence()
+        val accounts = getAccounts(deviceId).associateBy { it.id }
 
-        return data.transfers
+        return getDeviceData(deviceId)?.transfers
+            .orEmpty()
             .asSequence()
             .map { transfer ->
-                FinanceTransferDto(
-                    fromAccountId = transfer.fromId,
-                    toAccountId = transfer.toId,
-                    amountFrom = (transfer.amountFrom ?: transfer.amount)!!,
-                    amountTo = (transfer.amountTo ?: transfer.amount)!!,
-                    datetime = LocalDateTime.parse(transfer.datetime).atOffset(systemZoneOffset),
+                transfer.toDto(
+                    accountProvider = { accounts.getValue(it) },
                 )
             }
     }
@@ -95,12 +89,28 @@ private data class BackupFinanceAccount(
     val initialBalance: Double,
     val balance: Double,
     val currency: String,
-)
+) {
+    fun toDto(): FinanceAccountDto {
+        return FinanceAccountDto(
+            id = id,
+            name = name,
+            balance = initialBalance + balance,
+            currency = currency,
+        )
+    }
+}
 
 private data class BackupFinanceCategory(
     val id: String,
     val name: String
-)
+) {
+    fun toDto(): FinanceCategoryDto {
+        return FinanceCategoryDto(
+            id = id,
+            name = name,
+        )
+    }
+}
 
 private data class BackupFinanceReceipt(
     val id: String,
@@ -116,7 +126,20 @@ private data class BackupFinanceOperation(
     val categoryIds: List<String>,
 
     val datetime: String?
-)
+) {
+    fun toDto(
+        account: FinanceAccountDto,
+        categoryProvider: (String) -> FinanceCategoryDto,
+        datetime: OffsetDateTime,
+    ): FinanceOperationDto {
+        return FinanceOperationDto(
+            account = account,
+            amount = amount,
+            category = categoryProvider(categoryIds.single()),
+            datetime = datetime,
+        )
+    }
+}
 
 private data class BackupFinanceTransfer(
     val id: String,
@@ -126,4 +149,16 @@ private data class BackupFinanceTransfer(
     val datetime: String,
     val fromId: String,
     val toId: String
-)
+) {
+    fun toDto(
+        accountProvider: (String) -> FinanceAccountDto,
+    ): FinanceTransferDto {
+        return FinanceTransferDto(
+            fromAccount = accountProvider(fromId),
+            toAccount = accountProvider(toId),
+            amountFrom = (amountFrom ?: amount)!!,
+            amountTo = (amountTo ?: amount)!!,
+            datetime = LocalDateTime.parse(datetime).atOffset(systemZoneOffset),
+        )
+    }
+}
