@@ -16,8 +16,7 @@ class BackupService(
     override suspend fun execute() {
         for (provider in backupHandlers) {
             try {
-                val data = provider.provideData()
-                pairedApi.makeBackup(provider.moduleName, data)
+                pairedApi.makeBackup(provider.moduleName, provider::provideData)
             } catch (e: Exception) {
                 Log.e("BackupService", "Failed to create a backup for module ${provider.moduleName}", e)
             }

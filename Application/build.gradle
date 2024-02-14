@@ -85,6 +85,8 @@ dependencies {
 
     implementation "com.google.code.gson:gson:$gsonVersion"
 
+    implementation "commons-io:commons-io:2.15.1"
+
     implementation "org.ocpsoft.prettytime:prettytime:4.0.5.Final"
 
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"

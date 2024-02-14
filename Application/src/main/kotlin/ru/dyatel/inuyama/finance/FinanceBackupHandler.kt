@@ -3,6 +3,9 @@ package ru.dyatel.inuyama.finance
 import com.google.gson.Gson
 import hirondelle.date4j.DateTime
 import io.objectbox.Box
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import org.apache.commons.io.input.ReaderInputStream
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.model.FinanceCategory
 import ru.dyatel.inuyama.model.FinanceOperation
@@ -10,8 +13,8 @@ import ru.dyatel.inuyama.model.FinanceReceipt
 import ru.dyatel.inuyama.model.FinanceTransfer
 import ru.sibwaf.inuyama.common.utilities.Encoding
 import ru.sibwaf.inuyama.common.utilities.gson.fromJson
+import ru.sibwaf.inuyama.common.utilities.gson.toJsonReader
 import sibwaf.inuyama.app.common.backup.ModuleBackupHandler
-import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.util.UUID
 
@@ -76,8 +79,10 @@ class FinanceBackupHandler(
             }
         )
 
-        val result = Encoding.stringToBytes(gson.toJson(data))
-        return ByteArrayInputStream(result)
+        return ReaderInputStream.builder()
+            .setCharset(Encoding.CHARSET)
+            .setReader(gson.toJsonReader(data, CoroutineScope(Dispatchers.Default)))
+            .get()
     }
 
     override fun restoreData(data: InputStream) {
