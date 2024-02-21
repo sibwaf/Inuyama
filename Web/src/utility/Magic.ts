@@ -141,3 +141,24 @@ export function solveSystemGauss(ax: number[][], b: number[]): number[] {
     }
     return result;
 }
+
+export function derivative(nums: number[]): number[] {
+    const result: number[] = [];
+    for (let i = 1; i < nums.length; i++) {
+        result.push(nums[i] - nums[i - 1]);
+    }
+    return result;
+}
+
+export function median(nums: number[]): number | null {
+    const sorted = [...nums].sort();
+    if (nums.length % 2 == 1) {
+        return sorted[Math.floor(nums.length / 2)];
+    } else {
+        return (sorted[nums.length / 2 - 1] + sorted[nums.length / 2]) / 2;
+    }
+}
+
+export function sum(nums: number[]): number {
+    return nums.reduce((acc, it) => acc + it, 0);
+}

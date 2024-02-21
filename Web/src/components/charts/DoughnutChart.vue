@@ -20,6 +20,8 @@ interface ChartData {
 export default class DoughnutChart extends Vue {
     @Prop()
     private readonly data!: [string, number][];
+    @Prop({ default: () => (label: string) => label})
+    private readonly labelFormatter!: (label: string) => string;
     @Prop({ default: () => (value: number) => value.toString() })
     private readonly valueFormatter!: (value: number) => string;
 
@@ -44,7 +46,7 @@ export default class DoughnutChart extends Vue {
                     tooltip: {
                         callbacks: {
                             label: (item) =>
-                                `${item.label}: ${this.valueFormatter(item.raw as number)}`,
+                                `${this.labelFormatter(item.label)}: ${this.valueFormatter(item.raw as number)}`,
                         },
                     },
                 },
