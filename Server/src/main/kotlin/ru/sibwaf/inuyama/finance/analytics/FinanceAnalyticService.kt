@@ -137,7 +137,7 @@ class FinanceAnalyticService(
             }
 
             if (change.datetime > end) {
-                latestSavings.compute(change.currency) { _, it -> (it ?: 0.0) + change.amount }
+                latestSavings.compute(change.currency) { _, it -> (it ?: 0.0) - change.amount }
             } else {
                 val timelinePoint = change.datetime.toTimelinePoint(timelineStep, zoneOffset)
                 val changes = changesByTimelinePoint.getOrPut(timelinePoint) { mutableMapOf() }
