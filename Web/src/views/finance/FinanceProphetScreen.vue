@@ -86,12 +86,13 @@ export default class FinanceProphetScreen extends Vue {
             return null;
         }
 
-        const key = [...rawSavingsData.data.keys()][0];
-        if (key == null) {
-            return null;
+        const result: number[] = [];
+        for (const [_, values] of rawSavingsData.data) {
+            for (let i = 0; i < values.length; i++) {
+                result[i] = (result[i] ?? 0) + values[i];
+            }
         }
-
-        return rawSavingsData.data.get(key);
+        return result;
     }
 
     private get predictionTimeline() {

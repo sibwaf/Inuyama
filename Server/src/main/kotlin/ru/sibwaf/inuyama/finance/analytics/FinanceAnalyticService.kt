@@ -160,7 +160,7 @@ class FinanceAnalyticService(
             .drop(1)
             .zip(timeline)
             .map { (savingsByCurrency, timelinePoint) ->
-                savingsByCurrency.asSequence().sumOf { (currency, amount) ->
+                savingsByCurrency.mapValues { (currency, amount) ->
                     val exchangeRate = runBlocking {
                         exchangeRateProvider.getExchangeRate(
                             fromCurrency = currency,
@@ -172,7 +172,7 @@ class FinanceAnalyticService(
                 }
             }
 
-        return FinanceAnalyticSeriesDto(timeline, mapOf("all" to data))
+        return FinanceAnalyticSeriesDto(timeline, data)
     }
 
     private fun generateTimeline(
