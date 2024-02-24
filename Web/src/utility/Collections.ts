@@ -30,4 +30,19 @@ export default {
     dropLast<T>(items: T[], count: number): T[] {
         return items.slice(0, -count);
     },
+
+    slidingWindow<T>(items: T[], size: number): T[][] {
+        if (items.length == 0) {
+            return [];
+        }
+        if (items.length < size) {
+            return [items];
+        }
+
+        const result: T[][] = [];
+        for (let i = 0; i < items.length - size + 1; i++) {
+            result.push(items.slice(i, i + size));
+        }
+        return result;
+    },
 }

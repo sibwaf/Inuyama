@@ -31,6 +31,10 @@ export interface ChartLine {
 export default class LineChart extends Vue {
     @Prop()
     private readonly data!: ChartData<any>;
+    @Prop({ default: () => (x: any) => x.toString() })
+    private readonly xFormatter!: (x: any) => string;
+    @Prop({ default: () => (label: string) => label })
+    private readonly labelFormatter!: (label: string) => string;
     @Prop({ default: () => (value: number) => value.toString() })
     private readonly valueFormatter!: (value: number) => string;
 
@@ -45,18 +49,22 @@ export default class LineChart extends Vue {
             },
             options: {
                 scales: {
+                    x: {
+                        ticks: {
+                            callback: (value) => this.xFormatter(this.data.xs[value as number]),
+                        },
+                    },
                     y: {
                         ticks: {
-                            callback: (value) =>
-                                this.valueFormatter(value as number),
+                            callback: (value) => this.valueFormatter(value as number),
                         },
                     },
                 },
                 plugins: {
                     tooltip: {
                         callbacks: {
-                            label: (item) =>
-                                this.valueFormatter(item.raw as number),
+                            title: (item) => `${this.xFormatter(this.data.xs[item[0].dataIndex])}`,
+                            label: (item) => `${this.labelFormatter(item.dataset.label!)}: ${this.valueFormatter(item.raw as number)}`,
                         },
                     },
                 },
@@ -96,6 +104,3 @@ export default class LineChart extends Vue {
     }
 }
 </script>
-
-<style>
-</style>

@@ -15,6 +15,8 @@
                 <finance-dashboard-expense-panel class="column is-4" :month="rawSelectedMonth" :deviceId="deviceId"
                     :currency="currency" />
             </div>
+            <hr>
+            <finance-dashboard-savings-history-panel :deviceId="deviceId" :currency="currency" />
         </template>
     </div>
 </template>
@@ -26,10 +28,11 @@ import moment from "moment";
 import FinanceDashboardSavingsPanel from "@/components/finance/FinanceDashboardSavingsPanel.vue";
 import FinanceDashboardIncomePanel from "@/components/finance/FinanceDashboardIncomePanel.vue";
 import FinanceDashboardExpensePanel from "@/components/finance/FinanceDashboardExpensePanel.vue";
+import FinanceDashboardSavingsHistoryPanel from "@/components/finance/FinanceDashboardSavingsHistoryPanel.vue";
 
 import Storage from "@/storage/Storage";
 
-@Component({ components: { FinanceDashboardSavingsPanel, FinanceDashboardIncomePanel, FinanceDashboardExpensePanel } })
+@Component({ components: { FinanceDashboardSavingsPanel, FinanceDashboardIncomePanel, FinanceDashboardExpensePanel, FinanceDashboardSavingsHistoryPanel } })
 export default class FinanceScreen extends Vue {
     @Inject()
     private storage!: Storage;
