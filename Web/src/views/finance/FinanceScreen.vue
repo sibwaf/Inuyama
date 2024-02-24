@@ -5,7 +5,20 @@
             <h1 class="title" v-else-if="currency == null">No currency selected</h1>
         </div>
         <template v-else>
-            <el-date-picker type="month" :clearable="false" v-model="rawSelectedMonth" />
+            <div class="field is-grouped">
+                <p class="control">
+                    <button class="button" @click="toPreviousMonth">Previous</button>
+                </p>
+                <p class="control">
+                    <el-date-picker type="month" :clearable="false" v-model="rawSelectedMonth" />
+                </p>
+                <p class="control">
+                    <button class="button" @click="toCurrentMonth" :disabled="!canSelectCurrentMonth">Today</button>
+                </p>
+                <p class="control">
+                    <button class="button" @click="toNextMonth" :disabled="!canSelectNextMonth">Next</button>
+                </p>
+            </div>
             <hr>
             <div class="columns">
                 <finance-dashboard-savings-panel class="column is-4" :month="rawSelectedMonth" :deviceId="deviceId"
@@ -37,7 +50,31 @@ export default class FinanceScreen extends Vue {
     @Inject()
     private storage!: Storage;
 
-    rawSelectedMonth = moment();
+    public rawSelectedMonth = moment();
+
+    public toPreviousMonth() {
+        this.rawSelectedMonth = moment(this.rawSelectedMonth).subtract(1, "month");
+    }
+
+    public toNextMonth() {
+        this.rawSelectedMonth = moment(this.rawSelectedMonth).add(1, "month");
+    }
+
+    public toCurrentMonth() {
+        this.rawSelectedMonth = moment();
+    }
+
+    public get canSelectCurrentMonth() {
+        const selectedMonth = moment(this.rawSelectedMonth).startOf("month");
+        const currentMonth = moment().startOf("month");
+        return !selectedMonth.isSame(currentMonth);
+    }
+
+    public get canSelectNextMonth() {
+        const selectedMonth = moment(this.rawSelectedMonth).startOf("month");
+        const currentMonth = moment().startOf("month");
+        return selectedMonth.isBefore(currentMonth);
+    }
 
     public get deviceId() {
         return this.storage.devices.selectedDevice;
