@@ -2,44 +2,46 @@
     <div class="app-container">
         <nav class="navbar is-fixed-top">
             <div class="container">
-                <div class="navbar-menu">
+                <div class="navbar-brand">
+                    <a role="button" class="navbar-burger" :class="{ 'is-active': menuExpanded }"
+                        @click="menuExpanded = !menuExpanded">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </a>
+                </div>
+                <div class="navbar-menu" :class="{ 'is-active': menuExpanded }">
                     <div class="navbar-start">
-                        <router-link to="/" class="navbar-item">
-                            Home
+                        <router-link to="/" class="navbar-item"
+                            :class="{ 'is-tab': !menuExpanded, 'is-active': selectedScreen == 'FinanceDashboard' }">
+                            Dashboard
+                        </router-link>
+                        <router-link to="/compare" class="navbar-item"
+                            :class="{ 'is-tab': !menuExpanded, 'is-active': selectedScreen == 'FinanceComparison' }">
+                            Compare
                         </router-link>
                     </div>
                     <div class="navbar-end">
                         <div class="navbar-item">
-                            <device-selector />
-                            <currency-selector v-if="showCurrencySelector" />
+                            <div class="field is-grouped">
+                                <p class="control">
+                                    <device-selector />
+                                </p>
+                                <p class="control">
+                                    <currency-selector />
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </nav>
-        <div class="columns">
-            <div class="column is-2 menu-wrapper">
-                <aside class="menu">
-                    <p class="menu-label">Menu</p>
-                    <ul class="menu-list">
-                        <li>
-                            <router-link to="/finance">Finance</router-link>
-                            <ul>
-                                <li><router-link to="/finance/compare">Compare</router-link></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </aside>
-            </div>
-            <div class="column is-10">
-                <router-view />
-            </div>
-        </div>
+        <router-view />
     </div>
 </template>
 
 <script lang="ts">
-import { Component, Provide, Vue } from "vue-property-decorator";
+import { Component, Provide, Vue, Watch } from "vue-property-decorator";
 
 import Storage from "@/storage/Storage";
 
@@ -52,6 +54,8 @@ import CurrencySelector from "@/components/CurrencySelector.vue";
 export default class App extends Vue {
     @Provide()
     private storage = Vue.observable(new Storage());
+
+    public menuExpanded = false;
 
     async created() {
         try {
@@ -70,9 +74,13 @@ export default class App extends Vue {
         }
     }
 
-    get showCurrencySelector() {
-        // todo: probably better to handle in router
-        return this.$route.path.startsWith("/finance");
+    public get selectedScreen() {
+        return this.$route.name;
+    }
+
+    @Watch("selectedScreen")
+    public onSelectedScreenChanged() {
+        this.menuExpanded = false;
     }
 }
 </script>

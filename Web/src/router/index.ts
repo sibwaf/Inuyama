@@ -1,25 +1,19 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 
-import Home from "@/views/Home.vue";
-import FinanceScreen from "@/views/finance/FinanceScreen.vue";
-import FinanceComparisonScreen from "@/views/finance/FinanceComparisonScreen.vue";
+import FinanceScreen from "@/views/FinanceScreen.vue";
+import FinanceComparisonScreen from "@/views/FinanceComparisonScreen.vue";
 
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
     {
         path: "/",
-        name: "Home",
-        component: Home
-    },
-    {
-        path: "/finance",
-        name: "Finance",
+        name: "FinanceDashboard",
         component: FinanceScreen
     },
     {
-        path: "/finance/compare",
+        path: "/compare",
         name: "FinanceComparison",
         component: FinanceComparisonScreen
     }
