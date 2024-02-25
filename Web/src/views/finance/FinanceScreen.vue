@@ -29,7 +29,10 @@
                     :currency="currency" />
             </div>
             <hr>
-            <finance-dashboard-savings-history-panel :deviceId="deviceId" :currency="currency" />
+            <div class="columns">
+                <finance-dashboard-savings-history-panel class="column is-6" :deviceId="deviceId" :currency="currency" />
+                <finance-dashboard-dynamics-history-panel class="column is-6" :deviceId="deviceId" :currency="currency" />
+            </div>
         </template>
     </div>
 </template>
@@ -42,10 +45,19 @@ import FinanceDashboardSavingsPanel from "@/components/finance/FinanceDashboardS
 import FinanceDashboardIncomePanel from "@/components/finance/FinanceDashboardIncomePanel.vue";
 import FinanceDashboardExpensePanel from "@/components/finance/FinanceDashboardExpensePanel.vue";
 import FinanceDashboardSavingsHistoryPanel from "@/components/finance/FinanceDashboardSavingsHistoryPanel.vue";
+import FinanceDashboardDynamicsHistoryPanel from "@/components/finance/FinanceDashboardDynamicsHistoryPanel.vue";
 
 import Storage from "@/storage/Storage";
 
-@Component({ components: { FinanceDashboardSavingsPanel, FinanceDashboardIncomePanel, FinanceDashboardExpensePanel, FinanceDashboardSavingsHistoryPanel } })
+@Component({
+    components: {
+        FinanceDashboardSavingsPanel,
+        FinanceDashboardIncomePanel,
+        FinanceDashboardExpensePanel,
+        FinanceDashboardSavingsHistoryPanel,
+        FinanceDashboardDynamicsHistoryPanel,
+    }
+})
 export default class FinanceScreen extends Vue {
     @Inject()
     private storage!: Storage;
