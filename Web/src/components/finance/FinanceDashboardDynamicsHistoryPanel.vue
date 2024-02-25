@@ -1,14 +1,15 @@
 <template>
     <div>
         <h2 class="title has-text-centered">Dynamics history</h2>
-        <div class="has-text-centered" v-if="state == STATE_LOADING">
-            Loading...
+        <div class="history-panel-content">
+            <div class="has-text-centered" v-if="state == STATE_LOADING">
+                Loading...
+            </div>
+            <div class="has-text-centered" v-else-if="state == STATE_ERROR">
+                Failed to load data
+            </div>
+            <line-chart v-else :data="chartData" :xFormatter="formatTimestamp" :valueFormatter="formatValue" />
         </div>
-        <div class="has-text-centered" v-else-if="state == STATE_ERROR">
-            Failed to load data
-        </div>
-        <line-chart v-else class="finance-dashboard-global-dynamics-chart" :data="chartData" :xFormatter="formatTimestamp"
-            :valueFormatter="formatValue" />
     </div>
 </template>
 
@@ -36,6 +37,8 @@ export default class FinanceDashboardDynamicsHistoryPanel extends Vue {
 
     @Prop() private readonly deviceId!: string;
     @Prop() private readonly currency!: string;
+    @Prop() private readonly periodStart!: Moment;
+    @Prop() private readonly periodEnd!: Moment;
 
     public readonly STATE_OK = "OK";
     public readonly STATE_LOADING = "LOADING";
@@ -44,9 +47,6 @@ export default class FinanceDashboardDynamicsHistoryPanel extends Vue {
     private readonly api = new FinanceApi();
 
     public state = this.STATE_LOADING;
-
-    private rawPeriodStart = moment().subtract(1, "years").add(1, "month");
-    private rawPeriodEnd = moment();
 
     private operationsByDirectionTimeline: FinanceAnalyticSeriesDto = {
         timeline: [],
@@ -114,8 +114,8 @@ export default class FinanceDashboardDynamicsHistoryPanel extends Vue {
         return {
             deviceId: this.deviceId,
             currency: this.currency,
-            periodStart: moment(this.rawPeriodStart).startOf("month"),
-            periodEnd: moment(this.rawPeriodEnd).endOf("month"),
+            periodStart: moment(this.periodStart).startOf("month"),
+            periodEnd: moment(this.periodEnd).endOf("month"),
         } as Parameters;
     }
 
@@ -143,9 +143,3 @@ export default class FinanceDashboardDynamicsHistoryPanel extends Vue {
     }
 }
 </script>
-
-<style lang="scss">
-.finance-dashboard-global-dynamics-chart {
-    height: 24em;
-}
-</style>
