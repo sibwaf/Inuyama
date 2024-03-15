@@ -151,7 +151,7 @@ export function derivative(nums: number[]): number[] {
 }
 
 export function median(nums: number[]): number | null {
-    const sorted = [...nums].sort();
+    const sorted = [...nums].sort((first, second) => first - second);
     if (nums.length % 2 == 1) {
         return sorted[Math.floor(nums.length / 2)];
     } else {
