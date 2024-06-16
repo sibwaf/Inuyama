@@ -204,7 +204,7 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
         }
     }
 
-    var hasTransactions by transactionOptionalWrapper::isEmpty
+    var hasNoTransactions by transactionOptionalWrapper::isEmpty
 
     var filter by Delegates.observable(DashboardOperationFilter(null, null)) { _, old, new ->
         if (old != new) {
@@ -318,7 +318,7 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
             transactionAdapter.add(transactions)
             transactionHistoryCursor = cursor
 
-            view.hasTransactions = transactionAdapter.adapterItemCount == 0
+            view.hasNoTransactions = transactionAdapter.adapterItemCount == 0
         }
     }
 

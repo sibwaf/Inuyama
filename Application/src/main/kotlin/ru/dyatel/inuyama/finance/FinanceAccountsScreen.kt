@@ -1,18 +1,18 @@
 package ru.dyatel.inuyama.finance
 
 import android.content.Context
-import android.widget.Button
+import android.view.Gravity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
-import org.jetbrains.anko.appcompat.v7.tintedButton
+import org.jetbrains.anko.design.coordinatorLayout
+import org.jetbrains.anko.design.floatingActionButton
 import org.jetbrains.anko.horizontalMargin
+import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.recyclerview.v7.recyclerView
-import org.jetbrains.anko.support.v4.nestedScrollView
-import org.jetbrains.anko.textResource
-import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.verticalMargin
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.generic.instance
@@ -21,36 +21,48 @@ import ru.dyatel.inuyama.layout.FinanceAccountItem
 import ru.dyatel.inuyama.model.FinanceAccount
 import ru.dyatel.inuyama.screens.InuScreen
 import ru.dyatel.inuyama.utilities.buildFastAdapter
+import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
 import sibwaf.inuyama.app.common.DIM_LARGE
 import sibwaf.inuyama.app.common.DIM_MEDIUM
+import sibwaf.inuyama.app.common.components.OptionalView
+import sibwaf.inuyama.app.common.components.createOptionalView
+import sibwaf.inuyama.app.common.components.withIcon
 
 class FinanceAccountsView(context: Context) : BaseScreenView<FinanceAccountsScreen>(context) {
 
     lateinit var accountRecyclerView: RecyclerView
         private set
-    lateinit var createAccountButton: Button
-        private set
+
+    private lateinit var accountOptionalWrapper: OptionalView
 
     init {
-        nestedScrollView {
-            verticalLayout {
+        coordinatorLayout {
+            lparams(width = matchParent, height = matchParent)
+
+            accountRecyclerView = context.recyclerView {
+                lparams(width = matchParent, height = wrapContent) {
+                    verticalMargin = DIM_MEDIUM
+                    horizontalMargin = DIM_LARGE
+                }
+
+                layoutManager = LinearLayoutManager(context)
+            }
+
+            accountOptionalWrapper = createOptionalView(accountRecyclerView) {
                 lparams(width = matchParent, height = wrapContent)
+            }
 
-                accountRecyclerView = recyclerView {
-                    lparams(width = matchParent, height = wrapContent) {
-                        verticalMargin = DIM_MEDIUM
-                        horizontalMargin = DIM_LARGE
-                    }
-
-                    layoutManager = LinearLayoutManager(context)
-                }
-
-                createAccountButton = tintedButton {
-                    textResource = R.string.finance_button_add_account
-                }
+            floatingActionButton {
+                withIcon(CommunityMaterial.Icon2.cmd_plus)
+                setOnClickListener { screen.createAccount() }
+            }.lparams(width = wrapContent, height = wrapContent) {
+                margin = DIM_EXTRA_LARGE
+                gravity = Gravity.BOTTOM or Gravity.END
             }
         }
     }
+
+    var hasNoAccounts by accountOptionalWrapper::isEmpty
 }
 
 class FinanceAccountsScreen : InuScreen<FinanceAccountsView>() {
@@ -70,10 +82,6 @@ class FinanceAccountsScreen : InuScreen<FinanceAccountsView>() {
                     true
                 }
             }
-
-            createAccountButton.setOnClickListener {
-                navigator.goTo(FinanceAccountScreen(FinanceAccount()))
-            }
         }
     }
 
@@ -82,5 +90,10 @@ class FinanceAccountsScreen : InuScreen<FinanceAccountsView>() {
 
         val accounts = accountManager.getActiveAccounts() + accountManager.getDisabledAccounts()
         accountAdapter.set(accounts.map { FinanceAccountItem(operationManager, it) })
+        view.hasNoAccounts = accounts.isEmpty()
+    }
+
+    fun createAccount() {
+        navigator.goTo(FinanceAccountScreen(FinanceAccount()))
     }
 }
