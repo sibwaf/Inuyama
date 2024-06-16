@@ -31,6 +31,7 @@ import org.jetbrains.anko.rightPadding
 import org.jetbrains.anko.textResource
 import org.jetbrains.anko.textView
 import org.jetbrains.anko.verticalLayout
+import org.jetbrains.anko.verticalPadding
 import org.jetbrains.anko.wrapContent
 import ru.dyatel.inuyama.R
 import ru.sibwaf.inuyama.common.utilities.KAOMOJI
@@ -215,11 +216,12 @@ inline fun Context.showConfirmationDialog(title: String, message: String, action
 
 fun Context.uniformEmptyView(content: String = KAOMOJI.random()): View {
     return frameLayout {
-        lparams { gravity = Gravity.CENTER }
+        verticalPadding = DIM_EXTRA_LARGE
 
         textView {
             textSize = SP_EXTRA_LARGE
             text = content
+            gravity = Gravity.CENTER
         }
     }
 }
