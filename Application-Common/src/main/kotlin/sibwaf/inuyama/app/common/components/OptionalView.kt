@@ -1,6 +1,5 @@
 package sibwaf.inuyama.app.common.components
 
-import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import org.jetbrains.anko.frameLayout
@@ -10,13 +9,11 @@ interface OptionalView {
 }
 
 private class OptionalViewImpl(
-    context: Context,
     private val container: ViewGroup,
     private val regularView: View,
+    private val emptyView: View,
     isEmpty: Boolean
 ) : OptionalView {
-
-    private val emptyView: View by lazy { context.uniformEmptyView() }
 
     override var isEmpty: Boolean = false
         set(value) {
@@ -38,6 +35,11 @@ private class OptionalViewImpl(
     }
 }
 
-fun ViewGroup.createOptionalView(view: View, isEmpty: Boolean, init: View.() -> Unit = {}): OptionalView {
-    return OptionalViewImpl(context, frameLayout(init), view, isEmpty)
+fun ViewGroup.createOptionalView(
+    regularView: View,
+    emptyView: View = context.uniformEmptyView(),
+    isEmpty: Boolean = true,
+    init: View.() -> Unit = {}
+): OptionalView {
+    return OptionalViewImpl(frameLayout(init), regularView, emptyView, isEmpty)
 }

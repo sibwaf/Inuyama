@@ -165,7 +165,7 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                 }
                 addOnScrollListener(transactionEndlessScrollListener)
             }
-            transactionOptionalWrapper = createOptionalView(transactionRecyclerView, isEmpty = false) {
+            transactionOptionalWrapper = createOptionalView(transactionRecyclerView) {
                 lparams(width = matchParent, height = wrapContent) {
                     behavior = AppBarLayout.ScrollingViewBehavior()
                 }

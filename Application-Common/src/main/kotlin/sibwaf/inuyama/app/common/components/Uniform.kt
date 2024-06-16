@@ -213,13 +213,13 @@ inline fun Context.showConfirmationDialog(title: String, message: String, action
         .show()
 }
 
-fun Context.uniformEmptyView(): View {
+fun Context.uniformEmptyView(content: String = KAOMOJI.random()): View {
     return frameLayout {
         lparams { gravity = Gravity.CENTER }
 
         textView {
             textSize = SP_EXTRA_LARGE
-            text = KAOMOJI.random()
+            text = content
         }
     }
 }

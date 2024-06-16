@@ -1,15 +1,19 @@
 package ru.dyatel.inuyama.pairing
 
 import android.content.Context
+import android.graphics.Color
+import android.text.InputType
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
+import android.view.inputmethod.EditorInfo
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.AppBarLayout
 import com.google.gson.Gson
+import com.mikepenz.community_material_typeface_library.CommunityMaterial
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.wealthfront.magellan.BaseScreenView
 import kotlinx.coroutines.Dispatchers
@@ -17,14 +21,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import okhttp3.Request
-import org.jetbrains.anko.appcompat.v7.tintedButton
+import org.jetbrains.anko.backgroundColor
+import org.jetbrains.anko.cardview.v7.themedCardView
+import org.jetbrains.anko.design.appBarLayout
+import org.jetbrains.anko.design.coordinatorLayout
+import org.jetbrains.anko.design.floatingActionButton
 import org.jetbrains.anko.hintResource
 import org.jetbrains.anko.margin
 import org.jetbrains.anko.matchParent
-import org.jetbrains.anko.padding
 import org.jetbrains.anko.recyclerview.v7.recyclerView
-import org.jetbrains.anko.support.v4.nestedScrollView
-import org.jetbrains.anko.textResource
 import org.jetbrains.anko.verticalLayout
 import org.jetbrains.anko.wrapContent
 import org.kodein.di.generic.instance
@@ -39,13 +44,18 @@ import ru.sibwaf.inuyama.common.utilities.await
 import ru.sibwaf.inuyama.common.utilities.gson.fromJson
 import ru.sibwaf.inuyama.common.utilities.humanReadable
 import ru.sibwaf.inuyama.common.utilities.successOrThrow
+import sibwaf.inuyama.app.common.DIM_EXTRA_LARGE
 import sibwaf.inuyama.app.common.DIM_LARGE
 import sibwaf.inuyama.app.common.NetworkManager
+import sibwaf.inuyama.app.common.components.OptionalView
 import sibwaf.inuyama.app.common.components.UniformIntegerInput
 import sibwaf.inuyama.app.common.components.UniformTextInput
+import sibwaf.inuyama.app.common.components.createOptionalView
+import sibwaf.inuyama.app.common.components.uniformEmptyView
 import sibwaf.inuyama.app.common.components.uniformIntegerInput
 import sibwaf.inuyama.app.common.components.uniformTextInput
-import sibwaf.inuyama.app.common.components.uniformTextView
+import sibwaf.inuyama.app.common.components.withIcon
+import sibwaf.inuyama.app.common.utilities.setContentPadding
 import java.net.URL
 import java.security.PublicKey
 import java.util.Date
@@ -53,67 +63,107 @@ import java.util.concurrent.ConcurrentHashMap
 
 class PairingView(context: Context) : BaseScreenView<PairingScreen>(context) {
 
-    lateinit var unbindButton: Button
-        private set
-
-    lateinit var untrustedNetworkView: View
-        private set
-
-    lateinit var mainContentContainer: ViewGroup
-        private set
-
     lateinit var pairedServerAddressView: UniformTextInput
         private set
     lateinit var discoveryPortView: UniformIntegerInput
         private set
 
-    lateinit var recyclerView: RecyclerView
+    lateinit var discoveredServersRecyclerView: RecyclerView
         private set
 
+    private lateinit var unpairButton: View
+
+    private lateinit var discoveredServersUntrustedNetworkWrapper: OptionalView
+
     init {
-        nestedScrollView {
+        coordinatorLayout {
             lparams(width = matchParent, height = matchParent)
 
-            verticalLayout {
-                lparams(width = matchParent, height = wrapContent) {
-                    padding = DIM_LARGE
-                }
+            appBarLayout {
+                lparams(width = matchParent, height = wrapContent)
 
-                unbindButton = tintedButton(R.string.action_unbind)
+                backgroundColor = Color.TRANSPARENT
+                outlineProvider = null
 
-                untrustedNetworkView = uniformTextView {
-                    textResource = R.string.label_current_network_untrusted
-                    isVisible = false
-                }.lparams {
-                    margin = DIM_LARGE
-                    gravity = Gravity.CENTER
-                }
-
-                mainContentContainer = verticalLayout {
-                    lparams(width = matchParent, height = wrapContent)
-
-                    pairedServerAddressView = uniformTextInput {
-                        hintResource = R.string.label_pairing_paired_server_address
-                    }.lparams(width = matchParent, height = wrapContent) {
+                themedCardView {
+                    lparams(width = matchParent, height = wrapContent) {
                         margin = DIM_LARGE
                     }
 
-                    discoveryPortView = uniformIntegerInput {
-                        hintResource = R.string.label_pairing_discovery_port
-                    }.lparams(width = matchParent, height = wrapContent) {
-                        margin = DIM_LARGE
-                    }
+                    setCardBackgroundColor(context.getColor(R.color.color_primary))
+                    setContentPadding(DIM_LARGE)
 
-                    recyclerView = recyclerView {
+                    verticalLayout {
                         lparams(width = matchParent, height = wrapContent)
-                        layoutManager = LinearLayoutManager(context)
-                        itemAnimator = null
+
+                        pairedServerAddressView = uniformTextInput {
+                            hintResource = R.string.label_pairing_paired_server_address
+
+                            imeOptions = imeOptions or EditorInfo.IME_ACTION_DONE
+                            inputType = InputType.TYPE_TEXT_VARIATION_URI
+
+                            setOnEditorActionListener { _, actionId, _ ->
+                                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                                    pairedServerAddressView.clearFocus()
+                                }
+                                false
+                            }
+                        }.apply {
+                            defaultHintTextColor = context.getColorStateList(com.mikepenz.materialize.R.color.md_dark_primary_text)
+                        }.lparams(width = matchParent, height = wrapContent) {
+                            margin = DIM_LARGE
+                        }
+
+                        discoveryPortView = uniformIntegerInput {
+                            hintResource = R.string.label_pairing_discovery_port
+
+                            imeOptions = imeOptions or EditorInfo.IME_ACTION_DONE
+
+                            setOnEditorActionListener { _, actionId, _ ->
+                                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                                    discoveryPortView.clearFocus()
+                                }
+                                false
+                            }
+
+                            doAfterTextChanged {
+                                screen?.updateDiscoveryPort(discoveryPortView.value)
+                            }
+                        }.apply {
+                            defaultHintTextColor = context.getColorStateList(com.mikepenz.materialize.R.color.md_dark_primary_text)
+                        }.lparams(width = matchParent, height = wrapContent) {
+                            margin = DIM_LARGE
+                        }
                     }
                 }
+            }
+
+            discoveredServersRecyclerView = context.recyclerView {
+                lparams(width = matchParent, height = wrapContent)
+                layoutManager = LinearLayoutManager(context)
+                itemAnimator = null
+            }
+            discoveredServersUntrustedNetworkWrapper = createOptionalView(
+                regularView = discoveredServersRecyclerView,
+                emptyView = context.uniformEmptyView(context.getString(R.string.label_current_network_untrusted))
+            ) {
+                lparams(width = matchParent, height = wrapContent) {
+                    behavior = AppBarLayout.ScrollingViewBehavior()
+                }
+            }
+
+            unpairButton = floatingActionButton {
+                withIcon(CommunityMaterial.Icon2.cmd_lan_disconnect)
+                setOnClickListener { screen.unpair() }
+            }.lparams(width = wrapContent, height = wrapContent) {
+                margin = DIM_EXTRA_LARGE
+                gravity = Gravity.BOTTOM or Gravity.END
             }
         }
     }
 
+    var isNetworkUntrusted by discoveredServersUntrustedNetworkWrapper::isEmpty
+    var isPaired by unpairButton::isVisible
 }
 
 class PairingScreen : InuScreen<PairingView>() {
@@ -143,36 +193,14 @@ class PairingScreen : InuScreen<PairingView>() {
 
     init {
         serverFastAdapter.withOnClickListener { _, _, item, _ ->
-            navigator.goTo(PairingServerScreen(item.server))
+            pair(item.server)
             return@withOnClickListener true
         }
     }
 
     override fun createView(context: Context): PairingView {
         return PairingView(context).apply {
-            fun syncPairingStatus() {
-                unbindButton.isVisible = pairingManager.isPaired
-
-                val fixedServerAddress = preferenceHelper.pairedServer?.address
-                pairedServerAddressView.text = if (fixedServerAddress != null) {
-                    "${fixedServerAddress.host}:${fixedServerAddress.port}"
-                } else {
-                    ""
-                }
-
-                refreshServerList()
-            }
-
-            unbindButton.setOnClickListener {
-                pairingManager.unbind()
-                syncPairingStatus()
-            }
-
-            discoveryPortView.value = preferenceHelper.discoveryPort
-
-            recyclerView.adapter = serverFastAdapter
-
-            syncPairingStatus()
+            discoveredServersRecyclerView.adapter = serverFastAdapter
         }
     }
 
@@ -186,13 +214,13 @@ class PairingScreen : InuScreen<PairingView>() {
         launchJob(Dispatchers.Default) {
             while (isActive) {
                 val networkTrusted = networkManager.isNetworkTrusted
-                if (networkTrusted) {
-                    discoveryService.sendDiscoverRequest()
-                }
 
                 withContext(Dispatchers.Main) {
-                    view.mainContentContainer.isVisible = networkTrusted
-                    view.untrustedNetworkView.isVisible = !networkTrusted
+                    view.isNetworkUntrusted = !networkTrusted
+                }
+
+                if (networkTrusted) {
+                    discoveryService.sendDiscoverRequest()
                 }
 
                 delay(DISCOVERY_PING_DELAY)
@@ -230,6 +258,38 @@ class PairingScreen : InuScreen<PairingView>() {
                 delay(REFRESH_DELAY)
             }
         }
+
+        syncView()
+    }
+
+    fun updateDiscoveryPort(port: Int) {
+        preferenceHelper.discoveryPort = port
+    }
+
+    fun pair(server: PairedServer) {
+        pairingManager.bind(server)
+        syncView()
+    }
+
+    fun unpair() {
+        pairingManager.unbind()
+        syncView()
+    }
+
+    private fun syncView() {
+        view.isNetworkUntrusted = !networkManager.isNetworkTrusted
+        view.isPaired = pairingManager.isPaired
+
+        val fixedServerAddress = preferenceHelper.pairedServer?.address
+        view.pairedServerAddressView.text = if (fixedServerAddress != null) {
+            "${fixedServerAddress.host}:${fixedServerAddress.port}"
+        } else {
+            ""
+        }
+
+        view.discoveryPortView.value = preferenceHelper.discoveryPort
+
+        refreshServerList()
     }
 
     private fun normalizeAddress(address: String): String? {
