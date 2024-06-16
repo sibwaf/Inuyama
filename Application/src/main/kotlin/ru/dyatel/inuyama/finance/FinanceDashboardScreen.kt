@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.view.Gravity
 import android.view.Menu
+import android.view.View
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -80,6 +81,8 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
     lateinit var categoryFilterSelector: FinanceCategorySelector
         private set
 
+    lateinit var accountQuickAccessContainer: View
+        private set
     lateinit var accountRecyclerView: RecyclerView
         private set
 
@@ -100,7 +103,7 @@ class FinanceDashboardView(context: Context) : BaseScreenView<FinanceDashboardSc
                 backgroundColor = Color.TRANSPARENT
                 outlineProvider = null
 
-                themedCardView {
+                accountQuickAccessContainer = themedCardView {
                     lparams(width = matchParent, height = wrapContent) {
                         margin = DIM_LARGE
                     }
@@ -283,7 +286,7 @@ class FinanceDashboardScreen : InuScreen<FinanceDashboardView>(), KodeinAware {
         view.accountFilterSelector.bindItemsWithDefault(accounts, R.string.const_finance_account_filter_none)
 
         val quickAccessAccounts = accounts.filter { it.quickAccess }
-        view.accountRecyclerView.isVisible = quickAccessAccounts.isNotEmpty()
+        view.accountQuickAccessContainer.isVisible = quickAccessAccounts.isNotEmpty()
         accountAdapter.set(quickAccessAccounts.map { FinanceAccountItem(operationManager, it) })
 
         view.createOperationButton.isVisible = accounts.isNotEmpty()
