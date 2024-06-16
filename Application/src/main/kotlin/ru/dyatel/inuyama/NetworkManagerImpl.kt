@@ -52,11 +52,7 @@ class NetworkManagerImpl(
                 .singleOrNull()
         }
 
-    override val isNetworkTrusted: Boolean
-        get() {
-            val current = currentWifiConnection ?: return false
-            return networkBox.findByBssid(current.bssid)?.trusted == true
-        }
+    override val isNetworkTrusted = true
 
     override fun refreshNetworkList() {
         val current = currentWifiConnection

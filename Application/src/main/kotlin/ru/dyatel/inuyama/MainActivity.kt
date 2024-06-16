@@ -41,9 +41,7 @@ import ru.dyatel.inuyama.backup.BackupService
 import ru.dyatel.inuyama.finance.FinanceDashboardScreen
 import ru.dyatel.inuyama.finance.FinanceStatisticsScreen
 import ru.dyatel.inuyama.pairing.PairingScreen
-import ru.dyatel.inuyama.screens.NetworkScreen
 import ru.dyatel.inuyama.utilities.debugOnly
-import ru.dyatel.inuyama.utilities.grantPermissions
 import sibwaf.inuyama.app.common.components.showConfirmationDialog
 import java.util.concurrent.atomic.AtomicLong
 
@@ -115,11 +113,6 @@ class MainActivity : SingleActivity(), KodeinAware {
 //        val biometric = BiometricManager.from(this)
     }
 
-    override fun onResume() {
-        super.onResume()
-        grantPermissions(Manifest.permission.ACCESS_COARSE_LOCATION)
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(drawer.saveInstanceState(outState))
     }
@@ -172,7 +165,6 @@ class MainActivity : SingleActivity(), KodeinAware {
 
         addDrawerItems(DividerDrawerItem())
 
-        createMenuItem<NetworkScreen>(CommunityMaterial.Icon2.cmd_wifi, getString(R.string.screen_networks))
         createMenuItem<PairingScreen>(CommunityMaterial.Icon2.cmd_monitor_cellphone, getString(R.string.module_pairing))
 
         addDrawerItems(DividerDrawerItem())
